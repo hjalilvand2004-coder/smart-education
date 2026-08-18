@@ -1,0 +1,271 @@
+/* استایل‌های سفارشی برای ReactQuill */
+.custom-quill-editor .ql-toolbar.ql-snow {
+  background: rgba(25, 30, 50, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px 12px 0 0;
+}
+
+.custom-quill-editor .ql-container.ql-snow {
+  background: rgba(15, 17, 26, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-top: none !important;
+  border-radius: 0 0 12px 12px;
+  min-height: 250px;
+  color: #f8fafc !important;
+  font-family: "Vazirmatn", sans-serif !important;
+}
+
+.custom-quill-editor .ql-editor {
+  color: #f8fafc !important;
+  font-size: 1.1rem;
+  line-height: 2.2;
+}
+
+.custom-quill-editor .ql-editor strong {
+  color: var(--neon-cyan) !important;
+}
+
+.custom-quill-editor .ql-editor a {
+  color: var(--neon-pink) !important;
+}
+
+.custom-quill-editor .ql-editor img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 10px 0;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+.quill-wrapper {
+  margin: 15px 0 20px;
+}
+
+.upload-status {
+  margin-top: 10px;
+  color: var(--neon-yellow);
+  font-weight: bold;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+/* =========================================================
+   استایل‌های روشن برای ویرایشگر Quill
+   ========================================================= */
+
+.custom-quill-editor .ql-toolbar.ql-snow {
+  background: #f8fafc !important; /* پس‌زمینه روشن تولبار */
+  border: 1px solid #d1d5db !important;
+  border-radius: 12px 12px 0 0;
+  color: #1e293b !important;
+}
+
+.custom-quill-editor .ql-toolbar.ql-snow .ql-picker-label {
+  color: #1e293b !important;
+}
+
+.custom-quill-editor .ql-toolbar.ql-snow .ql-stroke {
+  stroke: #1e293b !important;
+}
+
+.custom-quill-editor .ql-toolbar.ql-snow .ql-fill {
+  fill: #1e293b !important;
+}
+
+.custom-quill-editor .ql-container.ql-snow {
+  background: #ffffff !important; /* پس‌زمینه سفید برای محتوای ویرایشگر */
+  border: 1px solid #d1d5db !important;
+  border-top: none !important;
+  border-radius: 0 0 12px 12px;
+  min-height: 250px;
+  color: #1e293b !important;
+  font-family: "Vazirmatn", sans-serif !important;
+}
+
+.custom-quill-editor .ql-editor {
+  color: #1e293b !important; /* رنگ متن تیره برای خوانایی */
+  font-size: 1.1rem;
+  line-height: 2.2;
+}
+
+.custom-quill-editor .ql-editor strong {
+  color: #0f172a !important; /* رنگ پررنگ برای بولد */
+}
+
+.custom-quill-editor .ql-editor a {
+  color: #2563eb !important; /* رنگ لینک آبی */
+}
+
+.custom-quill-editor .ql-editor img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 10px 0;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* تنظیمات placeholder */
+.custom-quill-editor .ql-editor.ql-blank::before {
+  color: #94a3b8 !important;
+  font-style: italic;
+}
+
+/* استایل اسکرولبار درون ویرایشگر */
+.custom-quill-editor .ql-editor::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-quill-editor .ql-editor::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+.custom-quill-editor .ql-editor::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+.custom-quill-editor .ql-editor::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+/* =========================================================
+   استایل‌های نمایش محتوای HTML (از ویرایشگر)
+   ========================================================= */
+.html-content-body {
+  font-family: "Vazirmatn", sans-serif;
+  line-height: 2.2;
+  color: #1e293b;
+  padding: 10px 0;
+}
+
+.html-content-body h1,
+.html-content-body h2,
+.html-content-body h3,
+.html-content-body h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.html-content-body h1 {
+  font-size: 2rem;
+  color: #0f172a;
+}
+.html-content-body h2 {
+  font-size: 1.75rem;
+  color: #1e293b;
+  border-right: 4px solid #2563eb;
+  padding-right: 0.75rem;
+}
+.html-content-body h3 {
+  font-size: 1.5rem;
+  color: #334155;
+}
+.html-content-body h4 {
+  font-size: 1.25rem;
+  color: #475569;
+}
+
+.html-content-body p {
+  margin-bottom: 1rem;
+  text-align: justify;
+  color: #334155;
+}
+
+.html-content-body ul,
+.html-content-body ol {
+  padding-right: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.html-content-body li {
+  margin-bottom: 0.5rem;
+}
+
+.html-content-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.html-content-body strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.html-content-body a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.html-content-body blockquote {
+  border-right: 4px solid #2563eb;
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  background: #f8fafc;
+  border-radius: 0 8px 8px 0;
+  color: #475569;
+}
+
+.html-content-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.html-content-body table th,
+.html-content-body table td {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem;
+  text-align: right;
+}
+
+.html-content-body table th {
+  background: #f1f5f9;
+  font-weight: 700;
+}
+
+/* استایل‌های موجود برای نمایش متن ساده (هوش مصنوعی) */
+.generated-heading {
+  font-size: 1.5rem;
+  color: #0f172a;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.heading-mark {
+  display: inline-block;
+  width: 4px;
+  height: 24px;
+  background: #2563eb;
+  border-radius: 4px;
+}
+
+.generated-paragraph {
+  color: #334155;
+  margin-bottom: 1rem;
+  text-align: justify;
+  line-height: 2;
+}
+
+.generated-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.list-marker {
+  color: #2563eb;
+  font-weight: bold;
+  min-width: 20px;
+  text-align: center;
+}
+
+.generated-list-item.numbered .list-marker {
+  color: #7c3aed;
+}

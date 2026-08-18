@@ -1,0 +1,466 @@
+/* =========================================================
+   استایل‌های روشن برای ویرایشگر Quill
+   ========================================================= */
+.custom-quill-editor .ql-toolbar.ql-snow {
+  background: #f8fafc !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 12px 12px 0 0;
+  color: #1e293b !important;
+}
+
+.custom-quill-editor .ql-toolbar.ql-snow .ql-picker-label {
+  color: #1e293b !important;
+}
+
+.custom-quill-editor .ql-toolbar.ql-snow .ql-stroke {
+  stroke: #1e293b !important;
+}
+
+.custom-quill-editor .ql-toolbar.ql-snow .ql-fill {
+  fill: #1e293b !important;
+}
+
+.custom-quill-editor .ql-container.ql-snow {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-top: none !important;
+  border-radius: 0 0 12px 12px;
+  min-height: 250px;
+  color: #1e293b !important;
+  font-family: "Vazirmatn", sans-serif !important;
+}
+
+.custom-quill-editor .ql-editor {
+  color: #1e293b !important;
+  font-size: 1.1rem;
+  line-height: 2.2;
+  min-height: 200px;
+}
+
+.custom-quill-editor .ql-editor strong {
+  color: #0f172a !important;
+}
+
+.custom-quill-editor .ql-editor a {
+  color: #2563eb !important;
+}
+
+.custom-quill-editor .ql-editor img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 10px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: block;
+}
+
+/* Placeholder */
+.custom-quill-editor .ql-editor.ql-blank::before {
+  color: #94a3b8 !important;
+  font-style: italic;
+}
+
+/* اسکرولبار */
+.custom-quill-editor .ql-editor::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-quill-editor .ql-editor::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+.custom-quill-editor .ql-editor::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+.custom-quill-editor .ql-editor::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.upload-status {
+  margin-top: 10px;
+  color: #2563eb;
+  font-weight: bold;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+/* =========================================================
+   استایل‌های انتخاب رنگ
+   ========================================================= */
+.ql-color .ql-picker-options,
+.ql-background .ql-picker-options {
+  padding: 5px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+  width: 180px !important;
+  background: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.ql-color .ql-picker-options .ql-picker-item,
+.ql-background .ql-picker-options .ql-picker-item {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 4px !important;
+  border: 2px solid #e2e8f0 !important;
+  padding: 0 !important;
+  margin: 2px !important;
+  transition: all 0.2s ease !important;
+}
+
+.ql-color .ql-picker-options .ql-picker-item:hover,
+.ql-background .ql-picker-options .ql-picker-item:hover {
+  transform: scale(1.15) !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.3) !important;
+}
+
+.ql-color .ql-picker-options .ql-picker-item.ql-active,
+.ql-background .ql-picker-options .ql-picker-item.ql-active {
+  border-color: #1e293b !important;
+  box-shadow: 0 0 0 2px #1e293b !important;
+}
+
+/* =========================================================
+   استایل‌های تغییر اندازه تصویر (در صورت نصب ماژول)
+   ========================================================= */
+.ql-editor .ql-image-resize {
+  border: 2px dashed #2563eb !important;
+  position: relative !important;
+}
+
+.ql-editor .ql-image-resize .ql-image-resize-handle {
+  background: #2563eb !important;
+  border-radius: 50% !important;
+  width: 10px !important;
+  height: 10px !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+
+.ql-editor .ql-image-resize .ql-image-resize-handle:hover {
+  transform: scale(1.2) !important;
+}
+/* =========================================================
+   اصلاح ترتیب نمایش dropdownهای رنگ
+   ========================================================= */
+
+/* اطمینان از اینکه dropdownهای رنگ بالاتر از سایر عناصر نمایش داده شوند */
+.ql-color .ql-picker-options,
+.ql-background .ql-picker-options {
+  z-index: 10000 !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: auto !important;
+  right: 0 !important;
+  margin-top: 4px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 6px !important;
+  min-width: 180px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+}
+
+/* اطمینان از اینکه dropdown رنگ فونت بالاتر از پس‌زمینه قرار گیرد */
+.ql-color .ql-picker-options {
+  z-index: 10001 !important; /* بالاتر از پس‌زمینه */
+}
+
+.ql-background .ql-picker-options {
+  z-index: 10000 !important;
+}
+
+/* استایل آیتم‌های رنگ */
+.ql-color .ql-picker-options .ql-picker-item,
+.ql-background .ql-picker-options .ql-picker-item {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 6px !important;
+  border: 2px solid #e2e8f0 !important;
+  padding: 0 !important;
+  margin: 2px !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+}
+
+.ql-color .ql-picker-options .ql-picker-item:hover,
+.ql-background .ql-picker-options .ql-picker-item:hover {
+  transform: scale(1.15) !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.3) !important;
+}
+
+.ql-color .ql-picker-options .ql-picker-item.ql-active,
+.ql-background .ql-picker-options .ql-picker-item.ql-active {
+  border-color: #1e293b !important;
+  box-shadow: 0 0 0 2px #1e293b !important;
+}
+
+/* =========================================================
+   استایل‌های تغییر اندازه تصویر
+   ========================================================= */
+.ql-editor .ql-image-resize {
+  border: 2px dashed #2563eb !important;
+  position: relative !important;
+}
+
+.ql-editor .ql-image-resize .ql-image-resize-handle {
+  background: #2563eb !important;
+  border-radius: 50% !important;
+  width: 10px !important;
+  height: 10px !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.ql-editor .ql-image-resize .ql-image-resize-handle:hover {
+  transform: scale(1.2) !important;
+}
+
+/* استایل تصاویر در ویرایشگر */
+.ql-editor img {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 8px !important;
+  margin: 8px 0 !important;
+}
+/* =========================================================
+   رفع کامل مشکل کادرهای انتخاب رنگ
+   ========================================================= */
+
+/* بازنشانی استایل‌های پیش‌فرض Quill */
+.ql-snow .ql-picker.ql-color,
+.ql-snow .ql-picker.ql-background {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+.ql-snow .ql-picker.ql-color .ql-picker-label,
+.ql-snow .ql-picker.ql-background .ql-picker-label {
+  border: 1px solid #d1d5db !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  background: #f8fafc !important;
+  min-width: 28px !important;
+  height: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.ql-snow .ql-picker.ql-color .ql-picker-label:hover,
+.ql-snow .ql-picker.ql-background .ql-picker-label:hover {
+  background: #f1f5f9 !important;
+}
+
+.ql-snow .ql-picker.ql-color .ql-picker-options,
+.ql-snow .ql-picker.ql-background .ql-picker-options {
+  display: none !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  margin-top: 4px !important;
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 8px !important;
+  z-index: 99999 !important;
+  min-width: 180px !important;
+  max-width: 200px !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+}
+
+.ql-snow .ql-picker.ql-color.ql-expanded .ql-picker-options,
+.ql-snow .ql-picker.ql-background.ql-expanded .ql-picker-options {
+  display: flex !important;
+}
+
+.ql-snow .ql-picker.ql-color .ql-picker-options .ql-picker-item,
+.ql-snow .ql-picker.ql-background .ql-picker-options .ql-picker-item {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 6px !important;
+  border: 2px solid #e2e8f0 !important;
+  padding: 0 !important;
+  margin: 2px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+}
+
+.ql-snow .ql-picker.ql-color .ql-picker-options .ql-picker-item:hover,
+.ql-snow .ql-picker.ql-background .ql-picker-options .ql-picker-item:hover {
+  transform: scale(1.15) !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.3) !important;
+}
+
+/* استایل آیکون رنگ درون دکمه */
+.ql-snow .ql-picker.ql-color .ql-picker-label .ql-color-label,
+.ql-snow .ql-picker.ql-background .ql-picker-label .ql-color-label {
+  display: block !important;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 4px !important;
+  border: 1px solid #d1d5db !important;
+}
+
+/* =========================================================
+   استایل‌های تصاویر (برای تغییر سایز با کلیک)
+   ========================================================= */
+.ql-editor img {
+  max-width: 100% !important;
+  height: auto !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border-radius: 8px !important;
+}
+
+.ql-editor img:hover {
+  box-shadow: 0 0 0 2px #2563eb, 0 0 15px rgba(37, 99, 235, 0.2) !important;
+}
+
+/* پیام راهنما */
+.editor-hint {
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+/* =========================================================
+   رفع کامل مشکل کادرهای انتخاب رنگ - نسخه نهایی
+   ========================================================= */
+
+/* بازنشانی کامل رفتار پیش‌فرض Quill برای رنگ‌ها */
+.ql-snow .ql-picker.ql-color,
+.ql-snow .ql-picker.ql-background {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.ql-snow .ql-picker.ql-color .ql-picker-label,
+.ql-snow .ql-picker.ql-background .ql-picker-label {
+  border: 1px solid #d1d5db !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  background: #f8fafc !important;
+  min-width: 28px !important;
+  height: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.ql-snow .ql-picker.ql-color .ql-picker-label:hover,
+.ql-snow .ql-picker.ql-background .ql-picker-label:hover {
+  background: #f1f5f9 !important;
+}
+
+.ql-snow .ql-picker.ql-color .ql-picker-options,
+.ql-snow .ql-picker.ql-background .ql-picker-options {
+  display: none !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  margin-top: 4px !important;
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 8px !important;
+  z-index: 99999 !important;
+  min-width: 180px !important;
+  max-width: 200px !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+}
+
+/* نمایش کادر فقط زمانی که باز است */
+.ql-snow .ql-picker.ql-color.ql-expanded .ql-picker-options,
+.ql-snow .ql-picker.ql-background.ql-expanded .ql-picker-options {
+  display: flex !important;
+}
+
+/* المان‌های انتخاب رنگ */
+.ql-snow .ql-picker.ql-color .ql-picker-options .ql-picker-item,
+.ql-snow .ql-picker.ql-background .ql-picker-options .ql-picker-item {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 6px !important;
+  border: 2px solid #e2e8f0 !important;
+  padding: 0 !important;
+  margin: 2px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+}
+
+.ql-snow .ql-picker.ql-color .ql-picker-options .ql-picker-item:hover,
+.ql-snow .ql-picker.ql-background .ql-picker-options .ql-picker-item:hover {
+  transform: scale(1.15) !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.3) !important;
+}
+
+/* آیکون رنگ داخل دکمه */
+.ql-snow .ql-picker.ql-color .ql-picker-label .ql-color-label,
+.ql-snow .ql-picker.ql-background .ql-picker-label .ql-color-label {
+  display: block !important;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 4px !important;
+  border: 1px solid #d1d5db !important;
+}
+
+/* =========================================================
+   استایل‌های تصاویر
+   ========================================================= */
+.ql-editor img {
+  max-width: 100% !important;
+  height: auto !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border-radius: 8px !important;
+}
+
+.ql-editor img:hover {
+  box-shadow: 0 0 0 2px #2563eb, 0 0 15px rgba(37, 99, 235, 0.2) !important;
+}
+
+.editor-hint {
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+/* =========================================================
+   استایل‌های تصاویر برای تغییر سایز
+   ========================================================= */
+.custom-quill-editor .ql-editor img {
+  cursor: pointer !important;
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease;
+}
+
+.custom-quill-editor .ql-editor img:hover {
+  box-shadow: 0 0 0 2px #2563eb, 0 0 15px rgba(37, 99, 235, 0.3);
+}
