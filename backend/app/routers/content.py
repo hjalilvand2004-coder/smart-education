@@ -19,7 +19,7 @@ from ..ai_service import (
 )
 from ..database import get_db
 from ..models import CourseTopic, EducationalContent, AIServiceUsage
-from ..schemas import ContentCreate, ContentResponse
+from ..schemas import ContentCreate, ContentResponse, ContentUpdate
 
 
 router = APIRouter(
@@ -84,6 +84,34 @@ def _get_topic_or_404(
     )
 
     return topic
+
+
+def _get_content_or_404(
+    db: Session,
+    content_id: int,
+) -> EducationalContent:
+    """
+    دریافت محتوا بر اساس شناسه و در صورت نبودن خطای ۴۰۴.
+    """
+    if content_id <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="شناسه محتوا نامعتبر است.",
+        )
+
+    content = (
+        db.query(EducationalContent)
+        .filter(EducationalContent.id == content_id)
+        .first()
+    )
+
+    if content is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"محتوای آموزشی با شناسه {content_id} پیدا نشد.",
+        )
+
+    return content
 
 
 def _get_generated_value(
@@ -457,6 +485,67 @@ def create_manual_content(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"خطای غیرمنتظره: {str(error)}",
+        ) from error
+
+
+# ============================================================
+# مسیر جدید: به‌روزرسانی محتوای موجود (ویرایش)
+# ============================================================
+
+@router.put(
+    "/{content_id}",
+    response_model=ContentResponse,
+    status_code=status.HTTP_200_OK,
+)
+def update_content(
+    content_id: int,
+    request: ContentUpdate,
+    db: Session = Depends(get_db),
+) -> EducationalContent:
+    """
+    به‌روزرسانی محتوای موجود با شناسه داده شده.
+    """
+    content = _get_content_or_404(db=db, content_id=content_id)
+
+    # دریافت داده‌های قابل به‌روزرسانی (فقط فیلدهایی که ارسال شده‌اند)
+    update_data = request.dict(exclude_unset=True)
+
+    if not update_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="حداقل یک فیلد برای به‌روزرسانی باید ارسال شود.",
+        )
+
+    # اعمال تغییرات
+    try:
+        for key, value in update_data.items():
+            setattr(content, key, value)
+
+        db.commit()
+        db.refresh(content)
+
+        print(
+            "[CONTENT] Content updated: "
+            f"content_id={content.id}, "
+            f"topic_id={content.topic_id}"
+        )
+
+        return content
+
+    except SQLAlchemyError as error:
+        db.rollback()
+        print("[CONTENT] Database error during update:", repr(error))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="خطا در به‌روزرسانی محتوا در دیتابیس.",
+        ) from error
+
+    except Exception as error:
+        db.rollback()
+        print("[CONTENT] Unexpected error during update:", repr(error))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"خطای غیرمنتظره در به‌روزرسانی: {str(error)}",
         ) from error
 
 

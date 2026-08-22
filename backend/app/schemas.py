@@ -291,6 +291,106 @@ class ContentResponse(BaseModel):
         return normalize_required_text(value)
 
 
+class ContentUpdate(BaseModel):
+    """
+    اطلاعات لازم برای به‌روزرسانی محتوای موجود.
+    همه فیلدها اختیاری هستند و فقط فیلدهای ارسال‌شده به‌روز می‌شوند.
+    """
+
+    body: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=100000,
+        description="متن جدید محتوا",
+    )
+
+    title: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=255,
+        description="عنوان جدید محتوا",
+    )
+
+    summary: str | None = Field(
+        default=None,
+        max_length=1000,
+        description="خلاصه جدید محتوا",
+    )
+
+    content_type: ContentType | None = Field(
+        default=None,
+        description="نوع جدید محتوا",
+    )
+
+    @field_validator("body", mode="before")
+    @classmethod
+    def validate_body(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError("body باید متنی باشد.")
+        value = value.strip()
+        return value if value else None
+
+    @field_validator("title", mode="before")
+    @classmethod
+    def validate_title(cls, value: object) -> str | None:
+        return normalize_optional_text(value)
+
+    @field_validator("summary", mode="before")
+    @classmethod
+    def validate_summary(cls, value: object) -> str | None:
+        return normalize_optional_text(value)
+
+
+# ============================================================
+# Manual Content Schemas
+# ============================================================
+
+class ManualContentCreate(BaseModel):
+    """
+    اطلاعات لازم برای ذخیره محتوای دستی (آفلاین).
+    """
+
+    manual_content: str = Field(
+        min_length=1,
+        max_length=100000,
+        description="متن محتوای دستی",
+    )
+
+    title: str | None = Field(
+        default=None,
+        max_length=255,
+        description="عنوان اختیاری محتوا",
+    )
+
+    content_type: ContentType = Field(
+        default="lesson",
+        description="نوع محتوا",
+    )
+
+    @field_validator("manual_content", mode="before")
+    @classmethod
+    def validate_manual_content(
+        cls,
+        value: object,
+    ) -> str:
+        if not isinstance(value, str):
+            raise ValueError("manual_content باید متنی باشد.")
+        value = value.strip()
+        if not value:
+            raise ValueError("manual_content نمی‌تواند خالی باشد.")
+        return value
+
+    @field_validator("title", mode="before")
+    @classmethod
+    def validate_title(
+        cls,
+        value: object,
+    ) -> str | None:
+        return normalize_optional_text(value)
+
+
 # ============================================================
 # Quiz Schemas
 # ============================================================
@@ -844,50 +944,3 @@ class CourseResponse(BaseModel):
     @classmethod
     def validate_description(cls, value: object) -> str | None:
         return normalize_optional_text(value)
-
-    # ============================================================
-    # Manual Content Schemas
-    # ============================================================
-
-    class ManualContentCreate(BaseModel):
-        """
-        اطلاعات لازم برای ذخیره محتوای دستی (آفلاین).
-        """
-
-        manual_content: str = Field(
-            min_length=1,
-            max_length=100000,
-            description="متن محتوای دستی",
-        )
-
-        title: str | None = Field(
-            default=None,
-            max_length=255,
-            description="عنوان اختیاری محتوا",
-        )
-
-        content_type: ContentType = Field(
-            default="lesson",
-            description="نوع محتوا",
-        )
-
-        @field_validator("manual_content", mode="before")
-        @classmethod
-        def validate_manual_content(
-                cls,
-                value: object,
-        ) -> str:
-            if not isinstance(value, str):
-                raise ValueError("manual_content باید متنی باشد.")
-            value = value.strip()
-            if not value:
-                raise ValueError("manual_content نمی‌تواند خالی باشد.")
-            return value
-
-        @field_validator("title", mode="before")
-        @classmethod
-        def validate_title(
-                cls,
-                value: object,
-        ) -> str | None:
-            return normalize_optional_text(value)
