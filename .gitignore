@@ -15,3 +15,7 @@ __pycache__/
 # فایل‌های خروجی
 dist/
 build/
+exports/
+
+# پوشه داده پرتابل
+data/

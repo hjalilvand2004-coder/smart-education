@@ -36,6 +36,29 @@ DATABASE_URL = _clean_env_value(
 )
 
 
+# ------------------------------------------------------------------
+# یکپارچگی سرویس‌ها (Service-to-Service Integration)
+# ------------------------------------------------------------------
+# آدرس سرویس «سامانه هوشمند برنامه‌ریزی درسی» (university-scheduler)
+# لیست درس‌ها از این سرویس خوانده می‌شود.
+SCHEDULER_BASE_URL = _clean_env_value(
+    os.getenv(
+        "SCHEDULER_BASE_URL",
+        "http://127.0.0.1:8000",
+    )
+).rstrip("/")
+
+# مهلت پاسخ‌گویی سرویس بیرونی (ثانیه)
+SCHEDULER_TIMEOUT = float(
+    _clean_env_value(os.getenv("SCHEDULER_TIMEOUT", "4")) or "4"
+)
+
+# پوشه خروجی گزارش‌ها (HTML/PPTX/PDF/DOCX)
+EXPORTS_DIR = Path(
+    _clean_env_value(os.getenv("EXPORTS_DIR", str(BASE_DIR / "exports")))
+)
+
+
 # تنظیمات سرویس هوش مصنوعی
 AI_PROVIDER = _clean_env_value(
     os.getenv(

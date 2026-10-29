@@ -6,3 +6,12 @@ pydantic-settings==2.7.0
 python-multipart==0.0.20
 python-dotenv==1.0.1
 openai==1.59.7
+openpyxl==3.1.5
+httpx==0.28.1
+
+# --- گزارش‌سازی چهارفرمتی ---
+python-pptx==1.0.2
+python-docx==1.1.2
+reportlab==4.2.5
+arabic-reshaper==3.0.0
+python-bidi==0.6.6

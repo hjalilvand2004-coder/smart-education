@@ -112,7 +112,7 @@ const ContentGenerationPanel = ({
         let imageUrl = response.data?.url || response.data?.imageUrl;
         if (!imageUrl) throw new Error("آدرس عکس دریافت نشد.");
 
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
         const fullUrl = imageUrl.startsWith("http") ? imageUrl : `${baseUrl}${imageUrl}`;
 
         const quill = quillRef.current?.getEditor();
