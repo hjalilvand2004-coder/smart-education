@@ -72,15 +72,22 @@ jobs:
           $exe = "backend\dist\SmartEducation\SmartEducation.exe"
           if (-not (Test-Path $exe)) { throw "Executable not found: $exe" }
           $proc = Start-Process -FilePath $exe -PassThru
-          $ok = $false
+          $okHealth = $false
+          $okRoot = $false
           for ($i = 0; $i -lt 30; $i++) {
             Start-Sleep -Seconds 2
             try {
               $r = Invoke-WebRequest -Uri "http://127.0.0.1:8100/health" -UseBasicParsing -TimeoutSec 3
-              if ($r.StatusCode -eq 200) { $ok = $true; break }
+              if ($r.StatusCode -eq 200) { $okHealth = $true; break }
             } catch { }
           }
-          if ($ok) { Write-Host "Portable build smoke test PASSED" }
+          # ریشه باید رابط کاربری (index.html) را سرو کند — نه پیام JSON
+          try {
+            $root = Invoke-WebRequest -Uri "http://127.0.0.1:8100/" -UseBasicParsing -TimeoutSec 5
+            if ($root.StatusCode -eq 200 -and $root.Content -match 'id="root"') { $okRoot = $true }
+          } catch { }
+          if ($okHealth -and $okRoot) { Write-Host "Portable build smoke test PASSED (health + UI on /)" }
+          elseif ($okHealth) { Write-Host "Warning: health OK but root UI check failed" }
           else { Write-Host "Warning: health check did not answer (may be port conflict)" }
           Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
 
@@ -95,12 +102,14 @@ jobs:
 
           روش اجرا:
             1) فایل SmartEducation.exe را اجرا کنید.
-            2) چند لحظه صبر کنید تا مرورگر به‌صورت خودکار باز شود.
+            2) چند لحظه صبر کنید تا مرورگر به‌صورت خودکار باز شود؛
+               رابط کاربری اصلی سامانه (داشبورد) نمایش داده می‌شود.
                (اگر باز نشد، آدرس http://127.0.0.1:8100 را باز کنید)
             3) برای خروج، پنجرهٔ سیاه (کنسول) را ببندید.
 
           گزارش‌سازی چهارفرمتی:
-            - صفحهٔ «استودیو گزارش‌ها»:  http://127.0.0.1:8100/reports-page
+            - از منوی کنار داشبورد، گزینهٔ «استودیو گزارش‌ها (۴ فرمت)» را بزنید
+              یا آدرس http://127.0.0.1:8100/reports-page را باز کنید.
             - خروجی‌ها: HTML · PowerPoint (PPTX) · PDF · Word (DOCX)
             - خروجی‌های ساخته‌شده در پوشهٔ exports کنار برنامه ذخیره می‌شوند.
 
@@ -153,18 +162,23 @@ jobs:
           files: backend/dist/SmartEducation-Portable-win64.zip
           generate_release_notes: true
           body: |
-            ## نسخهٔ قابل حمل سامانه هوشمند آموزش 🎓
+            ## نسخهٔ قابل حمل سامانه هوشمند آموزش 🎓 — v2.2.1
 
             ### 📦 نصب و اجرا (بدون هیچ پیش‌نیازی!)
             1. فایل زیپ را دانلود و استخراج کنید
             2. `SmartEducation.exe` را اجرا کنید
-            3. مرورگر به‌صورت خودکار روی `http://127.0.0.1:8100` باز می‌شود
+            3. مرورگر به‌صورت خودکار باز می‌شود و **داشبورد اصلی سامانه** نمایش داده می‌شود
 
-            ### ✨ امکانات این نسخه
+            ### 🛠 رفع اشکال نسبت به نسخهٔ قبلی
+            - ✅ **صفحهٔ اصلی درست شد**: پیش‌تر مرورگر پیام JSON نشان می‌داد؛
+              اکنون رابط کاربری گرافیکی سامانه (داشبورد) باز می‌شود.
+            - ✅ دسترسی سریع به «استودیو گزارش‌ها» از منوی کنار داشبورد.
+
+            ### ✨ امکانات
             - 📊 **استودیو گزارش‌ها** — تولید خروجی گرافیکی در ۴ فرمت:
-              `HTML` · `PowerPoint` · `PDF` · `Word` از صفحهٔ `/reports-page`
+              `HTML` · `PowerPoint` · `PDF` · `Word` از منوی داشبورد یا آدرس `/reports-page`
             - 🔗 **اتصال به سرویس برنامه‌ریزی درسی** — خواندن فهرست درس‌ها از
               سامانهٔ UniversityScheduler (اجرای همزمان هر دو سامانه پشتیبانی می‌شود)
-            - ✅ بدون نیاز به Python | ✅ بدون نیاز به Node.js | ✅ کاملاً آفلاین
+            - ✅ بدون نیاز به Python | ✅ بدون نیاز به PyCharm | ✅ بدون نیاز به Node.js | ✅ کاملاً آفلاین
 
             💾 دیتابیس در پوشهٔ `data` کنار برنامه ذخیره می‌شود (قابل حمل روی فلش USB)

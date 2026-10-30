@@ -706,6 +706,21 @@ function App() {
               داشبورد هوش مصنوعی
             </span>
           </button>
+
+
+          <a
+            className="menu-item menu-item-link"
+            href="/reports-page"
+            title="تولید خروجی HTML، PowerPoint، PDF و Word"
+          >
+            <span className="menu-icon">
+              📈
+            </span>
+
+            <span>
+              استودیو گزارش‌ها (۴ فرمت)
+            </span>
+          </a>
         </nav>
 
 

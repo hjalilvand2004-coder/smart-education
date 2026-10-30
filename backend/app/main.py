@@ -2,7 +2,7 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from .database import Base, engine
@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles  # برای سرویس‌دهی فا
 # ایجاد جدول‌ها در اجرای اولیه.
 Base.metadata.create_all(bind=engine)
 
-APP_VERSION = "2.2.0"
+APP_VERSION = "2.2.1"
 
 app = FastAPI(
     title="سامانه هوشمند آموزش و آزمون",
@@ -69,8 +69,8 @@ app.include_router(reports.router, prefix="/api")        # گزارش‌سازی
 app.include_router(integration.router, prefix="/api")    # اتصال به scheduler
 
 
-@app.get("/", tags=["System"])
-def root():
+@app.get("/api-info", tags=["System"])
+def api_info():
     return {
         "message": "Smart Education API is running",
         "version": APP_VERSION,
@@ -91,7 +91,18 @@ def health_check():
 # سرویس‌دهی رابط کاربری ساخته‌شده (frontend/dist) در حالت پرتابل
 # اگر متغیر محیطی FRONTEND_DIST_DIR تنظیم شده باشد، UI روی همین
 # پورت سرو می‌شود و نیازی به Node.js نیست.
+#
+# نکتهٔ مهم: این mount باید «آخرین» روت ثبت‌شده باشد تا مسیرهای
+# /api و /reports-page و /docs و /health را نپوشاند.
+# (اشکال نسخهٔ ۲.۲.۰: روت JSON روی «/» قبل از mount ثبت شده بود و
+# مرورگر به‌جای رابط کاربری، پیام JSON نشان می‌داد — اکنون «/» رابط
+# کاربری اصلی را سرو می‌کند و JSON فقط روی /api-info است.)
 # ------------------------------------------------------------------
 _FE_DIST = os.environ.get("FRONTEND_DIST_DIR", "")
 if _FE_DIST and os.path.isdir(os.path.join(_FE_DIST, "assets")):
     app.mount("/", StaticFiles(directory=_FE_DIST, html=True), name="frontend")
+else:
+    # در حالت توسعه (بدون فرانت‌اند ساخته‌شده) ریشه به استودیو گزارش‌ها می‌رود
+    @app.get("/", include_in_schema=False)
+    def root_fallback():
+        return RedirectResponse(url="/reports-page")

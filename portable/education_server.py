@@ -103,7 +103,7 @@ def open_browser_later(url: str, delay: float = 2.2) -> None:
 
 def main() -> None:
     print("=" * 62)
-    print("  سامانه هوشمند آموزش — نسخهٔ قابل حمل")
+    print("  سامانه هوشمند آموزش — نسخهٔ قابل حمل  (v2.2.1)")
     print("  Smart Education — Portable Edition")
     print("=" * 62)
 
@@ -115,7 +115,7 @@ def main() -> None:
     url = f"http://127.0.0.1:{port}"
     scheduler_url = os.environ.get("SCHEDULER_BASE_URL", "")
 
-    print(f"[i] آدرس سامانه:        {url}")
+    print(f"[i] رابط کاربری اصلی:    {url}  ← مرورگر خودکار باز می‌شود")
     print(f"[i] استودیو گزارش‌ها:   {url}/reports-page")
     print(f"[i] سرویس برنامه‌ریزی:  {scheduler_url} (در صورت اجرا بودن)")
     print("[i] برای خروج، این پنجره را ببندید یا Ctrl+C بزنید.")

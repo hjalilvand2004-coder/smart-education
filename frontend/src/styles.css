@@ -183,6 +183,19 @@ select:focus {
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
 }
 
+.menu-item-link {
+  text-decoration: none;
+}
+
+.menu-item-link:hover {
+  background: linear-gradient(
+    90deg,
+    #7c3aed,
+    #9333ea
+  );
+  box-shadow: 0 8px 18px rgba(124, 58, 237, 0.25);
+}
+
 .menu-icon {
   display: grid;
   width: 32px;
