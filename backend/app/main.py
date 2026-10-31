@@ -6,14 +6,14 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from .database import Base, engine
-from .routers import content, courses, integration, quizzes, ai_stats, reports
+from .routers import content, courses, integration, quizzes, ai_stats, reports, services
 from app.routers import upload  # اضافه کنید
 from fastapi.staticfiles import StaticFiles  # برای سرویس‌دهی فایل‌های استاتیک
 
 # ایجاد جدول‌ها در اجرای اولیه.
 Base.metadata.create_all(bind=engine)
 
-APP_VERSION = "2.2.1"
+APP_VERSION = "2.3.0"
 
 app = FastAPI(
     title="سامانه هوشمند آموزش و آزمون",
@@ -53,6 +53,10 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:8100",
         "http://127.0.0.1:8100",
+        "http://localhost:8084",
+        "http://127.0.0.1:8084",
+        "http://188.212.96.235:8084",
+        "http://188.212.96.235:8083",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -67,6 +71,7 @@ app.include_router(quizzes.router, prefix="/api")
 app.include_router(ai_stats.router, prefix="/api")  # اضافه شد
 app.include_router(reports.router, prefix="/api")        # گزارش‌سازی ۴ فرمتی
 app.include_router(integration.router, prefix="/api")    # اتصال به scheduler
+app.include_router(services.router, prefix="/api")       # سرویس‌دهی به سایر سامانه‌ها
 
 
 @app.get("/api-info", tags=["System"])
@@ -79,6 +84,9 @@ def api_info():
         "reports_page": "/reports-page",
         "exports": ["/api/reports/export/html", "/api/reports/export/pptx",
                     "/api/reports/export/pdf", "/api/reports/export/docx"],
+        "services": ["/api/services/health", "/api/services/courses",
+                     "/api/services/topics", "/api/services/export/topics",
+                     "/api/services/push/topics"],
     }
 
 

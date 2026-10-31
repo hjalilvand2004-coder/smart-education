@@ -44,13 +44,26 @@ DATABASE_URL = _clean_env_value(
 SCHEDULER_BASE_URL = _clean_env_value(
     os.getenv(
         "SCHEDULER_BASE_URL",
-        "http://127.0.0.1:8000",
+        "http://188.212.96.235:8083",
     )
 ).rstrip("/")
 
 # مهلت پاسخ‌گویی سرویس بیرونی (ثانیه)
 SCHEDULER_TIMEOUT = float(
     _clean_env_value(os.getenv("SCHEDULER_TIMEOUT", "4")) or "4"
+)
+
+# آدرس عمومی همین سامانه (برای معرفی در سرویس‌دهی به سامانه‌های دیگر)
+SERVICE_BASE_URL = _clean_env_value(
+    os.getenv(
+        "SERVICE_BASE_URL",
+        "http://188.212.96.235:8084",
+    )
+).rstrip("/")
+
+# مهلت ارسال سرویس به سامانه‌های دیگر (ثانیه)
+SERVICE_PUSH_TIMEOUT = float(
+    _clean_env_value(os.getenv("SERVICE_PUSH_TIMEOUT", "15")) or "15"
 )
 
 # پوشه خروجی گزارش‌ها (HTML/PPTX/PDF/DOCX)

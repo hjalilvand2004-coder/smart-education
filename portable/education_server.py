@@ -22,7 +22,8 @@ import threading
 import webbrowser
 
 APP_NAME = "SmartEducation"
-PREFERRED_PORT = 8100  # پورت 8000 برای سرویس scheduler رزرو شده است
+PREFERRED_PORT = 8084  # آدرس رسمی سامانه: http://188.212.96.235:8084
+BIND_HOST = "0.0.0.0"  # گوش‌دادن روی همهٔ کارت‌های شبکه تا آدرس IP در دسترس باشد
 
 
 def app_base() -> str:
@@ -83,7 +84,11 @@ def prepare_environment() -> None:
         os.environ["FRONTEND_DIST_DIR"] = fe
 
     # آدرس سرویس برنامه‌ریزی درسی (قابل تغییر با SCHEDULER_BASE_URL)
-    os.environ.setdefault("SCHEDULER_BASE_URL", "http://127.0.0.1:8000")
+    # پیش‌فرض رسمی: http://188.212.96.235:8083
+    os.environ.setdefault("SCHEDULER_BASE_URL", "http://188.212.96.235:8083")
+
+    # آدرس عمومی این سامانه برای معرفی در سرویس‌دهی (SERVICE_BASE_URL)
+    os.environ.setdefault("SERVICE_BASE_URL", "http://188.212.96.235:8084")
 
     # مسیر کار برنامه کنار exe تا لاگ‌ها و فایل‌ها آنجا باشند
     os.chdir(os.path.dirname(os.path.abspath(
@@ -103,7 +108,7 @@ def open_browser_later(url: str, delay: float = 2.2) -> None:
 
 def main() -> None:
     print("=" * 62)
-    print("  سامانه هوشمند آموزش — نسخهٔ قابل حمل  (v2.2.1)")
+    print("  سامانه هوشمند آموزش — نسخهٔ قابل حمل  (v2.3.0)")
     print("  Smart Education — Portable Edition")
     print("=" * 62)
 
@@ -112,21 +117,22 @@ def main() -> None:
     import uvicorn  # بعد از تنظیم env ها
 
     port = find_free_port()
-    url = f"http://127.0.0.1:{port}"
+    local_url = f"http://127.0.0.1:{port}"
     scheduler_url = os.environ.get("SCHEDULER_BASE_URL", "")
 
-    print(f"[i] رابط کاربری اصلی:    {url}  ← مرورگر خودکار باز می‌شود")
-    print(f"[i] استودیو گزارش‌ها:   {url}/reports-page")
-    print(f"[i] سرویس برنامه‌ریزی:  {scheduler_url} (در صورت اجرا بودن)")
+    print(f"[i] رابط کاربری (محلی):    {local_url}  ← مرورگر خودکار باز می‌شود")
+    print(f"[i] دسترسی از شبکه/IP:    http://<ip-this-server>:{port}")
+    print(f"[i] استودیو گزارش‌ها:     {local_url}/reports-page")
+    print(f"[i] سرویس برنامه‌ریزی:    {scheduler_url}")
     print("[i] برای خروج، این پنجره را ببندید یا Ctrl+C بزنید.")
     print("-" * 62)
 
-    open_browser_later(url)
+    open_browser_later(local_url)
 
     try:
         uvicorn.run(
             "app.main:app",
-            host="127.0.0.1",
+            host=BIND_HOST,
             port=port,
             log_level="warning",
         )

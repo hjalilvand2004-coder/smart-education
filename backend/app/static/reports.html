@@ -66,6 +66,12 @@
   #syncResult{margin-top:12px;padding:12px 16px;border-radius:12px;font-size:13px;display:none;}
   #syncResult.ok{display:block;background:#F0FDF4;border:1px solid #86EFAC;color:#166534;}
   #syncResult.err{display:block;background:#FEF2F2;border:1px solid #FCA5A5;color:#991B1B;}
+  .push-input{flex:1;min-width:220px;padding:9px 14px;border:1px solid var(--line);border-radius:12px;font-size:13px;font-family:inherit;direction:ltr;}
+  .push-input:focus,.push-select:focus{outline:2px solid var(--primary);border-color:transparent;}
+  .push-select{padding:9px 12px;border:1px solid var(--line);border-radius:12px;font-size:13px;font-family:inherit;background:#fff;max-width:220px;}
+  #pushResult{margin-top:12px;padding:12px 16px;border-radius:12px;font-size:13px;display:none;direction:ltr;text-align:left;word-break:break-all;}
+  #pushResult.ok{display:block;background:#F0FDF4;border:1px solid #86EFAC;color:#166534;}
+  #pushResult.err{display:block;background:#FEF2F2;border:1px solid #FCA5A5;color:#991B1B;}
   table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
   thead th{background:#EEF2FF;color:var(--primary-dark);padding:8px 12px;text-align:right;}
   tbody td{padding:8px 12px;border-bottom:1px solid var(--line);}
@@ -123,11 +129,45 @@
     <div id="schedTableWrap"></div>
     <p class="muted" style="margin-top:10px;">
       لیست درس‌ها به‌صورت زنده از سرویس «سامانه هوشمند برنامه‌ریزی درسی» خوانده می‌شود
-      (پیش‌فرض: <span class="url">http://127.0.0.1:8000</span>) و با دکمهٔ همگام‌سازی در دیتابیس همین سامانه ذخیره می‌گردد.
+      (پیش‌فرض: <span class="url">http://188.212.96.235:8083</span>) و با دکمهٔ همگام‌سازی در دیتابیس همین سامانه ذخیره می‌گردد.
     </p>
   </div>
 
-  <footer>سامانه هوشمند آموزش — نسخهٔ ۲.۲.۱ · استودیو گزارش‌ها</footer>
+  <div class="section">
+    <h2><span class="dot" style="background:var(--primary);"></span> سرویس‌دهی به سایر سامانه‌ها (سرفصل‌ها و محتوای درسی)</h2>
+    <p class="muted">
+      سامانه‌های دیگر (برنامه‌ریزی درسی و هر سامانهٔ دیگر) می‌توانند سرفصل‌های دروس و محتوای
+      آن‌ها را از نقاط اتصال زیر بخوانند؛ مستندات کامل و قابل آزمایش در <a class="url" href="/docs" target="_blank">/docs</a> است.
+    </p>
+    <table>
+      <thead><tr><th>سرویس</th><th>نقاط اتصال (Endpoint)</th><th>توضیح</th></tr></thead>
+      <tbody>
+        <tr><td>شناسنامهٔ سرویس</td><td class="url">GET /api/services/health</td><td>کشف سرویس و فهرست قابلیت‌ها</td></tr>
+        <tr><td>فهرست درس‌ها</td><td class="url">GET /api/services/courses</td><td>درس‌ها همراه تعداد سرفصل و محتوا</td></tr>
+        <tr><td>فهرست سرفصل‌ها</td><td class="url">GET /api/services/topics?course_id=</td><td>سبک؛ مناسب همگام‌سازی</td></tr>
+        <tr><td>محتوای یک سرفصل</td><td class="url">GET /api/services/topics/{id}/content</td><td>متن کامل محتوای سرفصل</td></tr>
+        <tr><td>بستهٔ کامل</td><td class="url">GET /api/services/export/topics</td><td>همهٔ سرفصل‌ها + محتوا در یک JSON</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="margin-top:18px;"><span class="dot" style="background:var(--accent);"></span> ارسال سرویس به سامانهٔ دیگر (Push)</h2>
+    <div class="status">
+      <input id="pushTarget" class="push-input" type="text" dir="ltr"
+             placeholder="http://188.212.96.235:8083" value="http://188.212.96.235:8083">
+      <select id="pushCourse" class="push-select"><option value="">همهٔ درس‌ها</option></select>
+      <label class="muted" style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
+        <input type="checkbox" id="pushContent" checked> همراه با محتوا
+      </label>
+      <button class="btn sync" id="pushBtn" onclick="pushTopics()">⇪ ارسال سرفصل‌ها</button>
+    </div>
+    <div id="pushResult"></div>
+    <p class="muted" style="margin-top:10px;">
+      داده‌ها به مسیر <span class="url">POST {target}/api/ingest/topics</span> ارسال می‌شود؛
+      سامانهٔ گیرنده باید این قرارداد را پیاده‌سازی کرده باشد (شرح کامل در README مخزن).
+    </p>
+  </div>
+
+  <footer>سامانه هوشمند آموزش — نسخهٔ ۲.۳ · استودیو گزارش‌ها و سرویس‌دهی</footer>
 </div>
 
 <script>
@@ -195,7 +235,53 @@ async function syncCourses(){
 
 function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 
+async function loadPushCourses(){
+  try{
+    const r = await fetch(API + "/api/services/courses");
+    const d = await r.json();
+    const sel = document.getElementById("pushCourse");
+    (d.courses || []).forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.course_id;
+      opt.textContent = c.title + " (" + (c.topics_count||0) + " سرفصل)";
+      sel.appendChild(opt);
+    });
+  }catch(e){/* ignore */}
+}
+
+async function pushTopics(){
+  const btn = document.getElementById("pushBtn");
+  const box = document.getElementById("pushResult");
+  const target = document.getElementById("pushTarget").value.trim();
+  const courseId = document.getElementById("pushCourse").value;
+  const includeContent = document.getElementById("pushContent").checked;
+  if(!target){ box.className="err"; box.textContent="آدرس سامانهٔ گیرنده را وارد کنید."; return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> در حال ارسال…';
+  box.className=""; box.style.display="none";
+  try{
+    const r = await fetch(API + "/api/services/push/topics", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        target_base_url: target,
+        course_id: courseId ? Number(courseId) : null,
+        include_content: includeContent
+      })
+    });
+    const d = await r.json();
+    box.className = d.ok ? "ok" : "err";
+    box.textContent = (d.ok ? "OK — " : "FAILED — ") + (d.message || JSON.stringify(d));
+  }catch(e){
+    box.className = "err";
+    box.textContent = "FAILED — " + e;
+  }
+  btn.disabled = false;
+  btn.textContent = "⇪ ارسال سرفصل‌ها";
+}
+
 checkStatus();
+loadPushCourses();
 </script>
 </body>
 </html>

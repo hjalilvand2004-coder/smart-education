@@ -66,6 +66,7 @@ hiddenimports = (
         "app.routers.upload",
         "app.routers.reports",
         "app.routers.integration",
+        "app.routers.services",
         "app.services",
         "app.services.scheduler_client",
         "app.reports",
