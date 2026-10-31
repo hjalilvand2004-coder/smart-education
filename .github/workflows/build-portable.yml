@@ -109,10 +109,10 @@ jobs:
       - name: Package portable ZIP
         shell: pwsh
         run: |
-          $readme = @"
+          $readme = @'
           ==========================================================
            سامانه هوشمند آموزش — نسخهٔ قابل حمل (Portable)
-           Smart Education — Portable Edition
+           Smart Education — Portable Edition  (v2.4.1)
           ==========================================================
 
           روش اجرا:
@@ -144,7 +144,7 @@ jobs:
             - ارسال سرفصل‌ها به سامانهٔ دیگر: از استودیو گزارش‌ها، بخش
               «ارسال سرویس به سامانهٔ دیگر (Push)».
 
-          حساب‌های کاربری و نقش‌ها (جدید):
+          حساب‌های کاربری و نقش‌ها:
             - حساب پیش‌فرض مدیر سامانه:
                 نام کاربری: admin   رمز اولیه: admin123
                 (بعد از اولین ورود از منوی داشبورد رمز را عوض کنید)
@@ -163,9 +163,9 @@ jobs:
 
           رفع اشکال:
             - اگر صفحه باز نشد: چند ثانیه صبر کنید و صفحه را رفرش کنید.
-            - اگر آنتی‌ویروس هشدار داد: این پوشه را در فهرست امن (Exclusion)
-              قرار دهید؛ هشدار مربوط به فایل‌های اجرایی نشده با امضای دیجیتال است.
-          "@
+            - اگر آنتی‌ویروس هشدار داد: فایل ANTIVIRUS-NOTE.txt را بخوانید؛
+              این هشدار «مثبت کاذب» است و راه‌حل کامل آن در همان فایل آمده است.
+          '@
           Set-Content -Path "backend\dist\SmartEducation\README-PORTABLE.txt" -Value $readme -Encoding UTF8
 
           $bat = @'
@@ -177,50 +177,129 @@ jobs:
           '@
           Set-Content -Path "backend\dist\SmartEducation\run.bat" -Value $bat -Encoding UTF8
 
+          $avnote = @'
+          ==========================================================
+           راهنمای هشدار آنتی‌ویروس (مثبت کاذب) — ANTIVIRUS NOTE
+           Smart Education — نسخهٔ قابل حمل
+          ==========================================================
+
+          ● اگر آنتی‌ویروس (Defender / Avast / Kaspersky / ...) هنگام اجرای
+            SmartEducation.exe هشدار داد، این یک «مثبت کاذب» (False Positive)
+            است: برنامه هیچ کد مخربی ندارد و کل سورس‌کد آن به‌صورت عمومی در
+            گیت‌هاب قابل بازبینی است:
+            https://github.com/hjalilvand2004-coder/smart-education
+
+          ● چرا این هشدار ظاهر می‌شود؟
+            این برنامه با ابزار معروف و سالم PyInstaller بسته‌بندی شده است.
+            فایل‌های ساخته‌شده با PyInstaller که «امضای دیجیتال خریداری‌شده»
+            ندارند، توسط برخی آنتی‌ویروس‌ها به‌اشتباه مشکوک شناخته می‌شوند.
+            این موضوع هزاران برنامهٔ سالم و معروف را هم درگیر می‌کند.
+
+          ● راه‌حل در ویندوز (Defender) — افزودن پوشهٔ برنامه به فهرست امن:
+            1) منوی Start را باز کنید و بنویسید: Windows Security
+            2) وارد Virus & threat protection شوید
+            3) زیر Virus & threat protection settings روی «Manage settings» بزنید
+            4) پایین صفحه: Exclusions → «Add or remove exclusions»
+            5) «Add an exclusion» → «Folder» → پوشهٔ SmartEducation را انتخاب کنید
+            6) اگر فایل قبلاً قرنطینه شده، از Protection history آن را Restore کنید
+
+            یا در PowerShell (با دسترسی مدیر) فقط یک خط:
+            Add-MpPreference -ExclusionPath "C:\مسیر-پوشه\SmartEducation"
+
+          ● آنتی‌ویروس‌های دیگر (Avast / AVG / Kaspersky / Bitdefender / ESET):
+            در تنظیمات آن‌ها گزینهٔ Exclusions / Whitelist / Trusted Zone را
+            پیدا کنید و همین پوشه را اضافه کنید.
+
+          ● برای اطمینان از سلامت فایل، اثر انگشت SHA256 آن را با فایل
+            SHA256SUMS.txt کنار فایل زیپ (در صفحهٔ Releases) مقایسه کنید:
+            https://github.com/hjalilvand2004-coder/smart-education/releases
+
+          ● کمک به رفع دائمی: می‌توانید فایل را به‌عنوان «مثبت کاذب» به سازندهٔ
+            آنتی‌ویروس خود گزارش دهید تا در پایگاه‌دادهٔ آن اصلاح شود؛ نمونه:
+            https://www.microsoft.com/en-us/wdsi/filesubmission
+          '@
+          Set-Content -Path "backend\dist\SmartEducation\ANTIVIRUS-NOTE.txt" -Value $avnote -Encoding UTF8
+
           Compress-Archive -Path "backend\dist\SmartEducation" -DestinationPath "backend\dist\SmartEducation-Portable-win64.zip" -Force
+
+          # اثر انگشت SHA256 برای تایید سلامت فایل‌ها (پاسخ به هشدار آنتی‌ویروس)
+          $zipHash = (Get-FileHash "backend\dist\SmartEducation-Portable-win64.zip" -Algorithm SHA256).Hash.ToLower()
+          $exeHash = (Get-FileHash "backend\dist\SmartEducation\SmartEducation.exe" -Algorithm SHA256).Hash.ToLower()
+          $sums = @"
+          SHA256  SmartEducation-Portable-win64.zip  =  $zipHash
+          SHA256  SmartEducation.exe (inside zip)    =  $exeHash
+          Verify at: https://github.com/hjalilvand2004-coder/smart-education/releases
+          "@
+          Set-Content -Path "backend\dist\SHA256SUMS.txt" -Value $sums -Encoding ASCII
+          Write-Host "SHA256(zip) = $zipHash"
+          Write-Host "SHA256(exe) = $exeHash"
+
+          # متن صفحهٔ Release (با جای‌گذاری هش‌ها)
+          $body = @'
+          ## نسخهٔ قابل حمل سامانه هوشمند آموزش 🎓 — v2.4.1
+
+          ### 🛡️ جدید در این نسخه: رفع هشدارهای کاذب آنتی‌ویروس
+          اگر آنتی‌ویروس روی نسخه‌های قبلی هشدار «ویروس» می‌داد، این هشدار
+          «مثبت کاذب» بود. در این نسخه:
+          - به فایل اجرایی **اطلاعات رسمی نسخه/سازنده (VERSIONINFO)** و
+            **آیکون رسمی برنامه** اضافه شد تا آنتی‌ویروس آن را ناشناس تشخیص ندهد
+          - فایل **ANTIVIRUS-NOTE.txt** داخل بسته اضافه شد: راهنمای گام‌به‌گام
+            افزودن برنامه به فهرست امن (Exclusions) ویندوز و آنتی‌ویروس‌های دیگر
+          - فایل **SHA256SUMS.txt** برای بررسی سلامت فایل دانلودی منتشر می‌شود
+          - برنامه فاقد هرگونه کد مخرب است؛ سورس کامل در گیت‌هاب باز است:
+            https://github.com/hjalilvand2004-coder/smart-education
+
+          ### ✅ اثر انگشت SHA256 (سلامت فایل)
+          - SmartEducation-Portable-win64.zip : __ZIPHASH__
+          - SmartEducation.exe : __EXEHASH__
+
+          ### 🔐 امکانات قبلی (v2.4.0)
+          - **صفحهٔ ورود** — سامانه با نام کاربری و رمز عبور باز می‌شود
+          - **ثبت‌نام در ۳ نقش**: دانشجو (فعال‌سازی خودکار)، استاد و مدیرگروه (نیازمند تایید)
+          - **گردش کار تایید**: تایید استاد توسط مدیر سامانه یا مدیرگروه؛
+            تایید مدیرگروه فقط توسط مدیر سامانه
+          - **مدیریت کاربران**: تایید/رد، فعال/غیرفعال، تغییر نقش، بازنشانی رمز و حذف
+          - حساب پیش‌فرض مدیر: `admin / admin123` (پس از اولین ورود رمز را عوض کنید)
+
+          ### 🌐 آدرس‌های رسمی سرویس‌ها
+          - **این سامانه (آموزش):** http://188.212.96.235:8084
+          - **سرویس برنامه‌ریزی درسی (لیست درس‌ها):** http://188.212.96.235:8083
+
+          ### ✨ امکانات دیگر
+          - 📊 استودیو گزارش‌ها در ۴ فرمت: HTML · PowerPoint · PDF · Word
+          - 🔗 سرویس‌دهی سرفصل‌ها و محتوای درسی به سایر سامانه‌ها (/api/services/...)
+          - ⇪ ارسال سرفصل‌ها به سامانهٔ دیگر (Push) از استودیو گزارش‌ها
+
+          ### 📦 نصب و اجرا (بدون هیچ پیش‌نیازی!)
+          1. فایل زیپ را دانلود و استخراج کنید
+          2. SmartEducation.exe را اجرا کنید
+          3. مرورگر به‌صورت خودکار باز می‌شود؛ با حساب مدیر وارد شوید
+
+          ### ✅ بدون نیاز به Python | بدون نیاز به PyCharm | بدون نیاز به Node.js
+
+          💾 دیتابیس و کاربران در پوشهٔ data کنار برنامه ذخیره می‌شود
+          ⚠️ برای دسترسی از IP، پورت 8084 در فایروال ویندوز باید باز باشد
+          '@
+          $body = $body.Replace('__ZIPHASH__', $zipHash).Replace('__EXEHASH__', $exeHash)
+          $bodyPath = "backend\dist\release-body.md"
+          Set-Content -Path $bodyPath -Value $body -Encoding UTF8
           Get-Item "backend\dist\SmartEducation-Portable-win64.zip" | Select-Object Name, Length
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: SmartEducation-Portable-win64
-          path: backend/dist/SmartEducation-Portable-win64.zip
+          path: |
+            backend/dist/SmartEducation-Portable-win64.zip
+            backend/dist/SHA256SUMS.txt
           retention-days: 14
 
       - name: Publish to GitHub Releases
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: backend/dist/SmartEducation-Portable-win64.zip
+          files: |
+            backend/dist/SmartEducation-Portable-win64.zip
+            backend/dist/SHA256SUMS.txt
           generate_release_notes: true
-          body: |
-            ## نسخهٔ قابل حمل سامانه هوشمند آموزش 🎓 — v2.4.0
-
-            ### 🔐 جدید: صفحهٔ ورود، ثبت‌نام و مدیریت کاربران
-            - **صفحهٔ ورود** — سامانه اکنون با نام کاربری و رمز عبور باز می‌شود
-            - **ثبت‌نام در ۳ نقش**: دانشجو (فعال‌سازی خودکار)، استاد و مدیرگروه (نیازمند تایید)
-            - **گردش کار تایید**: ثبت‌نام «استاد» توسط مدیر سامانه یا مدیرگروه تایید می‌شود؛
-              ثبت‌نام «مدیرگروه» فقط توسط مدیر سامانه
-            - **مدیریت کاربران** — منوی جدید داشبورد برای مدیر سامانه و مدیرگروه:
-              تایید/رد، فعال/غیرفعال، تغییر نقش، بازنشانی رمز و حذف کاربر
-            - حساب پیش‌فرض مدیر: `admin / admin123` (پس از اولین ورود رمز را تغییر دهید)
-            - تولید محتوا و آزمون با هوش مصنوعی اکنون نیازمند ورود است
-
-            ### 🌐 آدرس‌های رسمی سرویس‌ها
-            - **این سامانه (آموزش):** `http://188.212.96.235:8084`
-            - **سرویس برنامه‌ریزی درسی (لیست درس‌ها):** `http://188.212.96.235:8083`
-
-            ### ✨ امکانات قبلی
-            - 📊 استودیو گزارش‌ها در ۴ فرمت: `HTML` · `PowerPoint` · `PDF` · `Word`
-            - 🔗 سرویس‌دهی سرفصل‌ها و محتوای درسی به سایر سامانه‌ها (`/api/services/...`)
-            - ⇪ ارسال سرفصل‌ها به سامانهٔ دیگر (Push) از استودیو گزارش‌ها
-
-            ### 📦 نصب و اجرا (بدون هیچ پیش‌نیازی!)
-            1. فایل زیپ را دانلود و استخراج کنید
-            2. `SmartEducation.exe` را اجرا کنید
-            3. مرورگر به‌صورت خودکار باز می‌شود؛ با حساب مدیر وارد شوید
-
-            ### ✅ بدون نیاز به Python | بدون نیاز به PyCharm | بدون نیاز به Node.js
-
-            💾 دیتابیس و کاربران در پوشهٔ `data` کنار برنامه ذخیره می‌شود
-            ⚠️ برای دسترسی از IP، پورت 8084 در فایروال ویندوز باید باز باشد
+          body_path: backend/dist/release-body.md

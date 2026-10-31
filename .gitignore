@@ -22,3 +22,7 @@ data/
 
 # وابستگی‌های نصب‌شده فرانت‌اند
 node_modules/
+
+# کلید محرمانه محلی (تولید خودکار توسط app/security.py)
+secret.key
+backend/secret.key

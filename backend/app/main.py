@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles  # برای سرویس‌دهی فا
 # ایجاد جدول‌ها در اجرای اولیه.
 Base.metadata.create_all(bind=engine)
 
-APP_VERSION = "2.4.0"
+APP_VERSION = "2.4.1"
 
 app = FastAPI(
     title="سامانه هوشمند آموزش و آزمون",

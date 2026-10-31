@@ -140,7 +140,11 @@ exe = EXE(
     strip=False,
     upx=False,
     console=True,
-    icon=None,
+    # کاهش هشدارهای کاذب آنتی‌ویروس:
+    #   - VERSIONINFO (نام محصول/نسخه/سازنده) و آیکون رسمی به فایل exe
+    #     اضافه می‌شود تا آنتی‌ویروس آن را «برنامهٔ ناشناس» تشخیص ندهد.
+    version=os.path.join(SPEC_DIR, "version_info.txt"),
+    icon=os.path.join(SPEC_DIR, "smarteducation.ico"),
 )
 
 coll = COLLECT(
