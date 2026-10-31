@@ -5,15 +5,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from .database import Base, engine
+from .database import Base, engine, SessionLocal
 from .routers import content, courses, integration, quizzes, ai_stats, reports, services
+from .routers import auth, users
 from app.routers import upload  # اضافه کنید
 from fastapi.staticfiles import StaticFiles  # برای سرویس‌دهی فایل‌های استاتیک
 
 # ایجاد جدول‌ها در اجرای اولیه.
 Base.metadata.create_all(bind=engine)
 
-APP_VERSION = "2.3.0"
+APP_VERSION = "2.4.0"
 
 app = FastAPI(
     title="سامانه هوشمند آموزش و آزمون",
@@ -72,6 +73,45 @@ app.include_router(ai_stats.router, prefix="/api")  # اضافه شد
 app.include_router(reports.router, prefix="/api")        # گزارش‌سازی ۴ فرمتی
 app.include_router(integration.router, prefix="/api")    # اتصال به scheduler
 app.include_router(services.router, prefix="/api")       # سرویس‌دهی به سایر سامانه‌ها
+app.include_router(auth.router, prefix="/api")           # ورود و ثبت‌نام
+app.include_router(users.router, prefix="/api")          # مدیریت کاربران
+
+
+# ------------------------------------------------------------------
+# بوت‌استرپ حساب مدیر سامانه — در اولین اجرا یا پایگاه‌داده‌های قدیمی
+# نام کاربری: admin  |  رمز اولیه: admin123 (تغییر دهید!)
+# ------------------------------------------------------------------
+def _bootstrap_admin() -> None:
+    from .models import User
+    from .security import hash_password
+
+    session = SessionLocal()
+    try:
+        has_admin = (
+            session.query(User)
+            .filter(User.role == "admin")
+            .first()
+        )
+        if has_admin is None:
+            session.add(
+                User(
+                    username="admin",
+                    full_name="مدیر سامانه",
+                    hashed_password=hash_password("admin123"),
+                    role="admin",
+                    status="active",
+                )
+            )
+            session.commit()
+            print("[i] حساب مدیر سامانه ساخته شد — admin / admin123 (رمز را تغییر دهید)")
+    except Exception as exc:  # noqa: BLE001
+        session.rollback()
+        print(f"[!] خطا در ساخت حساب مدیر: {exc}")
+    finally:
+        session.close()
+
+
+_bootstrap_admin()
 
 
 @app.get("/api-info", tags=["System"])

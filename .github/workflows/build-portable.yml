@@ -92,7 +92,15 @@ jobs:
             $svc = Invoke-WebRequest -Uri "http://127.0.0.1:8084/api/services/health" -UseBasicParsing -TimeoutSec 5
             if ($svc.StatusCode -eq 200 -and $svc.Content -match 'smart-education') { $okSvc = $true }
           } catch { }
-          if ($okHealth -and $okRoot -and $okSvc) { Write-Host "Portable build smoke test PASSED (health + UI on / + services API)" }
+          # حساب مدیر پیش‌فرض باید ساخته شده و ورود کار کند
+          $okAuth = $false
+          try {
+            $body = '{"username":"admin","password":"admin123"}'
+            $login = Invoke-WebRequest -Uri "http://127.0.0.1:8084/api/auth/login" -Method POST -Body $body -ContentType "application/json" -UseBasicParsing -TimeoutSec 5
+            if ($login.StatusCode -eq 200 -and $login.Content -match '"role":"admin"') { $okAuth = $true }
+          } catch { }
+          if ($okHealth -and $okRoot -and $okSvc -and $okAuth) { Write-Host "Portable build smoke test PASSED (health + UI + services + auth)" }
+          elseif ($okHealth -and -not $okAuth) { Write-Host "Warning: auth login check failed" }
           elseif ($okHealth -and -not $okSvc) { Write-Host "Warning: services API check failed" }
           elseif ($okHealth) { Write-Host "Warning: health OK but root UI check failed" }
           else { Write-Host "Warning: health check did not answer (may be port conflict)" }
@@ -136,6 +144,15 @@ jobs:
             - ارسال سرفصل‌ها به سامانهٔ دیگر: از استودیو گزارش‌ها، بخش
               «ارسال سرویس به سامانهٔ دیگر (Push)».
 
+          حساب‌های کاربری و نقش‌ها (جدید):
+            - حساب پیش‌فرض مدیر سامانه:
+                نام کاربری: admin   رمز اولیه: admin123
+                (بعد از اولین ورود از منوی داشبورد رمز را عوض کنید)
+            - ثبت‌نام دانشجو: فعال‌سازی خودکار
+            - ثبت‌نام استاد: نیازمند تایید مدیر سامانه یا مدیرگروه
+            - ثبت‌نام مدیرگروه: نیازمند تایید مدیر سامانه
+            - مدیریت کاربران: منوی «مدیریت کاربران» در داشبورد
+
           نکات مهم:
             - نیازی به نصب Python، PyCharm، Node.js یا هر پیش‌نیاز دیگری نیست.
             - دیتابیس در پوشهٔ data کنار فایل exe ذخیره می‌شود؛
@@ -177,30 +194,33 @@ jobs:
           files: backend/dist/SmartEducation-Portable-win64.zip
           generate_release_notes: true
           body: |
-            ## نسخهٔ قابل حمل سامانه هوشمند آموزش 🎓 — v2.3.0
+            ## نسخهٔ قابل حمل سامانه هوشمند آموزش 🎓 — v2.4.0
+
+            ### 🔐 جدید: صفحهٔ ورود، ثبت‌نام و مدیریت کاربران
+            - **صفحهٔ ورود** — سامانه اکنون با نام کاربری و رمز عبور باز می‌شود
+            - **ثبت‌نام در ۳ نقش**: دانشجو (فعال‌سازی خودکار)، استاد و مدیرگروه (نیازمند تایید)
+            - **گردش کار تایید**: ثبت‌نام «استاد» توسط مدیر سامانه یا مدیرگروه تایید می‌شود؛
+              ثبت‌نام «مدیرگروه» فقط توسط مدیر سامانه
+            - **مدیریت کاربران** — منوی جدید داشبورد برای مدیر سامانه و مدیرگروه:
+              تایید/رد، فعال/غیرفعال، تغییر نقش، بازنشانی رمز و حذف کاربر
+            - حساب پیش‌فرض مدیر: `admin / admin123` (پس از اولین ورود رمز را تغییر دهید)
+            - تولید محتوا و آزمون با هوش مصنوعی اکنون نیازمند ورود است
 
             ### 🌐 آدرس‌های رسمی سرویس‌ها
             - **این سامانه (آموزش):** `http://188.212.96.235:8084`
             - **سرویس برنامه‌ریزی درسی (لیست درس‌ها):** `http://188.212.96.235:8083`
 
-            ### 🆕 امکانات جدید این نسخه
-            - 🌍 **دسترسی از طریق IP** — سامانه روی پورت 8084 برای شبکه گوش می‌دهد
-            - 🔗 **سرویس‌دهی سرفصل‌ها به سایر سامانه‌ها** — نقاط اتصال `GET /api/services/topics`
-              و `/api/services/topics/{id}/content` و بستهٔ کامل `/api/services/export/topics`
-            - ⇪ **ارسال سرفصل‌ها به سامانهٔ دیگر (Push)** — از استودیو گزارش‌ها،
-              بخش «ارسال سرویس به سامانهٔ دیگر»
+            ### ✨ امکانات قبلی
             - 📊 استودیو گزارش‌ها در ۴ فرمت: `HTML` · `PowerPoint` · `PDF` · `Word`
+            - 🔗 سرویس‌دهی سرفصل‌ها و محتوای درسی به سایر سامانه‌ها (`/api/services/...`)
+            - ⇪ ارسال سرفصل‌ها به سامانهٔ دیگر (Push) از استودیو گزارش‌ها
 
             ### 📦 نصب و اجرا (بدون هیچ پیش‌نیازی!)
             1. فایل زیپ را دانلود و استخراج کنید
             2. `SmartEducation.exe` را اجرا کنید
-            3. مرورگر به‌صورت خودکار باز می‌شود و **داشبورد اصلی سامانه** نمایش داده می‌شود
-
-            ### 🔗 اتصال سرویس‌ها
-            - لیست درس‌ها به‌صورت خودکار از `http://188.212.96.235:8083` خوانده می‌شود
-            - شرح کامل نقاط اتصال سرویس‌دهی: صفحهٔ `/reports-page` و `/docs`
+            3. مرورگر به‌صورت خودکار باز می‌شود؛ با حساب مدیر وارد شوید
 
             ### ✅ بدون نیاز به Python | بدون نیاز به PyCharm | بدون نیاز به Node.js
 
-            💾 دیتابیس در پوشهٔ `data` کنار برنامه ذخیره می‌شود (قابل حمل روی فلش USB)
+            💾 دیتابیس و کاربران در پوشهٔ `data` کنار برنامه ذخیره می‌شود
             ⚠️ برای دسترسی از IP، پورت 8084 در فایروال ویندوز باید باز باشد

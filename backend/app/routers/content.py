@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from ..security import get_current_user
 from ..ai_service import (
     AIConfigurationError,
     AIProviderError,
@@ -394,6 +395,7 @@ def create_content_for_topic(
     topic_id: int,
     request: ContentCreate,
     db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ) -> EducationalContent:
     """
     تولید محتوا برای یک سرفصل با استفاده از هوش مصنوعی.
@@ -561,6 +563,7 @@ def update_content(
 def create_content_legacy(
     request: ContentCreate,
     db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ) -> EducationalContent:
     """
     مسیر قدیمی: POST /api/content/generate

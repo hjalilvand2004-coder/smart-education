@@ -565,3 +565,77 @@ class AIServiceUsage(Base):
         nullable=False,
         server_default="0",
     )
+
+# ============================================================
+# User — کاربران سامانه (مدیرگروه / استاد / دانشجو)
+# ============================================================
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
+
+    username: Mapped[str] = mapped_column(
+        String(64),
+        unique=True,
+        nullable=False,
+        index=True,
+    )
+
+    full_name: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    email: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
+    hashed_password: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    # admin | group_manager | professor | student
+    role: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="student",
+        server_default="student",
+        index=True,
+    )
+
+    # pending | active | rejected | disabled
+    status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="pending",
+        server_default="pending",
+        index=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
+    )
+
+    approved_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+    approved_by_id: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    last_login_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )

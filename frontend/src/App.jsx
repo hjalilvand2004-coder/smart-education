@@ -1,10 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import CourseImport from "./components/CourseImport";
 import CourseList from "./components/CourseList";
 import ContentGenerator from "./components/ContentGenerator";
 import Quiz from "./components/Quiz";
 import AIStatsDashboard from "./components/AIStatsDashboard"; // کامپوننت جدید داشبورد
+import AuthScreen from "./components/AuthScreen";
+import UserManagement from "./components/UserManagement";
+import api, { getApiError, getToken, setToken } from "./api";
 
 
 const DEFAULT_COURSE_ID = ""; // ← تغییر: مقدار پیش‌فرض خالی
@@ -40,6 +43,20 @@ const PAGE_INFO = {
     subtitle:
       "مشاهده آمار و هزینه‌های استفاده از سرویس‌های هوش مصنوعی",
   },
+
+  "user-management": {
+    title: "مدیریت کاربران و سطوح دسترسی",
+    subtitle:
+      "تایید ثبت‌نام، فعال/غیرفعال‌سازی، تغییر نقش و بازنشانی رمز کاربران",
+  },
+};
+
+
+const ROLE_LABELS_FA = {
+  admin: "مدیر سامانه",
+  group_manager: "مدیرگروه",
+  professor: "استاد",
+  student: "دانشجو",
 };
 
 
@@ -164,6 +181,67 @@ function App() {
   const [appMessage, setAppMessage] =
     useState("");
 
+  // ---------------- احراز هویت ----------------
+  const [authUser, setAuthUser] =
+    useState(null);
+
+  const [authChecking, setAuthChecking] =
+    useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const checkSession = async () => {
+      if (!getToken()) {
+        setAuthChecking(false);
+        return;
+      }
+      try {
+        const res = await api.get("/auth/me");
+        if (!cancelled) {
+          setAuthUser(res.data.user);
+        }
+      } catch (err) {
+        setToken("");
+        if (
+          !cancelled &&
+          typeof window !== "undefined" &&
+          window.location.hash === "#auth-expired"
+        ) {
+          setAppMessage("");
+        }
+      } finally {
+        if (!cancelled) {
+          setAuthChecking(false);
+        }
+      }
+    };
+
+    checkSession();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleAuthSuccess = (user) => {
+    setAuthUser(user);
+    setAppMessage(
+      `خوش آمدید ${user.full_name} — نقش: ${
+        ROLE_LABELS_FA[user.role] || user.role
+      }`
+    );
+  };
+
+  const handleLogout = () => {
+    setToken("");
+    setAuthUser(null);
+    setActiveSection("topics");
+  };
+
+  const canManageUsers =
+    authUser &&
+    (authUser.role === "admin" || authUser.role === "group_manager");
+
 
   const normalizedCourseId = useMemo(() => {
     return normalizeCourseIdValue(courseId);
@@ -188,6 +266,20 @@ function App() {
       }
     );
   }, [activeSection]);
+
+
+  // ---------------- صفحهٔ ورود (بعد از همهٔ Hook ها) ----------------
+  if (authChecking) {
+    return (
+      <div className="auth-screen">
+        <div className="auth-loading">در حال بررسی نشست…</div>
+      </div>
+    );
+  }
+
+  if (!authUser) {
+    return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
+  }
 
 
   const isTopicForCurrentCourse = (topic) => {
@@ -438,6 +530,10 @@ function App() {
 
 
   const renderActivePage = () => {
+    if (activeSection === "user-management") {
+      return <UserManagement currentUser={authUser} />;
+    }
+
     if (!hasValidCourseId) {
       return renderEmptyState({
         icon: "⚠️",
@@ -721,6 +817,29 @@ function App() {
               استودیو گزارش‌ها (۴ فرمت)
             </span>
           </a>
+
+          {canManageUsers && (
+            <button
+              type="button"
+              className={
+                activeSection === "user-management"
+                  ? "menu-item active"
+                  : "menu-item"
+              }
+              onClick={() => {
+                setActiveSection("user-management");
+                setAppMessage("");
+              }}
+            >
+              <span className="menu-icon">
+                🛡️
+              </span>
+
+              <span>
+                مدیریت کاربران
+              </span>
+            </button>
+          )}
         </nav>
 
 
@@ -752,18 +871,27 @@ function App() {
 
           <div className="user-box">
             <div className="user-avatar">
-              ا
+              {(authUser.full_name || "ا").trim().charAt(0)}
             </div>
 
             <div>
               <strong>
-                کاربر سامانه
+                {authUser.full_name}
               </strong>
 
               <span>
-                استاد
+                {authUser.role_label || ROLE_LABELS_FA[authUser.role] || authUser.role}
               </span>
             </div>
+
+            <button
+              type="button"
+              className="logout-button"
+              onClick={handleLogout}
+              title="خروج از حساب"
+            >
+              خروج
+            </button>
           </div>
         </header>
 

@@ -10,6 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, selectinload
 
 from ..ai_service import generate_questions
+from ..security import get_current_user
 from ..database import get_db
 from ..models import (
     CourseTopic,
@@ -171,7 +172,11 @@ def _log_ai_usage(
 
 
 @router.post("/generate", response_model=QuizResponse, status_code=status.HTTP_201_CREATED)
-def generate_quiz(request: QuizGenerateRequest, db: Session = Depends(get_db)):
+def generate_quiz(
+    request: QuizGenerateRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     """ایجاد آزمون از آخرین محتوای تولیدشده برای یک سرفصل (فقط استاد)."""
     if request.number_of_questions < 1:
         raise HTTPException(

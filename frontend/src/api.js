@@ -18,10 +18,61 @@ function resolveBaseUrl() {
   return "http://127.0.0.1:8000/api";
 }
 
+const TOKEN_KEY = "smart_education_token";
+
+export function getToken() {
+  try {
+    return localStorage.getItem(TOKEN_KEY) || "";
+  } catch (e) {
+    return "";
+  }
+}
+
+export function setToken(token) {
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  } catch (e) {
+    /* ignore */
+  }
+}
+
 const api = axios.create({
   baseURL: resolveBaseUrl(),
   timeout: 120000
 });
+
+// افزودن توکن نشست به همهٔ درخواست‌ها
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// در صورت منقضی شدن نشست، کاربر به صفحهٔ ورود برمی‌گردد
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      error?.response?.status === 401 &&
+      typeof window !== "undefined" &&
+      !String(error?.config?.url || "").includes("/auth/")
+    ) {
+      setToken("");
+      if (!window.location.hash.includes("auth-expired")) {
+        window.location.hash = "auth-expired";
+        window.location.reload();
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export function getApiError(error) {
   return (
