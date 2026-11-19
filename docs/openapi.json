@@ -1,0 +1,4413 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "دانشجو۳۶۰ — سرویس‌های یادگیری هوشمند",
+  "description": "سامانه سرویس‌های یادگیری هوشمند دانشجو۳۶۰ — استودیوی تولید محتوای استاد، بانک سؤال، ارزیابی، تحلیل تسلط، برنامه مطالعه و استاد هوشمند گفتگو‌محور",
+  "version": "1.0.0-mvp"
+ },
+ "paths": {
+  "/api/v1/auth/login": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Login",
+    "operationId": "login_api_v1_auth_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LoginIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/auth/me": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Me",
+    "operationId": "me_api_v1_auth_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/v1/courses": {
+   "get": {
+    "tags": [
+     "courses"
+    ],
+    "summary": "List Courses",
+    "description": "درس‌های مرتبط با کاربر بر اساس نقش/ثبت‌نام.",
+    "operationId": "list_courses_api_v1_courses_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/v1/courses/{course_id}": {
+   "get": {
+    "tags": [
+     "courses"
+    ],
+    "summary": "Course Detail",
+    "operationId": "course_detail_api_v1_courses__course_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/courses/{course_id}/syllabus": {
+   "get": {
+    "tags": [
+     "courses"
+    ],
+    "summary": "Get Syllabus",
+    "operationId": "get_syllabus_api_v1_courses__course_id__syllabus_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/courses/{course_id}/syllabus/versions": {
+   "get": {
+    "tags": [
+     "courses"
+    ],
+    "summary": "List Syllabus Versions",
+    "operationId": "list_syllabus_versions_api_v1_courses__course_id__syllabus_versions_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/courses/{course_id}/concept-graph": {
+   "get": {
+    "tags": [
+     "courses"
+    ],
+    "summary": "Concept Graph",
+    "operationId": "concept_graph_api_v1_courses__course_id__concept_graph_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/courses/{course_id}/concepts": {
+   "post": {
+    "tags": [
+     "courses"
+    ],
+    "summary": "Create Concept",
+    "operationId": "create_concept_api_v1_courses__course_id__concepts_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ConceptIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/concepts/{concept_id}": {
+   "patch": {
+    "tags": [
+     "courses"
+    ],
+    "summary": "Patch Concept",
+    "operationId": "patch_concept_api_v1_concepts__concept_id__patch",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "concept_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Concept Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ConceptPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/syllabus-imports": {
+   "post": {
+    "tags": [
+     "syllabus"
+    ],
+    "summary": "Import Syllabus",
+    "description": "ورود و استخراج اولیه ساختار سرفصل از متن/PDF/Word — خروجی پیش‌نویس است.",
+    "operationId": "import_syllabus_api_v1_syllabus_imports_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_import_syllabus_api_v1_syllabus_imports_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/v1/syllabus-versions/{version_id}/approve": {
+   "post": {
+    "tags": [
+     "syllabus"
+    ],
+    "summary": "Approve Syllabus",
+    "description": "تأیید انسانی ساختار — تنها مسیر اعتبار رسمی (AC-02).",
+    "operationId": "approve_syllabus_api_v1_syllabus_versions__version_id__approve_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "version_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Version Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "anyOf": [
+         {
+          "$ref": "#/components/schemas/ApproveIn"
+         },
+         {
+          "type": "null"
+         }
+        ],
+        "title": "Body"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/syllabus-versions/{version_id}": {
+   "get": {
+    "tags": [
+     "syllabus"
+    ],
+    "summary": "Get Syllabus Version",
+    "operationId": "get_syllabus_version_api_v1_syllabus_versions__version_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "version_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Version Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/syllabus-versions/{version_id}/diff": {
+   "get": {
+    "tags": [
+     "syllabus"
+    ],
+    "summary": "Diff Syllabus",
+    "description": "گزارش اثر تغییر سرفصل (AC-06): فهرست موضوع‌ها/اهداف تغییر یافته.",
+    "operationId": "diff_syllabus_api_v1_syllabus_versions__version_id__diff_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "version_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Version Id"
+      }
+     },
+     {
+      "name": "against",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Against"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-documents": {
+   "get": {
+    "tags": [
+     "content"
+    ],
+    "summary": "List Documents",
+    "operationId": "list_documents_api_v1_content_documents_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     },
+     {
+      "name": "page",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 1,
+       "title": "Page"
+      }
+     },
+     {
+      "name": "page_size",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 20,
+       "title": "Page Size"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Create Document",
+    "description": "ایجاد سند آموزشی متصل به نسخه مشخص سرفصل (AC-01).",
+    "operationId": "create_document_api_v1_content_documents_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DocumentIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-documents/{document_id}": {
+   "get": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Get Document",
+    "operationId": "get_document_api_v1_content_documents__document_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "document_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Document Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-documents/{document_id}/generation-jobs": {
+   "post": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Generation Job",
+    "operationId": "generation_job_api_v1_content_documents__document_id__generation_jobs_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "document_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Document Id"
+      }
+     },
+     {
+      "name": "idempotency-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Idempotency-Key"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GenerationJobIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "202": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-plans/{plan_id}": {
+   "get": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Get Plan",
+    "operationId": "get_plan_api_v1_content_plans__plan_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "plan_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Plan Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Patch Plan",
+    "description": "اصلاح طرح آموزشی توسط استاد پیش از تولید کامل.",
+    "operationId": "patch_plan_api_v1_content_plans__plan_id__patch",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "plan_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Plan Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PlanPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-plans/{plan_id}/confirm": {
+   "post": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Confirm Plan",
+    "operationId": "confirm_plan_api_v1_content_plans__plan_id__confirm_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "plan_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Plan Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-versions/{version_id}": {
+   "get": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Get Version",
+    "operationId": "get_version_api_v1_content_versions__version_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "version_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Version Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-versions/{version_id}/blocks/{block_id}": {
+   "patch": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Edit Block",
+    "description": "ویرایش مستقیم یک بلوک با کنترل نسخه (409 در تداخل).",
+    "operationId": "edit_block_api_v1_content_versions__version_id__blocks__block_id__patch",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "version_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Version Id"
+      }
+     },
+     {
+      "name": "block_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Block Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/BlockPatchIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-versions/{version_id}/blocks/{block_id}/regenerate": {
+   "post": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Regenerate Block",
+    "operationId": "regenerate_block_api_v1_content_versions__version_id__blocks__block_id__regenerate_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "version_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Version Id"
+      }
+     },
+     {
+      "name": "block_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Block Id"
+      }
+     },
+     {
+      "name": "idempotency-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Idempotency-Key"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "anyOf": [
+         {
+          "$ref": "#/components/schemas/RegenIn"
+         },
+         {
+          "type": "null"
+         }
+        ],
+        "title": "Body"
+       }
+      }
+     }
+    },
+    "responses": {
+     "202": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-versions/{version_id}/reviews": {
+   "post": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Review Version",
+    "operationId": "review_version_api_v1_content_versions__version_id__reviews_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "version_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Version Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReviewIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-versions/{version_id}/publish": {
+   "post": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Publish Version",
+    "description": "انتشار فقط توسط استاد درس و فقط برای نسخه تأییدشده (AC-05).",
+    "operationId": "publish_version_api_v1_content_versions__version_id__publish_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "version_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Version Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/courses/{course_id}/contents": {
+   "get": {
+    "tags": [
+     "content"
+    ],
+    "summary": "Student Contents",
+    "description": "محتوای منتشرشده مجاز برای دانشجو (AC-05).",
+    "operationId": "student_contents_api_v1_courses__course_id__contents_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/content-versions/{version_id}/exports": {
+   "post": {
+    "tags": [
+     "exports"
+    ],
+    "summary": "Create Export",
+    "operationId": "create_export_api_v1_content_versions__version_id__exports_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "version_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Version Id"
+      }
+     },
+     {
+      "name": "idempotency-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Idempotency-Key"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ExportIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "202": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/exports/{export_job_id}": {
+   "get": {
+    "tags": [
+     "exports"
+    ],
+    "summary": "Export Status",
+    "operationId": "export_status_api_v1_exports__export_job_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "export_job_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Export Job Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/exports/{export_job_id}/download": {
+   "get": {
+    "tags": [
+     "exports"
+    ],
+    "summary": "Download Export",
+    "description": "دریافت فایل مجاز — کنترل دسترسی در سطح درس.",
+    "operationId": "download_export_api_v1_exports__export_job_id__download_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "export_job_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Export Job Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/questions": {
+   "get": {
+    "tags": [
+     "questions"
+    ],
+    "summary": "List Questions",
+    "operationId": "list_questions_api_v1_questions_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "name": "type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Type"
+      }
+     },
+     {
+      "name": "page",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 1,
+       "title": "Page"
+      }
+     },
+     {
+      "name": "page_size",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 20,
+       "title": "Page Size"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "questions"
+    ],
+    "summary": "Create Question",
+    "operationId": "create_question_api_v1_questions_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/QuestionIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/question-generation-jobs": {
+   "post": {
+    "tags": [
+     "questions"
+    ],
+    "summary": "Generation Job",
+    "operationId": "generation_job_api_v1_question_generation_jobs_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "idempotency-key",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Idempotency-Key"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GenerationIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "202": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/questions/{question_id}": {
+   "get": {
+    "tags": [
+     "questions"
+    ],
+    "summary": "Get Question",
+    "operationId": "get_question_api_v1_questions__question_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "question_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Question Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/questions/{question_id}/reviews": {
+   "post": {
+    "tags": [
+     "questions"
+    ],
+    "summary": "Review Question",
+    "description": "تأیید سؤال — سؤال تأییدشده در آزمون‌ها استفاده می‌شود (gate رسمی).",
+    "operationId": "review_question_api_v1_questions__question_id__reviews_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "question_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Question Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReviewIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/assessments": {
+   "post": {
+    "tags": [
+     "assessment"
+    ],
+    "summary": "Create Assessment",
+    "operationId": "create_assessment_api_v1_assessments_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AssessmentIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "assessment"
+    ],
+    "summary": "List Assessments",
+    "operationId": "list_assessments_api_v1_assessments_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/assessments/{assessment_id}": {
+   "get": {
+    "tags": [
+     "assessment"
+    ],
+    "summary": "Get Assessment",
+    "operationId": "get_assessment_api_v1_assessments__assessment_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "assessment_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Assessment Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/assessments/{assessment_id}/attempts": {
+   "post": {
+    "tags": [
+     "assessment"
+    ],
+    "summary": "Start Attempt",
+    "operationId": "start_attempt_api_v1_assessments__assessment_id__attempts_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "assessment_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Assessment Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/attempts/{attempt_id}": {
+   "get": {
+    "tags": [
+     "assessment"
+    ],
+    "summary": "Get Attempt",
+    "operationId": "get_attempt_api_v1_attempts__attempt_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "attempt_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Attempt Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/attempts/{attempt_id}/responses": {
+   "post": {
+    "tags": [
+     "assessment"
+    ],
+    "summary": "Record Response",
+    "description": "ثبت پاسخ — تصحیح بسته به نوع سؤال؛ نتیجه طبق سیاست بازخورد برمی‌گردد.",
+    "operationId": "record_response_api_v1_attempts__attempt_id__responses_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "attempt_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Attempt Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ResponseIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/attempts/{attempt_id}/finish": {
+   "post": {
+    "tags": [
+     "assessment"
+    ],
+    "summary": "Finish Attempt",
+    "operationId": "finish_attempt_api_v1_attempts__attempt_id__finish_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "attempt_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Attempt Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/responses/{response_id}": {
+   "get": {
+    "tags": [
+     "assessment"
+    ],
+    "summary": "Get Response",
+    "operationId": "get_response_api_v1_responses__response_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "response_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Response Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/responses/{response_id}/grading-reviews": {
+   "post": {
+    "tags": [
+     "assessment"
+    ],
+    "summary": "Grading Review",
+    "description": "اصلاح/نهایی‌کردن نمره توسط استاد — نمره رسمی طبق سیاست انسانی (AC-10).",
+    "operationId": "grading_review_api_v1_responses__response_id__grading_reviews_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "response_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Response Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GradingReviewIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/responses/{response_id}/disputes": {
+   "post": {
+    "tags": [
+     "assessment"
+    ],
+    "summary": "Dispute Response",
+    "description": "اعتراض دانشجو به ارزیابی — ثبت و پیگیری (AC-10).",
+    "operationId": "dispute_response_api_v1_responses__response_id__disputes_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "response_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Response Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DisputeIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/me/courses/{course_id}/mastery": {
+   "get": {
+    "tags": [
+     "learning"
+    ],
+    "summary": "My Mastery",
+    "description": "تسلط شخصی — نبود شواهد با وضعیت «UNKNOWN» نمایش داده می‌شود (AC-08).",
+    "operationId": "my_mastery_api_v1_me_courses__course_id__mastery_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/me/courses/{course_id}/diagnostics": {
+   "get": {
+    "tags": [
+     "learning"
+    ],
+    "summary": "My Diagnostics",
+    "operationId": "my_diagnostics_api_v1_me_courses__course_id__diagnostics_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/courses/{course_id}/mastery/aggregate": {
+   "get": {
+    "tags": [
+     "learning"
+    ],
+    "summary": "Aggregate Mastery",
+    "description": "نقشه ضعف کلاس — تجمیعی؛ دسترسی فردی فقط برای مجازها (بخش ۱۵.۳).",
+    "operationId": "aggregate_mastery_api_v1_courses__course_id__mastery_aggregate_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/learning-events": {
+   "post": {
+    "tags": [
+     "learning"
+    ],
+    "summary": "Record Event",
+    "description": "ثبت رویداد مشاهده محتوا (داده‌ای برای تحلیل؛ به‌تنهایی شواهد تسلط نیست).",
+    "operationId": "record_event_api_v1_learning_events_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LearningEventIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/v1/courses/{course_id}/tutor-reports": {
+   "get": {
+    "tags": [
+     "learning"
+    ],
+    "summary": "Tutor Reports",
+    "description": "گزارش پاسخ‌های نادرست استاد هوشمند (بخش ۸ — امکان اصلاح توسط استاد).",
+    "operationId": "tutor_reports_api_v1_courses__course_id__tutor_reports_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/study-plans": {
+   "post": {
+    "tags": [
+     "planning"
+    ],
+    "summary": "Create Plan",
+    "operationId": "create_plan_api_v1_study_plans_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/StudyPlanIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/v1/me/study-plans": {
+   "get": {
+    "tags": [
+     "planning"
+    ],
+    "summary": "My Plans",
+    "operationId": "my_plans_api_v1_me_study_plans_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/study-activities/{activity_id}": {
+   "patch": {
+    "tags": [
+     "planning"
+    ],
+    "summary": "Patch Activity",
+    "description": "جابه‌جایی یا رد پیشنهاد — امکان پذیرش/انجام/رد هر فعالیت.",
+    "operationId": "patch_activity_api_v1_study_activities__activity_id__patch",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "activity_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Activity Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ActivityPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/me/review-schedule": {
+   "get": {
+    "tags": [
+     "planning"
+    ],
+    "summary": "Review Schedule",
+    "operationId": "review_schedule_api_v1_me_review_schedule_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/tutor/sessions": {
+   "post": {
+    "tags": [
+     "tutor"
+    ],
+    "summary": "Create Session",
+    "operationId": "create_session_api_v1_tutor_sessions_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SessionIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ]
+   }
+  },
+  "/api/v1/tutor/sessions/{session_id}/messages": {
+   "post": {
+    "tags": [
+     "tutor"
+    ],
+    "summary": "Send Message",
+    "description": "ارسال پیام؛ با stream=true پاسخ به‌صورت SSE تدریجی ارسال می‌شود.",
+    "operationId": "send_message_api_v1_tutor_sessions__session_id__messages_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "session_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Session Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MessageIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "tutor"
+    ],
+    "summary": "Get History",
+    "operationId": "get_history_api_v1_tutor_sessions__session_id__messages_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "session_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Session Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/tutor/messages/{message_id}/report": {
+   "post": {
+    "tags": [
+     "tutor"
+    ],
+    "summary": "Report Message",
+    "description": "گزارش پاسخ نادرست — استاد امکان اصلاح دارد (بخش ۸).",
+    "operationId": "report_message_api_v1_tutor_messages__message_id__report_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "message_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Message Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReportIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/student-creations": {
+   "post": {
+    "tags": [
+     "collaboration"
+    ],
+    "summary": "Create Creation",
+    "operationId": "create_creation_api_v1_student_creations_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CreationIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "collaboration"
+    ],
+    "summary": "List Creations",
+    "operationId": "list_creations_api_v1_student_creations_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/student-creations/{creation_id}/submit": {
+   "post": {
+    "tags": [
+     "collaboration"
+    ],
+    "summary": "Submit Creation",
+    "operationId": "submit_creation_api_v1_student_creations__creation_id__submit_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "creation_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Creation Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/student-creations/{creation_id}/peer-reviews": {
+   "post": {
+    "tags": [
+     "collaboration"
+    ],
+    "summary": "Peer Review",
+    "operationId": "peer_review_api_v1_student_creations__creation_id__peer_reviews_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "creation_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Creation Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PeerReviewIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/student-creations/{creation_id}/teacher-reviews": {
+   "post": {
+    "tags": [
+     "collaboration"
+    ],
+    "summary": "Teacher Review",
+    "description": "تأیید استاد — هرگز ورود مستقیم به بانک رسمی سؤال (بخش ۹).",
+    "operationId": "teacher_review_api_v1_student_creations__creation_id__teacher_reviews_post",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "creation_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Creation Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TeacherReviewIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/jobs/{job_id}": {
+   "get": {
+    "tags": [
+     "ops"
+    ],
+    "summary": "Get Job",
+    "operationId": "get_job_api_v1_jobs__job_id__get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "job_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Job Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/jobs": {
+   "get": {
+    "tags": [
+     "ops"
+    ],
+    "summary": "List Jobs",
+    "operationId": "list_jobs_api_v1_jobs_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 50,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/audit-logs": {
+   "get": {
+    "tags": [
+     "ops"
+    ],
+    "summary": "Audit Logs",
+    "description": "حسابرسی فقط برای نقش‌های مدیریتی (بخش ۱۶).",
+    "operationId": "audit_logs_api_v1_audit_logs_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "action",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Action"
+      }
+     },
+     {
+      "name": "entity_type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Entity Type"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 100,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/ai-runs": {
+   "get": {
+    "tags": [
+     "ops"
+    ],
+    "summary": "Ai Runs",
+    "description": "مصرف و وضعیت مدل‌ها — پایش هزینه و کیفیت (بخش ۱۴.۲).",
+    "operationId": "ai_runs_api_v1_ai_runs_get",
+    "security": [
+     {
+      "OAuth2PasswordBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 100,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/healthz": {
+   "get": {
+    "tags": [
+     "ops"
+    ],
+    "summary": "Health",
+    "operationId": "health_healthz_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "ActivityPatch": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "title": "Status"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status"
+    ],
+    "title": "ActivityPatch"
+   },
+   "ApproveIn": {
+    "properties": {
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     }
+    },
+    "type": "object",
+    "title": "ApproveIn"
+   },
+   "AssessmentIn": {
+    "properties": {
+     "course_id": {
+      "type": "string",
+      "title": "Course Id"
+     },
+     "offering_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Offering Id"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind",
+      "default": "QUIZ"
+     },
+     "mode": {
+      "type": "string",
+      "title": "Mode",
+      "default": "FIXED"
+     },
+     "blueprint": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Blueprint",
+      "default": {}
+     },
+     "policy": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Policy"
+     },
+     "duration_minutes": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Duration Minutes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "course_id",
+     "title"
+    ],
+    "title": "AssessmentIn"
+   },
+   "BlockPatchIn": {
+    "properties": {
+     "patch": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Patch"
+     },
+     "expected_revision": {
+      "type": "integer",
+      "title": "Expected Revision"
+     }
+    },
+    "type": "object",
+    "required": [
+     "patch",
+     "expected_revision"
+    ],
+    "title": "BlockPatchIn"
+   },
+   "Body_import_syllabus_api_v1_syllabus_imports_post": {
+    "properties": {
+     "course_id": {
+      "type": "string",
+      "title": "Course Id"
+     },
+     "text": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Text"
+     },
+     "file": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "binary"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "File"
+     }
+    },
+    "type": "object",
+    "required": [
+     "course_id"
+    ],
+    "title": "Body_import_syllabus_api_v1_syllabus_imports_post"
+   },
+   "ConceptIn": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "key": {
+      "type": "string",
+      "title": "Key"
+     },
+     "description": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Description"
+     },
+     "topic_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Topic Ids",
+      "default": []
+     },
+     "prerequisite_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Prerequisite Ids",
+      "default": []
+     },
+     "misconceptions": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "type": "array",
+      "title": "Misconceptions",
+      "default": []
+     },
+     "examples": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Examples"
+     },
+     "counter_examples": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Counter Examples"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status",
+      "default": "DRAFT"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "key"
+    ],
+    "title": "ConceptIn"
+   },
+   "ConceptPatch": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "description": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Description"
+     },
+     "status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status"
+     },
+     "examples": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Examples"
+     },
+     "counter_examples": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Counter Examples"
+     }
+    },
+    "type": "object",
+    "title": "ConceptPatch"
+   },
+   "CreationIn": {
+    "properties": {
+     "course_id": {
+      "type": "string",
+      "title": "Course Id"
+     },
+     "activity_type": {
+      "type": "string",
+      "title": "Activity Type",
+      "default": "EXPLANATION"
+     },
+     "concept_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Concept Id"
+     },
+     "content": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Content",
+      "default": {}
+     },
+     "ai_use_disclosed": {
+      "type": "boolean",
+      "title": "Ai Use Disclosed",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "course_id"
+    ],
+    "title": "CreationIn"
+   },
+   "DisputeIn": {
+    "properties": {
+     "comment": {
+      "type": "string",
+      "title": "Comment"
+     }
+    },
+    "type": "object",
+    "required": [
+     "comment"
+    ],
+    "title": "DisputeIn"
+   },
+   "DocumentIn": {
+    "properties": {
+     "course_id": {
+      "type": "string",
+      "title": "Course Id"
+     },
+     "syllabus_version_id": {
+      "type": "string",
+      "title": "Syllabus Version Id"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "goal": {
+      "type": "string",
+      "title": "Goal",
+      "default": "CONCEPT_TEACHING"
+     },
+     "scope": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Scope",
+      "default": {}
+     },
+     "audience_level": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Audience Level"
+     },
+     "duration_minutes": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Duration Minutes"
+     },
+     "language": {
+      "type": "string",
+      "title": "Language",
+      "default": "FA"
+     },
+     "style": {
+      "type": "string",
+      "title": "Style",
+      "default": "ACADEMIC"
+     },
+     "components": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Components",
+      "default": []
+     },
+     "source_resource_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Source Resource Ids",
+      "default": []
+     },
+     "constraints": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Constraints"
+     }
+    },
+    "type": "object",
+    "required": [
+     "course_id",
+     "syllabus_version_id",
+     "title"
+    ],
+    "title": "DocumentIn"
+   },
+   "ExportIn": {
+    "properties": {
+     "format": {
+      "type": "string",
+      "title": "Format",
+      "default": "PDF"
+     },
+     "options": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Options"
+     }
+    },
+    "type": "object",
+    "title": "ExportIn"
+   },
+   "GenerationIn": {
+    "properties": {
+     "course_id": {
+      "type": "string",
+      "title": "Course Id"
+     },
+     "syllabus_version_id": {
+      "type": "string",
+      "title": "Syllabus Version Id"
+     },
+     "concept_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Concept Ids",
+      "default": []
+     },
+     "types": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Types",
+      "default": [
+       "MCQ"
+      ]
+     },
+     "count": {
+      "type": "integer",
+      "title": "Count",
+      "default": 5
+     },
+     "difficulty": {
+      "type": "string",
+      "title": "Difficulty",
+      "default": "MEDIUM"
+     },
+     "usage": {
+      "type": "string",
+      "title": "Usage",
+      "default": "PRACTICE"
+     }
+    },
+    "type": "object",
+    "required": [
+     "course_id",
+     "syllabus_version_id"
+    ],
+    "title": "GenerationIn"
+   },
+   "GenerationJobIn": {
+    "properties": {
+     "mode": {
+      "type": "string",
+      "title": "Mode",
+      "default": "FULL"
+     },
+     "auto_confirm": {
+      "type": "boolean",
+      "title": "Auto Confirm",
+      "default": true
+     },
+     "block_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Block Id"
+     },
+     "instruction": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Instruction"
+     }
+    },
+    "type": "object",
+    "title": "GenerationJobIn"
+   },
+   "GradingReviewIn": {
+    "properties": {
+     "scores": {
+      "anyOf": [
+       {
+        "items": {},
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Scores"
+     },
+     "final_score": {
+      "type": "number",
+      "title": "Final Score"
+     },
+     "comment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Comment"
+     }
+    },
+    "type": "object",
+    "required": [
+     "final_score"
+    ],
+    "title": "GradingReviewIn"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "LearningEventIn": {
+    "properties": {
+     "course_id": {
+      "type": "string",
+      "title": "Course Id"
+     },
+     "type": {
+      "type": "string",
+      "title": "Type",
+      "default": "CONTENT_VIEWED"
+     },
+     "payload": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Payload",
+      "default": {}
+     }
+    },
+    "type": "object",
+    "required": [
+     "course_id"
+    ],
+    "title": "LearningEventIn"
+   },
+   "LoginIn": {
+    "properties": {
+     "username": {
+      "type": "string",
+      "title": "Username"
+     },
+     "password": {
+      "type": "string",
+      "title": "Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "username",
+     "password"
+    ],
+    "title": "LoginIn"
+   },
+   "MessageIn": {
+    "properties": {
+     "content": {
+      "type": "string",
+      "title": "Content"
+     },
+     "stream": {
+      "type": "boolean",
+      "title": "Stream",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "content"
+    ],
+    "title": "MessageIn"
+   },
+   "PeerReviewIn": {
+    "properties": {
+     "scores": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Scores"
+     },
+     "comment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Comment"
+     }
+    },
+    "type": "object",
+    "required": [
+     "scores"
+    ],
+    "title": "PeerReviewIn"
+   },
+   "PlanPatch": {
+    "properties": {
+     "plan": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Plan"
+     }
+    },
+    "type": "object",
+    "required": [
+     "plan"
+    ],
+    "title": "PlanPatch"
+   },
+   "QuestionIn": {
+    "properties": {
+     "course_id": {
+      "type": "string",
+      "title": "Course Id"
+     },
+     "type": {
+      "type": "string",
+      "title": "Type"
+     },
+     "body": {
+      "type": "string",
+      "title": "Body"
+     },
+     "options": {
+      "anyOf": [
+       {
+        "items": {
+         "additionalProperties": true,
+         "type": "object"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Options"
+     },
+     "answer": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Answer",
+      "default": {}
+     },
+     "explanation": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Explanation"
+     },
+     "rubric": {
+      "anyOf": [
+       {
+        "items": {},
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rubric"
+     },
+     "concept_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Concept Ids",
+      "default": []
+     },
+     "difficulty_estimated": {
+      "type": "string",
+      "title": "Difficulty Estimated",
+      "default": "MEDIUM"
+     },
+     "cognitive_level": {
+      "type": "string",
+      "title": "Cognitive Level",
+      "default": "UNDERSTAND"
+     },
+     "usage": {
+      "type": "string",
+      "title": "Usage",
+      "default": "PRACTICE"
+     },
+     "source_refs": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Source Refs",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "course_id",
+     "type",
+     "body"
+    ],
+    "title": "QuestionIn"
+   },
+   "RegenIn": {
+    "properties": {
+     "instruction": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Instruction"
+     }
+    },
+    "type": "object",
+    "title": "RegenIn"
+   },
+   "ReportIn": {
+    "properties": {
+     "issue": {
+      "type": "string",
+      "title": "Issue"
+     }
+    },
+    "type": "object",
+    "required": [
+     "issue"
+    ],
+    "title": "ReportIn"
+   },
+   "ResponseIn": {
+    "properties": {
+     "question_version_id": {
+      "type": "string",
+      "title": "Question Version Id"
+     },
+     "answer": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Answer",
+      "default": {}
+     },
+     "time_spent_ms": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Time Spent Ms"
+     },
+     "hint_used": {
+      "type": "boolean",
+      "title": "Hint Used",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "question_version_id"
+    ],
+    "title": "ResponseIn"
+   },
+   "ReviewIn": {
+    "properties": {
+     "decision": {
+      "type": "string",
+      "title": "Decision"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "decision"
+    ],
+    "title": "ReviewIn"
+   },
+   "SessionIn": {
+    "properties": {
+     "course_id": {
+      "type": "string",
+      "title": "Course Id"
+     },
+     "mode": {
+      "type": "string",
+      "title": "Mode",
+      "default": "LEARNING"
+     },
+     "assessment_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Assessment Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "course_id"
+    ],
+    "title": "SessionIn"
+   },
+   "StudyPlanIn": {
+    "properties": {
+     "course_id": {
+      "type": "string",
+      "title": "Course Id"
+     },
+     "exam_date": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exam Date"
+     },
+     "weekly_hours": {
+      "type": "number",
+      "title": "Weekly Hours",
+      "default": 5
+     },
+     "goals": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Goals"
+     },
+     "regenerate": {
+      "type": "boolean",
+      "title": "Regenerate",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "course_id"
+    ],
+    "title": "StudyPlanIn"
+   },
+   "TeacherReviewIn": {
+    "properties": {
+     "decision": {
+      "type": "string",
+      "title": "Decision"
+     },
+     "comment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Comment"
+     }
+    },
+    "type": "object",
+    "required": [
+     "decision"
+    ],
+    "title": "TeacherReviewIn"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   }
+  },
+  "securitySchemes": {
+   "OAuth2PasswordBearer": {
+    "type": "oauth2",
+    "flows": {
+     "password": {
+      "scopes": {},
+      "tokenUrl": "/api/v1/auth/login"
+     }
+    }
+   }
+  }
+ }
+}

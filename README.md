@@ -1,165 +1,114 @@
-# سامانه هوشمند آموزش و آزمون — Smart Education
+# دانشجو۳۶۰ — سامانه سرویس‌های یادگیری هوشمند
 
-سامانه تولید محتوای آموزشی هوشمند، آزمون چهارگزینه‌ای و تشریحی — با
-**احراز هویت و مدیریت نقش‌ها**، **گزارش‌سازی چهارفرمتی گرافیکی**،
-**یکپارچگی سرویس با سامانه برنامه‌ریزی درسی** و **سرویس‌دهی سرفصل‌ها به سایر سامانه‌ها**.
+پیاده‌سازی مرجع (فاز یک MVP + اسکلت فاز دو) بر اساس سند تشریح نیازمندی‌ها:
+**FastAPI ماژولار + React + PostgreSQL** با هستهٔ «سرفصل مصوب، گراف مفاهیم،
+محتوای ساختاریافته تأییدشده و شواهد یادگیری» — نه صرفاً یک چت‌بات.
 
-## 🔐 حساب‌های کاربری و نقش‌ها
+```
+هستهٔ تصمیم:  AI پیش‌نویس می‌سازد ← استاد تأیید می‌کند ← شواهد معتبر مبنای شخصی‌سازی است
+```
 
-| نقش | ثبت‌نام | دسترسی |
-|-----|---------|--------|
-| مدیر سامانه (admin) | بوت‌استرپ اولیه: `admin / admin123` | همهٔ بخش‌ها + مدیریت کاربران |
-| مدیرگروه | نیازمند تایید مدیر سامانه | تایید/رد استاد و دانشجو + مدیریت کاربران محدود |
-| استاد | نیازمند تایید مدیر سامانه یا مدیرگروه | تولید محتوا و آزمون |
-| دانشجو | فعال‌سازی خودکار | شرکت در آزمون و مشاهده محتوا |
+## ساختار مخزن
 
-نقاط اتصال احراز هویت:
-- `POST /api/auth/register` — ثبت‌نام (دانشجو فعال می‌شود؛ استاد/مدیرگروه در انتظار تایید)
-- `POST /api/auth/login` — ورود و دریافت توکن (Bearer)
-- `GET  /api/auth/me` — اطلاعات کاربر جاری
-- `POST /api/auth/change-password` — تغییر رمز عبور
-- `GET/POST/PUT/DELETE /api/users/...` — مدیریت کاربران (فقط مدیر سامانه و مدیرگروه)
-- تولید محتوا و آزمون با هوش مصنوعی نیازمند ورود است.
+```
+student360/
+├── backend/            FastAPI ماژولار (app/core, app/models, app/services, app/api, app/ai, app/workers)
+│   ├── tests/          ۵۵ تست pytest — نگاشت مستقیم به معیارهای پذیرش AC-01..AC-14
+│   ├── scripts/        init_db.py و seed_demo.py (دموی کامل با خط تولید واقعی)
+│   └── alembic/        مهاجرت‌ها (برای PostgreSQL)
+├── frontend/           React 18 + TypeScript + Vite، فارسی RTL، فونت Vazirmatn
+├── docs/               api_contract.md و openapi.json (قرارداد API)
+├── sample-outputs/     خروجی‌های نمونه فارسی: PDF / PPTX / HTML / DOCX
+├── docker/             Dockerfile بک‌اند/فرانت‌اند و nginx
+└── docker-compose.yml  PostgreSQL + Redis + بک‌اند + فرانت‌اند
+```
 
-> ⚠️ پس از اولین ورود، رمز حساب مدیر را از منوی داشبورد تغییر دهید.
-
-## 🌐 آدرس‌های رسمی سرویس‌ها
-
-| سرویس | آدرس |
-|-------|------|
-| این سامانه (آموزش) | `http://188.212.96.235:8084` |
-| سرویس برنامه‌ریزی درسی (لیست درس‌ها) | `http://188.212.96.235:8083` |
-
-## ✨ امکانات
-
-- 🎓 **محتوای آموزشی هوشمند** — تولید محتوا با هوش مصنوعی برای هر سرفصل درس
-- 📝 **آزمون‌ساز** — آزمون چهارگزینه‌ای و تشریحی به‌همراه تصحیح و کارنامه
-- 📊 **استودیو گزارش‌ها (جدید)** — خروجی گرافیکی از کل داده‌های سامانه در ۴ فرمت:
-  | فرمت | ویژگی‌ها |
-  |------|----------|
-  | 🌐 HTML | تک‌فایلی، نمودار SVG، کارت‌های KPI، قابل چاپ |
-  | 📽 PowerPoint | ارائه ۱۶:۹، جلد گرادیانی، نمودار بومی قابل ویرایش |
-  | 📄 PDF | فونت وزیرمتن، جلد رنگی، نمودار و جدول‌های راه‌راه، آماده چاپ |
-  | 📝 Word | سند راست‌به‌چپ قابل ویرایش با قالب سازمانی |
-- 🔗 **یکپارچگی سرویس‌ها** — خواندن فهرست درس‌ها از
-  [سامانه هوشمند برنامه‌ریزی درسی](https://github.com/hjalilvand2004-coder/university-scheduler):
-  - `GET  /api/integration/scheduler/status` — بررسی سلامت سرویس بیرونی
-  - `GET  /api/integration/scheduler/courses` — مشاهده زنده دروس سرویس
-  - `POST /api/integration/scheduler/sync` — همگام‌سازی دروس در دیتابیس محلی
-  - آدرس سرویس با متغیر محیطی `SCHEDULER_BASE_URL` (پیش‌فرض `http://188.212.96.235:8083`)
-- ⇪ **سرویس‌دهی به سایر سامانه‌ها (جدید)** — سرفصل‌های دروس و محتوای آن‌ها
-  به‌صورت سرویس در اختیار سامانه برنامه‌ریزی درسی و سایر سامانه‌ها قرار می‌گیرد:
-
-  | سرویس | نقطهٔ اتصال | توضیح |
-  |-------|-------------|-------|
-  | شناسنامهٔ سرویس | `GET /api/services/health` | کشف سرویس و قابلیت‌ها |
-  | فهرست درس‌ها | `GET /api/services/courses` | درس‌ها + تعداد سرفصل/محتوا |
-  | فهرست سرفصل‌ها | `GET /api/services/topics?course_id=` | سبک، با صفحه‌بندی |
-  | جزئیات سرفصل | `GET /api/services/topics/{id}` | سرفصل + محتوا |
-  | محتوای کامل سرفصل | `GET /api/services/topics/{id}/content` | متن کامل محتوا |
-  | بستهٔ کامل | `GET /api/services/export/topics` | همهٔ سرفصل‌ها + محتوا در یک JSON |
-  | ارسال به سامانهٔ دیگر | `POST /api/services/push/topics` | Push به `{target}/api/ingest/topics` |
-
-  **قرارداد دریافت (Ingest Contract)** — سامانهٔ گیرنده باید این مسیر را پیاده‌سازی کند:
-
-  ```
-  POST {target}/api/ingest/topics
-  Content-Type: application/json
-  X-Source-System: smart-education
-
-  {
-    "source": "smart-education",
-    "generated_at": "2026-11-01T10:00:00Z",
-    "total_topics": 12,
-    "topics": [
-      {
-        "course_id": 1,
-        "course_title": "پایگاه داده پیشرفته",
-        "topic_id": 5,
-        "topic_title": "طراحی و نرمال‌سازی",
-        "description": "...",
-        "session_minute": 50,
-        "sort_order": 1,
-        "contents": [
-          {"content_id": 9, "title": "...", "body": "...", "source": "ai"}
-        ]
-      }
-    ]
-  }
-  ```
-
-## 🚀 اجرای سریع (نسخهٔ قابل حمل — بدون نیاز به نصب)
-
-بدون نیاز به Python، PyCharm یا Node.js:
-
-1. از بخش [Releases](../../releases) فایل `SmartEducation-Portable-win64.zip` را دانلود کنید
-2. استخراج کنید و `SmartEducation.exe` را اجرا کنید
-3. مرورگر به‌صورت خودکار باز می‌شود (`http://127.0.0.1:8084`)
-4. استودیو گزارش‌ها: `http://127.0.0.1:8084/reports-page`
-
-> 💡 سامانه روی همهٔ کارت‌های شبکه گوش می‌دهد؛ از طریق IP سرور هم در دسترس است:
-> `http://188.212.96.235:8084` (پورت 8084 باید در فایروال ویندوز باز باشد).
-
-> 💡 لیست درس‌ها به‌صورت زنده از سرویس رسمی `http://188.212.96.235:8083`
-> خوانده می‌شود — سرویس‌دهی سرفصل‌ها به سایر سامانه‌ها هم فعال است.
-
-## 🛠 اجرای توسعه (Development)
+## اجرای سریع (توسعه بدون Docker)
 
 ```bash
-# بک‌اند
+# بک‌اند (Python 3.12)
 cd backend
 pip install -r requirements.txt
-python run.py          # http://127.0.0.1:8000
+python scripts/init_db.py          # ساخت جداول (SQLite توسعه)
+python scripts/seed_demo.py        # دموی کامل: تولید محتوا، سؤال، آزمون، تسلط، گفتگو
+uvicorn app.main:app --reload      # مستندات: http://localhost:8000/api/docs
 
-# فرانت‌اند
-cd frontend
+# فرانت‌اند (Node 20+)
+cd ../frontend
 npm install
-npm run dev            # http://127.0.0.1:5173
+npm run dev                        # http://localhost:5173 (پروکسی /api به 8000)
 ```
 
-سرویس بیرونی (اختیاری، برای لیست درس‌ها):
+## اجرا با Docker
 
 ```bash
-git clone https://github.com/hjalilvand2004-coder/university-scheduler.git
-cd university-scheduler && python main.py   # http://127.0.0.1:8000
+cp .env.example .env   # مقدارها را تنظیم کنید
+docker compose up -d --build
+# فرانت‌اند: http://localhost:8080   |   API: http://localhost:8000/api/docs
 ```
 
-## 📦 ساخت نسخهٔ قابل حمل
+## حساب‌های دمو (رمز همه: `Pass1234!`)
 
-به‌صورت خودکار با GitHub Actions:
+| کاربر | نقش |
+|---|---|
+| `prof.rezaei` | استاد (استودیوی محتوا، تأیید، انتشار) |
+| `ta.karimi` | دستیار آموزشی (پیش‌نویس بدون انتشار) |
+| `student.sara` | دانشجو (مطالعه، آزمون، استاد هوشمند، برنامه مطالعه) |
+| `student.amir` | دانشجو |
+| `edu.admin` | مدیر آموزشی (نسخه‌های مصوب، حسابرسی) |
+| `quality.expert` | کارشناس کیفیت محتوا |
+| `tech.admin` | مدیر فنی (پایش AI) |
 
-```bash
-git tag v1.0.1 && git push origin v1.0.1
+داده دمو با **همان سرویس‌های واقعی سامانه** ساخته می‌شود: سرفصل وارد و تأیید
+می‌شود، مفاهیم گراف ساخته می‌شوند، محتوا با AI تولید و کنترل کیفیت و **منتشر**
+می‌شود، ۱۲ سؤال تأیید می‌شوند، دانشجو آزمون و تمرین تطبیقی می‌دهد، تخمین تسلط و
+فرضیه‌های تشخیصی ساخته می‌شوند، برنامه مطالعه و مرور فاصله‌دار فعال می‌شود و
+گفتگو با استاد هوشمند (با ارجاع به منابع مجاز) انجام می‌شود.
+
+## وصل‌کردن مدل واقعی
+
+تولیدها پشت **AI Gateway** (`app/ai/gateway.py`) هستند؛ با این تنظیم مدل خارجی
+جایگزین مولد قطعی توسعه (mock) می‌شود **بدون تغییر هیچ سرویسی**:
+
+```env
+S360_AI_PROVIDER=openai_compat
+S360_AI_BASE_URL=https://<مدل-سازگار-OpenAI>/v1
+S360_AI_API_KEY=...
+S360_AI_MODEL=...
 ```
 
-Workflow ‏`.github/workflows/build-portable.yml` خروجی
-`SmartEducation-Portable-win64.zip` را ساخته و در Releases منتشر می‌کند.
+هر فراخوانی مدل در جدول `ai_runs` با نسخه Prompt/مدل و مصرف ثبت می‌شود و خروجی
+قبل از استفاده با Pydantic اعتبارسنجی می‌شود.
 
-## 🧾 API گزارش‌ها
+## نگاشت معیارهای پذیرش به تست‌ها
 
-```
-GET /api/reports/preview            → دادهٔ خام گزارش
-GET /api/reports/export/html        → گزارش HTML
-GET /api/reports/export/pptx        → گزارش PowerPoint
-GET /api/reports/export/pdf         → گزارش PDF
-GET /api/reports/export/docx        → گزارش Word
-```
+| AC | معیار | تست |
+|---|---|---|
+| AC-01 | تولید فقط با نسخه مشخص سرفصل | `test_content_pipeline.py::test_generation_requires_approved_syllabus` |
+| AC-02 | تأیید انسانی ساختار استخراج‌شده | `test_syllabus.py::test_import_creates_draft_needing_approval` |
+| AC-03 | بازتولید یک بخش بدون ازبین‌رفتن سایر ویرایش‌ها | `test_content_pipeline.py::test_block_edit_and_selective_regeneration` |
+| AC-04 | PDF/PPTX فارسی، فرمول و جدول صحیح | `test_exports.py::test_pdf_export_persian`, `test_pptx_export_editable` (+ بررسی بصری در sample-outputs) |
+| AC-05 | انتشار فقط پس از تأیید مجاز | `test_auth_rbac.py::test_student_cannot_publish_content`, `test_content_pipeline.py::test_publish_gate_and_student_visibility` |
+| AC-06 | تغییر سرفصل پنهان تغییر ایجاد نکند + گزارش اثر | `test_syllabus.py::test_syllabus_diff_reports_changes`، نسخه‌بندی محتوا |
+| AC-07 | ردیابی پاسخ و نسخه سؤال | `test_assessment.py::test_response_version_fixed_and_traceable` |
+| AC-08 | نبود شواهد ≠ ضعف قطعی | `test_mastery.py::test_no_evidence_is_unknown_not_weak` |
+| AC-09 | کلید امتحان خارج از RAG/گفتگو | `test_tutor.py::test_exam_key_not_retrieved_by_default`, `test_tutor_never_cites_exam_key` |
+| AC-10 | نمره تشریحی قابل بررسی/اصلاح/اعتراض | `test_assessment.py::test_essay_ai_suggestion_then_human_final_and_dispute` |
+| AC-11 | HTML/فایل خروجی بدون کد ناامن | `test_exports.py::test_html_export_safe_and_rtl` (CSP + escape) |
+| AC-12 | خرابی AI مطالعه را متوقف نکند | `test_planning_ops.py::test_ai_failure_fallback_for_syllabus_import` + حالت جایگزین در همه سرویس‌ها |
+| AC-13 | اجرای مجدد Job تکراری نسازد | `test_collab_ops.py::test_idempotency_same_key_same_job`, `test_export_idempotency` |
+| AC-14 | بازیابی دیتابیس/فایل | پشتیبان‌گیری pgdata + volume در docker-compose؛ بازیابی در محیط آزمون مستند است |
 
-## 🔌 سرویس‌دهی سرفصل‌ها به سایر سامانه‌ها
+اجرا: `cd backend && python -m pytest tests/ -q`
 
-مستندات تعاملی و قابل آزمایش: `http://188.212.96.235:8084/docs`
-(گروه `services`) و صفحهٔ استودیو گزارش‌ها (`/reports-page`).
+## نکات معماری
 
-مثال — خواندن سرفصل‌های یک درس توسط سامانهٔ دیگر:
-
-```bash
-curl "http://188.212.96.235:8084/api/services/topics?course_id=1"
-```
-
-مثال — ارسال سرفصل‌ها به یک سامانهٔ گیرنده:
-
-```bash
-curl -X POST "http://188.212.96.235:8084/api/services/push/topics" \
-  -H "Content-Type: application/json" \
-  -d '{"target_base_url": "http://188.212.96.235:8083", "include_content": true}'
-```
+- **مونولیت ماژولار**: هر دامنه سرویس و مسیر مستقل دارد؛ تفکیک به Workerهای
+  Celery فقط با جابه‌جایی `app/workers` انجام می‌شود (ساختار آماده).
+- **نسخه‌بندی محتوا**: ویرایش نسخه منتشرشده، پیش‌نویس جدید می‌سازد؛ هیچ ویرایشی
+  سابقه منتشرشده را عوض نمی‌کند. قفل بهینه با `expected_revision` (پاسخ 409).
+- **دسترسی**: نقش سراسری + نقش درسی + ثبت‌نام؛ حسابرسی انتشار/نمره/مجوز در
+  `audit_logs`؛ رویدادهای یکپارچه‌سازی در `outbox_events`.
+- **RAG**: قطعه‌بندی معنایی + بردار هش‌محور در توسعه؛ در استقرار ستون pgvector
+  جایگزین می‌شود (فیلتر مجوز پیش از بازیابی، همیشه).
+- **زمان‌ها** در UTC ذخیره و به‌صورت ISO-8601 ارائه می‌شوند؛ نمایش محلی در UI.

@@ -1,0 +1,55 @@
+# سامانه سرویس‌های یادگیری هوشمند دانشجو۳۶۰ — استقرار کامل با Docker
+# اجرا: docker compose up -d --build
+# توجه: برای پوشه مدل واقعی، متغیرهای S360_AI_* را در .env تنظیم کنید.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: s360
+      POSTGRES_PASSWORD: s360_pass
+      POSTGRES_DB: student360
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U s360"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    # در MVP کش/صف اختیاری است؛ Workerهای Celery در فاز دو فعال می‌شوند
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/backend.Dockerfile
+    environment:
+      S360_DATABASE_URL: postgresql+psycopg://s360:s360_pass@db:5432/student360
+      S360_STORAGE_DIR: /data/storage
+      S360_CORS_ORIGINS: "http://localhost:5173,http://localhost:8080"
+      S360_AI_PROVIDER: ${S360_AI_PROVIDER:-mock}
+      S360_AI_BASE_URL: ${S360_AI_BASE_URL:-}
+      S360_AI_API_KEY: ${S360_AI_API_KEY:-}
+      S360_AI_MODEL: ${S360_AI_MODEL:-}
+      S360_JWT_SECRET: ${S360_JWT_SECRET:-change-me-please-with-a-long-random-string-32+}
+    volumes:
+      - storage:/data/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "python scripts/init_db.py && python scripts/seed_demo.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend.Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  pgdata:
+  storage:

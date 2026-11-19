@@ -1,156 +1,134 @@
-import os
+"""نقطه ورود FastAPI — مونولیت ماژولار (بخش ۱۰).
 
-from fastapi import FastAPI
+میان‌افزارها: Request-ID، CORS، محدودسازی نرخ ورود.
+مدیریت خطای استاندارد با request_id برای ردیابی.
+"""
+import logging
+import time
+import uuid
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 
-from .database import Base, engine, SessionLocal
-from .routers import content, courses, integration, quizzes, ai_stats, reports, services
-from .routers import auth, users
-from app.routers import upload  # اضافه کنید
-from fastapi.staticfiles import StaticFiles  # برای سرویس‌دهی فایل‌های استاتیک
+from app.core.config import get_settings
+from app.core.errors import AppError, request_id_var
 
-# ایجاد جدول‌ها در اجرای اولیه.
-Base.metadata.create_all(bind=engine)
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s %(levelname)s %(name)s :: %(message)s")
+logger = logging.getLogger("student360")
 
-APP_VERSION = "2.4.1"
-
-app = FastAPI(
-    title="سامانه هوشمند آموزش و آزمون",
-    version=APP_VERSION,
-    description=(
-        "Backend سامانه تولید محتوای آموزشی، آزمون چهارگزینه‌ای "
-        "و آزمون تشریحی — با گزارش‌سازی چهارفرمتی "
-        "(HTML / PowerPoint / PDF / Word) و یکپارچگی سرویس برنامه‌ریزی درسی."
-    ),
-)
-
-# اضافه کردن روت آپلود
-app.include_router(upload.router, prefix="/api")
-
-# برای دسترسی به تصاویر آپلود شده (سرویس‌دهی فایل‌های استاتیک)
-if not os.path.isdir("uploads"):
-    os.makedirs("uploads", exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-
-# صفحهٔ «استودیو گزارش‌ها» (فارسی، بدون نیاز به فرانت‌اند)
-_STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
-REPORTS_PAGE = os.path.join(_STATIC_DIR, "reports.html")
+API_PREFIX = "/api/v1"
 
 
-@app.get("/reports-page", include_in_schema=False)
-def reports_page():
-    if os.path.exists(REPORTS_PAGE):
-        return FileResponse(REPORTS_PAGE, media_type="text/html; charset=utf-8")
-    return {"detail": "reports page not found"}
+def create_app() -> FastAPI:
+    settings = get_settings()
+    app = FastAPI(
+        title=settings.app_name,
+        version=settings.app_version,
+        description=(
+            "سامانه سرویس‌های یادگیری هوشمند دانشجو۳۶۰ — استودیوی تولید محتوای استاد، "
+            "بانک سؤال، ارزیابی، تحلیل تسلط، برنامه مطالعه و استاد هوشمند گفتگو‌محور"
+        ),
+        docs_url="/api/docs",
+        openapi_url="/api/openapi.json",
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_list,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["X-Request-ID"],
+    )
+
+    @app.middleware("http")
+    async def request_context(request: Request, call_next):
+        request_id = request.headers.get("X-Request-ID") or uuid.uuid4().hex
+        token = request_id_var.set(request_id)
+        t0 = time.monotonic()
+        try:
+            response = await call_next(request)
+        finally:
+            request_id_var.reset(token)
+        response.headers["X-Request-ID"] = request_id
+        logger.info("%s %s -> %s (%.0fms)", request.method, request.url.path,
+                    response.status_code, (time.monotonic() - t0) * 1000)
+        return response
+
+    def error_response(status_code: int, code: str, message: str, details: dict | None = None):
+        return JSONResponse(status_code=status_code, content={
+            "error": {"code": code, "message": message,
+                      "details": details or {},
+                      "request_id": request_id_var.get()},
+        })
+
+    @app.exception_handler(AppError)
+    async def app_error_handler(request: Request, exc: AppError):
+        return error_response(exc.status_code, exc.code, exc.message, exc.details)
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_handler(request: Request, exc: RequestValidationError):
+        return error_response(422, "VALIDATION_ERROR", "داده ورودی نامعتبر است",
+                              {"errors": exc.errors()[:10]})
+
+    @app.exception_handler(Exception)
+    async def internal_handler(request: Request, exc: Exception):
+        logger.exception("unhandled error on %s", request.url.path)
+        return error_response(500, "INTERNAL", "خطای داخلی سرور؛ با پشتیبانی در تماس باشید")
+
+    from app.api.v1 import (assessments, auth, collaboration, content, courses,
+                            exports, learning, ops, planning, questions, syllabus,
+                            tutor)
+
+    app.include_router(auth.router, prefix=API_PREFIX)
+    app.include_router(auth.me_router, prefix=API_PREFIX)
+    app.include_router(courses.router, prefix=API_PREFIX)
+    app.include_router(syllabus.router, prefix=API_PREFIX)
+    app.include_router(content.router, prefix=API_PREFIX)
+    app.include_router(exports.router, prefix=API_PREFIX)
+    app.include_router(questions.router, prefix=API_PREFIX)
+    app.include_router(assessments.router, prefix=API_PREFIX)
+    app.include_router(learning.router, prefix=API_PREFIX)
+    app.include_router(planning.router, prefix=API_PREFIX)
+    app.include_router(tutor.router, prefix=API_PREFIX)
+    app.include_router(collaboration.router, prefix=API_PREFIX)
+    app.include_router(ops.router, prefix=API_PREFIX)
+    from app.api.v1 import integration
+    app.include_router(integration.router, prefix=API_PREFIX)
+    from app.api.v1 import users_admin, reports, services_ext, ai_stats
+    app.include_router(users_admin.router, prefix=API_PREFIX)
+    app.include_router(reports.router, prefix=API_PREFIX)
+    app.include_router(services_ext.router, prefix=API_PREFIX)
+    app.include_router(ai_stats.router, prefix=API_PREFIX)
+
+    @app.get("/healthz", tags=["ops"])
+    def health():
+        return {"status": "ok", "app": settings.app_name, "version": settings.app_version}
+
+    # نسخه پرتیبل: serve فرانت‌اند build‌شده + fallback SPA (بدون نیاز به nginx)
+    from pathlib import Path as _Path
+
+    dist = (_Path(settings.frontend_dist) if settings.frontend_dist
+            else _Path(__file__).resolve().parents[2] / "frontend" / "dist")
+    if dist.exists() and (dist / "index.html").exists():
+        from fastapi.responses import FileResponse
+
+        @app.get("/{full_path:path}", include_in_schema=False)
+        def spa(full_path: str):
+            if full_path == "api" or full_path.startswith("api/"):
+                return JSONResponse(status_code=404, content={
+                    "error": {"code": "NOT_FOUND", "message": "مسیر API یافت نشد",
+                              "details": {}, "request_id": request_id_var.get()}})
+            target = (dist / full_path).resolve()
+            if full_path and str(target).startswith(str(dist)) and target.is_file():
+                return FileResponse(target)
+            return FileResponse(dist / "index.html")
+        logger.info("serving frontend dist from %s", dist)
+
+    return app
 
 
-# CORS برای Frontend مبتنی بر Vite
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:8100",
-        "http://127.0.0.1:8100",
-        "http://localhost:8084",
-        "http://127.0.0.1:8084",
-        "http://188.212.96.235:8084",
-        "http://188.212.96.235:8083",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-# تمام APIها با /api شروع می‌شوند.
-app.include_router(courses.router, prefix="/api")
-app.include_router(content.router, prefix="/api")
-app.include_router(quizzes.router, prefix="/api")
-app.include_router(ai_stats.router, prefix="/api")  # اضافه شد
-app.include_router(reports.router, prefix="/api")        # گزارش‌سازی ۴ فرمتی
-app.include_router(integration.router, prefix="/api")    # اتصال به scheduler
-app.include_router(services.router, prefix="/api")       # سرویس‌دهی به سایر سامانه‌ها
-app.include_router(auth.router, prefix="/api")           # ورود و ثبت‌نام
-app.include_router(users.router, prefix="/api")          # مدیریت کاربران
-
-
-# ------------------------------------------------------------------
-# بوت‌استرپ حساب مدیر سامانه — در اولین اجرا یا پایگاه‌داده‌های قدیمی
-# نام کاربری: admin  |  رمز اولیه: admin123 (تغییر دهید!)
-# ------------------------------------------------------------------
-def _bootstrap_admin() -> None:
-    from .models import User
-    from .security import hash_password
-
-    session = SessionLocal()
-    try:
-        has_admin = (
-            session.query(User)
-            .filter(User.role == "admin")
-            .first()
-        )
-        if has_admin is None:
-            session.add(
-                User(
-                    username="admin",
-                    full_name="مدیر سامانه",
-                    hashed_password=hash_password("admin123"),
-                    role="admin",
-                    status="active",
-                )
-            )
-            session.commit()
-            print("[i] حساب مدیر سامانه ساخته شد — admin / admin123 (رمز را تغییر دهید)")
-    except Exception as exc:  # noqa: BLE001
-        session.rollback()
-        print(f"[!] خطا در ساخت حساب مدیر: {exc}")
-    finally:
-        session.close()
-
-
-_bootstrap_admin()
-
-
-@app.get("/api-info", tags=["System"])
-def api_info():
-    return {
-        "message": "Smart Education API is running",
-        "version": APP_VERSION,
-        "docs_url": "/docs",
-        "api_prefix": "/api",
-        "reports_page": "/reports-page",
-        "exports": ["/api/reports/export/html", "/api/reports/export/pptx",
-                    "/api/reports/export/pdf", "/api/reports/export/docx"],
-        "services": ["/api/services/health", "/api/services/courses",
-                     "/api/services/topics", "/api/services/export/topics",
-                     "/api/services/push/topics"],
-    }
-
-
-@app.get("/health", tags=["System"])
-def health_check():
-    return {"status": "ok", "message": "Backend is healthy", "version": APP_VERSION}
-
-
-# ------------------------------------------------------------------
-# سرویس‌دهی رابط کاربری ساخته‌شده (frontend/dist) در حالت پرتابل
-# اگر متغیر محیطی FRONTEND_DIST_DIR تنظیم شده باشد، UI روی همین
-# پورت سرو می‌شود و نیازی به Node.js نیست.
-#
-# نکتهٔ مهم: این mount باید «آخرین» روت ثبت‌شده باشد تا مسیرهای
-# /api و /reports-page و /docs و /health را نپوشاند.
-# (اشکال نسخهٔ ۲.۲.۰: روت JSON روی «/» قبل از mount ثبت شده بود و
-# مرورگر به‌جای رابط کاربری، پیام JSON نشان می‌داد — اکنون «/» رابط
-# کاربری اصلی را سرو می‌کند و JSON فقط روی /api-info است.)
-# ------------------------------------------------------------------
-_FE_DIST = os.environ.get("FRONTEND_DIST_DIR", "")
-if _FE_DIST and os.path.isdir(os.path.join(_FE_DIST, "assets")):
-    app.mount("/", StaticFiles(directory=_FE_DIST, html=True), name="frontend")
-else:
-    # در حالت توسعه (بدون فرانت‌اند ساخته‌شده) ریشه به استودیو گزارش‌ها می‌رود
-    @app.get("/", include_in_schema=False)
-    def root_fallback():
-        return RedirectResponse(url="/reports-page")
+app = create_app()

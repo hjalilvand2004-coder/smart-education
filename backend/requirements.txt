@@ -1,17 +1,20 @@
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
-sqlalchemy==2.0.36
-pydantic==2.10.4
-pydantic-settings==2.7.0
-python-multipart==0.0.20
-python-dotenv==1.0.1
-openai==1.59.7
-openpyxl==3.1.5
-httpx==0.28.1
-
-# --- گزارش‌سازی چهارفرمتی ---
-python-pptx==1.0.2
-python-docx==1.1.2
-reportlab==4.2.5
-arabic-reshaper==3.0.0
-python-bidi==0.6.6
+# سامانه سرویس‌های یادگیری هوشمند دانشجو۳۶۰ — وابستگی‌های بک‌اند
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlalchemy>=2.0
+alembic>=1.13
+pydantic>=2.7
+pydantic-settings>=2.2
+PyJWT>=2.8
+httpx>=0.27
+jinja2>=3.1
+python-multipart>=0.0.9
+python-docx>=1.1
+python-pptx>=1.0
+reportlab>=4.0
+arabic-reshaper>=3.0
+python-bidi>=0.4
+pdfplumber>=0.10
+pypdf>=4.0
+# production: psycopg[binary] , redis , celery , boto3 , pgvector
+pytest>=8.0

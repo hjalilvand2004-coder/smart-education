@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>آموزش مفهوم مشتق</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.jsdelivr.net; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data:;">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<style>
+  :root { --ink:#1f2937; --brand:#2563eb; --soft:#f3f4f6; --line:#e5e7eb; }
+  * { box-sizing: border-box; }
+  body { font-family: Vazirmatn, "Segoe UI", Tahoma, sans-serif; color:var(--ink);
+         margin:0; background:#f8fafc; line-height:1.9; }
+  .page { max-width: 860px; margin: 0 auto; padding: clamp(16px, 4vw, 48px); background:#fff; }
+  header.cover { border-bottom: 3px solid var(--brand); padding-bottom: 24px; margin-bottom: 28px; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 8px; color: var(--brand); }
+  .meta { color:#6b7280; font-size: .9rem; }
+  .block { margin: 22px 0; padding: 14px 18px; border: 1px solid var(--line); border-radius: 12px; background:#fff; }
+  .block.heading { background: var(--soft); border: 0; border-right: 4px solid var(--brand); }
+  .block.definition { background:#eff6ff; border-color:#bfdbfe; }
+  .block.note { background:#fffbeb; border-color:#fde68a; }
+  .block.worked_example { background:#f0fdf4; border-color:#bbf7d0; }
+  .block.exercise { background:#fdf2f8; border-color:#fbcfe8; }
+  .block.self_check { background:#f5f3ff; border-color:#ddd6fe; }
+  .block.summary { background:var(--soft); }
+  .block h3 { margin: 4px 0 10px; font-size: 1.05rem; }
+  ol.steps, ul.items { padding-right: 1.4rem; padding-left: 0; margin: 8px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: right; }
+  th { background: var(--soft); }
+  .formula { direction: ltr; text-align: center; font-size: 1.1rem; background: var(--soft);
+             padding: 12px; border-radius: 8px; overflow-x: auto; }
+  code, pre { direction: ltr; font-family: monospace; background:#0f172a; color:#e2e8f0; padding: 2px 6px; border-radius: 6px; }
+  pre { padding: 14px; overflow-x: auto; }
+  .answer { color:#166534; }
+  .citations { font-size: .82rem; color:#6b7280; margin-top: 6px; }
+  footer { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 12px;
+           color:#9ca3af; font-size: .8rem; }
+  @media print {
+    body { background:#fff; }
+    .block { break-inside: avoid; border-color: #ddd; }
+    .page { max-width: none; padding: 0; }
+  }
+</style>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true}]});"></script>
+</head>
+<body>
+<div class="page">
+  <header class="cover">
+    <h1>آموزش مفهوم مشتق</h1>
+    <div class="meta">درس: ریاضیات عمومی ۱ (MATH101)
+      | استاد: دکتر مریم رضایی
+      | نسخه محتوا: 1
+      | نسخه سرفصل: 1
+      | تاریخ تولید: 2026-11-17</div>
+  </header>
+
+  
+  <div class="block heading"><h2>آموزش مفهوم مشتق</h2><p>هدف این بخش: آموزش مفهومی دقیق و قابل به‌کارگیری مطابق سرفصل مصوب درس.</p></div>
+  
+
+  
+  <div class="block text"><h3>چرا این موضوع مهم است؟</h3>
+    <p>در این بخش، مطابق اهداف یادگیری سرفصل مصوب، مفهوم‌های اصلی را گام‌به‌گام می‌سازیم. ابتدا تعریف دقیق هر مفهوم را می‌بینیم، سپس با مثال حل‌شده درک را عمیق می‌کنیم و در پایان با پرسش‌های خودارزیابی آماده تمرین و ارزیابی می‌شویم.</p>
+    
+  </div>
+  
+
+  
+  <div class="block note"><h3>هدف یادگیری LO1</h3>
+    <p>محاسبه حد توابع با استفاده از قوانین حد</p>
+    
+  </div>
+  
+
+  
+  <div class="block note"><h3>هدف یادگیری LO2</h3>
+    <p>تفسیر مشتق به‌عنوان نرخ تغییر و شیب خط مماس</p>
+    
+  </div>
+  
+
+  
+  <div class="block note"><h3>هدف یادگیری LO3</h3>
+    <p>محاسبه مشتق با قواعد مشتق‌گیری و قاعده زنجیره‌ای</p>
+    
+  </div>
+  
+
+  
+  <div class="block note"><h3>هدف یادگیری LO4</h3>
+    <p>تحلیل رفتار تابع با استفاده از مشتق</p>
+    
+  </div>
+  
+
+  
+  <div class="block definition"><h3>تعریف: قاعده زنجیره‌ای</h3>
+    <p>برای ترکیب توابع، مشتق خارجی در مشتق داخلی ضرب می‌شود.</p>
+    
+  </div>
+  
+
+  
+  <div class="block text"><h3>توضیح مرحله‌به‌مرحله قاعده زنجیره‌ای</h3>
+    
+    <ul class="items"><li>گام ۱ — پیش‌نیازها را به‌خاطر بسپار: مشتق.</li><li>گام ۲ — تعریف «قاعده زنجیره‌ای» را با تعریف دقیقش تطبیق بده.</li><li>گام ۳ — یک مثال ساده را خودت بازسازی کن.</li><li>گام ۴ — در مسئله‌ای واقعی، مکان استفاده از «قاعده زنجیره‌ای» را پیدا کن.</li></ul>
+  </div>
+  
+
+  
+  <div class="block"><div class="formula">$$(f \circ g)&#39;(x) = f&#39;(g(x)) \cdot g&#39;(x)$$</div></div>
+  
+
+  
+  <div class="block worked_example"><h3>مثال حل‌شده: قاعده زنجیره‌ای</h3>
+    <p>مسئله (فیزیک): سرعت لحظه‌ای یک خودرو که موقعیت آن با زمان تغییر می‌کند را با استفاده از «قاعده زنجیره‌ای» تحلیل و حل کن.</p>
+    <ol class="steps"><li>صورت مسئله را با داده‌های معلوم و مجهول مرتب می‌کنیم.</li><li>تشخیص می‌دهیم که ابزار مناسب، مفهوم «قاعده زنجیره‌ای» است و تعریف آن را می‌نویسیم.</li><li>با اعمال تعریف، حل را گام‌به‌گام پیش می‌بریم و هر گام را تفسیر می‌کنیم.</li><li>نتیجه را بازبینی و با شهود مقایسه می‌کنیم؛ در صورت ناسازگاری، تعریف را دوباره بررسی می‌کنیم.</li></ol>
+  </div>
+  
+
+  
+  <div class="block self_check"><h3>خودارزیابی</h3><p>با کلمات خودت، تعریف «قاعده زنجیره‌ای» را بنویس و یک مثال بزن که آن را نشان دهد.</p>
+    <p class="answer">پاسخ: پاسخ درست باید تعریف دقیق «قاعده زنجیره‌ای» را پوشش دهد و مثال باید با تعریف سازگار باشد؛ ضدنمونه هم کمک می‌کند مرز مفهوم را ببینی.</p>
+    <p class="citations">پاسخ خود را با تعریف بلوک تعریف مقایسه کن؛ اگر مثال تو با تعریف نمی‌خواند، بخش شهود را دوباره بخوان.</p>
+  </div>
+  
+
+  
+  <div class="block definition"><h3>تعریف: مشتق</h3>
+    <p>مشتق، حد نسبت تغییرات تابع به تغییرات ورودی است؛ نرخ تغییر لحظه‌ای و شیب خط مماس.</p>
+    
+  </div>
+  
+
+  
+  <div class="block text"><h3>توضیح مرحله‌به‌مرحله مشتق</h3>
+    
+    <ul class="items"><li>گام ۱ — پیش‌نیازها را به‌خاطر بسپار: حد, پیوستگی.</li><li>گام ۲ — تعریف «مشتق» را با تعریف دقیقش تطبیق بده.</li><li>گام ۳ — یک مثال ساده را خودت بازسازی کن.</li><li>گام ۴ — در مسئله‌ای واقعی، مکان استفاده از «مشتق» را پیدا کن.</li></ul>
+  </div>
+  
+
+  
+  <div class="block"><div class="formula">$$f&#39;(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}$$</div></div>
+  
+
+  
+  <div class="block worked_example"><h3>مثال حل‌شده: مشتق</h3>
+    <p>مسئله (هندسه): شیب خط مماس بر منحنی در یک نقطه را با استفاده از «مشتق» تحلیل و حل کن.</p>
+    <ol class="steps"><li>صورت مسئله را با داده‌های معلوم و مجهول مرتب می‌کنیم.</li><li>تشخیص می‌دهیم که ابزار مناسب، مفهوم «مشتق» است و تعریف آن را می‌نویسیم.</li><li>با اعمال تعریف، حل را گام‌به‌گام پیش می‌بریم و هر گام را تفسیر می‌کنیم.</li><li>نتیجه را بازبینی و با شهود مقایسه می‌کنیم؛ در صورت ناسازگاری، تعریف را دوباره بررسی می‌کنیم.</li></ol>
+  </div>
+  
+
+  
+  <div class="block note"><h3>هشدار: بدفهمی رایج</h3>
+    <p>بدفهمی رایج: «مشتق شیب خط واصل بین دو نقطه است». مشتق شیب مماس در یک نقطه است (حد لحظه‌ای)؛ خط واصل میانگین دو نقطه است.</p>
+    
+  </div>
+  
+
+  
+  <div class="block self_check"><h3>خودارزیابی</h3><p>با کلمات خودت، تعریف «مشتق» را بنویس و یک مثال بزن که آن را نشان دهد.</p>
+    <p class="answer">پاسخ: پاسخ درست باید تعریف دقیق «مشتق» را پوشش دهد و مثال باید با تعریف سازگار باشد؛ ضدنمونه هم کمک می‌کند مرز مفهوم را ببینی.</p>
+    <p class="citations">پاسخ خود را با تعریف بلوک تعریف مقایسه کن؛ اگر مثال تو با تعریف نمی‌خواند، بخش شهود را دوباره بخوان.</p>
+  </div>
+  
+
+  
+  <div class="block">
+    <h3>جمع‌بندی مفاهیم این بخش</h3>
+    <table><thead><tr><th>مفهوم</th><th>ایده کلیدی</th><th>کاربرد نمونه</th></tr></thead>
+    <tbody><tr><td>قاعده زنجیره‌ای</td><td>برای ترکیب توابع، مشتق خارجی در مشتق داخلی ضرب می‌شود.</td><td>نرخ تغییر هزینه کل تولید نسبت به تعداد محصول</td></tr><tr><td>مشتق</td><td>مشتق، حد نسبت تغییرات تابع به تغییرات ورودی است؛ نرخ تغییر ل</td><td>شیب خط مماس بر منحنی در یک نقطه</td></tr></tbody></table>
+  </div>
+  
+
+  
+  <div class="block exercise"><h3>تمرین پایانی بخش</h3><p>یک مسئله از کاربردهای «قاعده زنجیره‌ای» طراحی کن، آن را حل کن و بنویس هر گام حل کدام بخش تعریف را به‌کار برده است.</p>
+    <ul class="items"><li>راهنما: از تعریف دقیق شروع کن، نه از حدس شهودی.</li><li>راهنما: یک ضدنمونه هم بنویس تا مرز مفهوم روشن شود.</li></ul>
+  </div>
+  
+
+  
+  <div class="block summary"><h3>جمع‌بندی</h3>
+    <p>در این بخش تعریف دقیق مفاهیم را دیدیم، با مثال حل‌شده شهود ساختیم، بدفهمی‌های رایج را شناختیم و با خودارزیابی آماده تمرین و ارزیابی شدیم. در گام بعد، سؤال‌های تمرینی همین مفاهیم را حل خواهیم کرد.</p>
+    
+  </div>
+  
+
+  
+  <div class="block reference"><h3>منابع</h3>
+    
+    <ul class="items"><li>کتاب درسی — فصل حد و مشتق</li><li>جزوه استاد — مثال‌های حل‌شده</li><li>سرفصل مصوب درس — نسخه جاری</li></ul>
+  </div>
+  
+
+  <footer>سامانه سرویس‌های یادگیری هوشمند دانشجو۳۶۰ — این سند از نسخه تأییدشده محتوا تولید شده است.</footer>
+</div>
+</body></html>

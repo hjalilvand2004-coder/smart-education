@@ -1,28 +1,9 @@
-# محیط مجازی پایتون
-venv/
-.venv/
-
-# کش و فایل‌های موقت پایتون
 __pycache__/
-*.py[cod]
-
-# تنظیمات محلی PyCharm
-.idea/
-
-# اطلاعات محرمانه
-.env
-
-# فایل‌های خروجی
-dist/
-build/
-exports/
-
-# پوشه داده پرتابل
+*.pyc
+.venv/
 data/
-
-# وابستگی‌های نصب‌شده فرانت‌اند
+.env
 node_modules/
-
-# کلید محرمانه محلی (تولید خودکار توسط app/security.py)
-secret.key
-backend/secret.key
+dist/
+.pytest_cache/
+*.db

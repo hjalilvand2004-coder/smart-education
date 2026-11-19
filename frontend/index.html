@@ -1,15 +1,35 @@
 <!doctype html>
-<html lang="fa" dir="rtl">
+<html dir="rtl" lang="fa">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>سامانه هوشمند آموزش</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="دانشجو۳۶۰ — سرویس‌های یادگیری هوشمند" />
+    <title>دانشجو۳۶۰ — سرویس‌های یادگیری هوشمند</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+    <script>
+      // پس از بارگذاری KaTeX، فرمول‌های موجود در صفحه رندر می‌شوند.
+      window.addEventListener('load', function () {
+        window.addEventListener('katex-ready', function () {
+          if (window.renderMathInElement && document.body) {
+            window.renderMathInElement(document.body, {
+              delimiters: [
+                { left: '$$', right: '$$', display: true },
+                { left: '\\[', right: '\\]', display: true },
+                { left: '\\(', right: '\\)', display: false },
+              ],
+            })
+          }
+        })
+        if (window.renderMathInElement) {
+          window.dispatchEvent(new Event('katex-ready'))
+        }
+      })
+    </script>
   </head>
-
   <body>
     <div id="root"></div>
-
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
