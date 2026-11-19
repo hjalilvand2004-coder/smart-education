@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     storage_dir: str = "./data/storage"
 
     # لایه AI Gateway: تعویض مدل بدون تغییر منطق اصلی
-    ai_provider: str = "mock"  # mock | openai_compat
-    ai_base_url: str = ""      # مثل https://api.example.com/v1
+    ai_provider: str = "mock"  # mock | openai_compat | ollama
+    ai_base_url: str = ""      # مثل https://api.example.com/v1 (برای ollama: http://localhost:11434/v1)
     ai_api_key: str = ""
     ai_model: str = ""
     ai_daily_token_budget: int = 2_000_000

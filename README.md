@@ -56,14 +56,29 @@
 بانک سوال با ۱۰ نوع سوال و بازبینی · آزمون‌ساز و جزوه‌نامه · استاد هوشمند با ارجاع به منابع ·
 نقشه مفاهیم با پررنگ‌شدن پیش‌نیازها · تسلط مفهومی و برنامه مطالعه روزانه · ردپای حسابرسی و آمار مصرف AI.
 
+## 🗂 مهاجرت از سامانه قبلی «آموزش هوشمند» (فایل پیوست)
+
+داده‌های واقعی فایل پیوست — **۲ درس (مهندسی نرم‌افزار و ابزارهای توسعه: ۵۲ جلسه/۶ فصل، داده‌کاوی: ۴۴ جلسه/۱۰ فصل)،
+۹۶ سرفصل جلسه‌ای، ۸ محتوای تولیدشده به ازای سرفصل و لاگ مصرف AI** — با یک دستور وارد سامانه یکپارچه می‌شود:
+
+```bash
+cd backend
+python scripts/import_legacy_education.py --db legacy/education.db
+```
+
+نگاشت: فصل‌ها → `CHAPTER`، نکته‌های جلسه‌ای → `TOPIC` با `suggested_hours` از مدت جلسه؛
+محتواها → سند و نسخه منتشرشده با بلوک‌های ساختاریافته؛ لاگ AI → `AIRun` با provider/model/latency.
+اسکریپت idempotent است و در بسته پرتیبل هم (کنار `run.bat`) پشتیبانی می‌شود.
+
 ## 🛠 توسعه
 
 ```bash
 cd backend && pip install -r requirements.txt
 python scripts/init_db.py && python scripts/seed_demo.py
+python scripts/import_legacy_education.py --db legacy/education.db   # اختیاری: داده‌های سامانه قبلی
 uvicorn app.main:app --reload          # http://localhost:8000
 cd ../frontend && npm install && npm run dev
-cd backend && pytest -q                # 74 tests
+cd backend && pytest -q                # 77 tests
 ```
 
 استقرار با PostgreSQL: `docker-compose up` (سرویس‌های api + db + web).

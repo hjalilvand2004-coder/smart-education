@@ -131,8 +131,27 @@ class OpenAICompatProvider(BaseProvider):
                         yield delta
 
 
+class OllamaProvider(OpenAICompatProvider):
+    """ارائه‌دهنده Ollama (مدل‌های محلی) — سازگار با endpoint متداول چت‌کمپلشن.
+
+    مطابق سامانه قبلی آموزش هوشمند که ollama را پشتیبانی می‌کرد:
+    S360_AI_PROVIDER=ollama و اختیاری S360_AI_BASE_URL (پیش‌فرض localhost:11434/v1).
+    """
+
+    name = "ollama"
+
+    def __init__(self, base_url: str = "", api_key: str = "", model: str = ""):
+        super().__init__(
+            base_url or "http://localhost:11434/v1",
+            api_key or "ollama",
+            model or "llama3.1",
+        )
+
+
 def get_provider() -> BaseProvider:
     settings = get_settings()
+    if settings.ai_provider == "ollama":
+        return OllamaProvider(settings.ai_base_url, settings.ai_api_key, settings.ai_model)
     if settings.ai_provider == "openai_compat" and settings.ai_base_url:
         return OpenAICompatProvider(settings.ai_base_url, settings.ai_api_key, settings.ai_model)
     return MockProvider()
