@@ -154,6 +154,13 @@ export default function Layout() {
 
   return (
     <div className="app-shell">
+      {/* پس‌زمینه شفق رویایی */}
+      <div className="aurora" aria-hidden="true">
+        <i className="b1" />
+        <i className="b2" />
+        <i className="b3" />
+        <i className="b4" />
+      </div>
       <aside className="sidebar">
         <div className="brand">
           <span className="brand-mark">360</span>
@@ -169,6 +176,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
+          <div className="sidebar-version">✨ نسخه ۲.۷.۰ — تم رویایی</div>
         </div>
       </aside>
 

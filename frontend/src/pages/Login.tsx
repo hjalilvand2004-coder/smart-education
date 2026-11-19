@@ -72,12 +72,49 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="login-card">
-        <div className="brand">
-          <span className="brand-mark">360</span>
-          <span>دانشجو۳۶۰</span>
+      {/* صحنه رویایی: شفق متحرک + ستاره‌های چشمک‌زن */}
+      <div className="aurora" aria-hidden="true">
+        <i className="b1" />
+        <i className="b2" />
+        <i className="b3" />
+      </div>
+      <div className="stars" aria-hidden="true">
+        {Array.from({ length: 14 }, (_, i) => (
+          <span
+            key={i}
+            className="star"
+            style={{
+              top: `${(i * 37 + 13) % 92}%`,
+              insetInlineStart: `${(i * 53 + 7) % 95}%`,
+              animationDelay: `${(i % 7) * 0.5}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="login-split">
+        <div className="login-hero">
+          <span className="hero-badge">✨ سامانه یکپارچه یادگیری هوشمند — تم رویایی</span>
+          <h1>سفر یادگیری‌ات را با جادوی هوش مصنوعی شروع کن</h1>
+          <p className="hero-lead">
+            سرفصل‌ها خودکار استخراج می‌شوند، محتوای درسی برای هر موضوع ساخته می‌شود،
+            استاد هوشمند همیشه کنارت است و مسیر مطالعه‌ات را شخصی‌سازی می‌کند.
+          </p>
+          <div className="float-chips">
+            <span className="float-chip">📚 استخراج سرفصل</span>
+            <span className="float-chip">🪄 تولید محتوای هوشمند</span>
+            <span className="float-chip">🎓 استاد ۲۴/۷</span>
+            <span className="float-chip">🗺 نقشه مفاهیم</span>
+            <span className="float-chip">📈 تسلط مفهومی</span>
+          </div>
         </div>
-        <div className="login-sub">سامانه یکپارچه یادگیری هوشمند</div>
+
+        <div className="login-card">
+          <div className="brand">
+            <span className="brand-mark">360</span>
+            <span>دانشجو۳۶۰</span>
+          </div>
+          <div className="login-sub">سامانه یکپارچه یادگیری هوشمند</div>
 
         <div className="auth-tabs">
           <button type="button" className={`auth-tab${tab === 'login' ? ' active' : ''}`}
@@ -151,6 +188,9 @@ export default function Login() {
           <div>
             رمز همه: <code>Pass1234!</code>
           </div>
+        </div>
+
+        <div className="login-footer">نسخه ۲.۷.۰ ✨ طراحی رویایی برای یادگیری شیرین</div>
         </div>
       </div>
     </div>
