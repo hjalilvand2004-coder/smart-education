@@ -190,7 +190,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="login-footer">نسخه ۲.۷.۰ ✨ طراحی رویایی برای یادگیری شیرین</div>
+        <div className="login-footer">نسخه ۲.۸.۰ ✨ طراحی رویایی — اجرا بدون نیاز به نصب پایتون</div>
         </div>
       </div>
     </div>
