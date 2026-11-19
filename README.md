@@ -1,114 +1,69 @@
-# دانشجو۳۶۰ — سامانه سرویس‌های یادگیری هوشمند
+# Smart Learning 360 — سامانه یکپارچه یادگیری هوشمند
 
-پیاده‌سازی مرجع (فاز یک MVP + اسکلت فاز دو) بر اساس سند تشریح نیازمندی‌ها:
-**FastAPI ماژولار + React + PostgreSQL** با هستهٔ «سرفصل مصوب، گراف مفاهیم،
-محتوای ساختاریافته تأییدشده و شواهد یادگیری» — نه صرفاً یک چت‌بات.
+ادغام کامل «سامانه هوشمند آموزش و آزمون» و «سرویس‌های یادگیری هوشمند دانشجو۳۶۰» در **یک سامانه یکپارچه**:
+تولید محتوای آموزشی با AI متناسب با هر سرفصل، آزمون‌ساز چندنوعی، استاد هوشمند، نقشه مفاهیم و تسلط،
+برنامه مطالعه، **ورود یکگانه SSO/OIDC**، گردش‌کار ثبت‌نام و تایید، گزارش جامع چهارفرمتی گرافیکی،
+سرویس‌دهی سرفصل‌ها به سایر سامانه‌ها و یکپارچه‌سازی با **برنامه‌یار۳۶۰**.
 
-```
-هستهٔ تصمیم:  AI پیش‌نویس می‌سازد ← استاد تأیید می‌کند ← شواهد معتبر مبنای شخصی‌سازی است
-```
+- بک‌اند: FastAPI + SQLAlchemy + SQLite/PostgreSQL — فرانت‌اند: React 18 + Vite (فارسی، RTL، بدون فریم‌ورک CSS)
+- تست‌ها: **۷۴ تست سبز** (احراز هویت، RBAC، محتوا، آزمون، SSO، گزارش، سرویس‌ها)
 
-## ساختار مخزن
+## 🚀 اجرای سریع (نسخه پرتیبل — بدون نصب پایتون)
 
-```
-student360/
-├── backend/            FastAPI ماژولار (app/core, app/models, app/services, app/api, app/ai, app/workers)
-│   ├── tests/          ۵۵ تست pytest — نگاشت مستقیم به معیارهای پذیرش AC-01..AC-14
-│   ├── scripts/        init_db.py و seed_demo.py (دموی کامل با خط تولید واقعی)
-│   └── alembic/        مهاجرت‌ها (برای PostgreSQL)
-├── frontend/           React 18 + TypeScript + Vite، فارسی RTL، فونت Vazirmatn
-├── docs/               api_contract.md و openapi.json (قرارداد API)
-├── sample-outputs/     خروجی‌های نمونه فارسی: PDF / PPTX / HTML / DOCX
-├── docker/             Dockerfile بک‌اند/فرانت‌اند و nginx
-└── docker-compose.yml  PostgreSQL + Redis + بک‌اند + فرانت‌اند
-```
+از [Releases](../../releases) فایل `SmartLearning-360-Portable-win64.zip` را بگیرید:
+۱) Extract ۲) دوبار کلیک روی `run.bat` ۳) مرورگر خودکار روی `http://localhost:8000`.
 
-## اجرای سریع (توسعه بدون Docker)
+حساب‌های دمو (رمز همه `Pass1234!`): `prof.rezaei` (استاد) · `student.sara` (دانشجو) · `edu.admin` (مدیر آموزشی).
+
+## 🔐 ورود یکگانه (SSO)
+
+پرتال مرکزی «دانشجویار۳۶۰» روی `http://188.212.96.235:8086` یک **OIDC Provider** است (RS256 + PKCE S256).
+برای اتصال این سامانه:
+
+1. در پرتال SSO برای این سامانه یک ردیف ثبت کنید (مثل `tahsilyar360`):
+   کلید سامانه = `learning360`، نام = «سامانه یکپارچه یادگیری هوشمند»،
+   Client ID = مثلا `learning360`، **آدرس ورود (نقطه شروع جریان OIDC)** = `http://<host>:8000/api/v1/auth/sso/login`
+2. در `run.bat` (یا env سرور) تنظیم کنید:
+   `S360_SSO_CLIENT_ID`, `S360_SSO_CLIENT_SECRET`, `S360_SSO_REDIRECT_URI=http://<host>:8000/api/v1/auth/sso/callback`,
+   `S360_SSO_FRONTEND_BASE=http://<host>:8000`
+3. صفحه ورود دکمه «ورود یکگانه با پرتال مرکزی SSO» را نشان می‌دهد؛ ورود اول به‌صورت خودکار حساب می‌سازد (نقش دانشجو؛ مدیر می‌تواند نقش را ارتقا دهد).
+
+جریان: `GET /api/v1/auth/sso/login` → پرتال → `GET /api/v1/auth/sso/callback` → تبادل code + اعتبارسنجی id_token با JWKS → بلیت یک‌بارمصرف → `POST /api/v1/auth/sso/exchange` → توکن سامانه (توکن هرگز در URL نمی‌ماند).
+
+## 📝 ثبت‌نام و گردش‌کار تایید
+
+- `POST /api/v1/auth/register` — دانشجو فعال می‌شود؛ استاد/مدیرگروه «در انتظار تایید».
+- پنل مدیریت (`/admin`): تایید/رد، فهرست و جستجوی کاربران، تغییر نقش، بازنشانی رمز، فعال/غیرفعال‌سازی (`/api/v1/users/...`).
+
+## 📊 گزارش جامع چهارفرمتی
+
+`GET /api/v1/reports/summary` (JSON) · `GET /api/v1/reports/preview` (HTML) · `GET /api/v1/reports/export/{pdf|docx|html|pptx}`
+— نمودارهای فارسی matplotlib (فونت وزیرمتن)، اعداد فارسی؛ صفحه «گزارش‌ها» در UI با دانلود مستقیم.
+
+## 🌐 سرویس‌دهی به سایر سامانه‌ها
+
+با توکن اختیاری (`S360_SERVICE_TOKEN`، هدر `X-Service-Token`):
+`GET /services/health` · `/services/courses` · `/services/topics?course_code=` · `/services/topics/{id}` · `/services/topics/{id}/content` · `/services/export/topics`
+
+## 🔗 یکپارچه‌سازی با برنامه‌یار۳۶۰
+
+واکشی «درس‌های یکتا» از `http://188.212.96.235:8083` (در صورت نیاز با نام‌کاربری/رمز آن سامانه)،
+فرم اطلاعات درس پیش‌پرشده، ثبت سرفصل‌ها و ورود به سامانه — صفحه «برنامه‌یار۳۶۰».
+
+## 🧠 قابلیت‌های یادگیری
+
+استودیوی محتوا با بلوک‌های ساختاریافته + کنترل کیفیت (پوشش اهداف) + بررسی + انتشار (متناسب با سرفصل انتخابی) ·
+بانک سوال با ۱۰ نوع سوال و بازبینی · آزمون‌ساز و جزوه‌نامه · استاد هوشمند با ارجاع به منابع ·
+نقشه مفاهیم با پررنگ‌شدن پیش‌نیازها · تسلط مفهومی و برنامه مطالعه روزانه · ردپای حسابرسی و آمار مصرف AI.
+
+## 🛠 توسعه
 
 ```bash
-# بک‌اند (Python 3.12)
-cd backend
-pip install -r requirements.txt
-python scripts/init_db.py          # ساخت جداول (SQLite توسعه)
-python scripts/seed_demo.py        # دموی کامل: تولید محتوا، سؤال، آزمون، تسلط، گفتگو
-uvicorn app.main:app --reload      # مستندات: http://localhost:8000/api/docs
-
-# فرانت‌اند (Node 20+)
-cd ../frontend
-npm install
-npm run dev                        # http://localhost:5173 (پروکسی /api به 8000)
+cd backend && pip install -r requirements.txt
+python scripts/init_db.py && python scripts/seed_demo.py
+uvicorn app.main:app --reload          # http://localhost:8000
+cd ../frontend && npm install && npm run dev
+cd backend && pytest -q                # 74 tests
 ```
 
-## اجرا با Docker
-
-```bash
-cp .env.example .env   # مقدارها را تنظیم کنید
-docker compose up -d --build
-# فرانت‌اند: http://localhost:8080   |   API: http://localhost:8000/api/docs
-```
-
-## حساب‌های دمو (رمز همه: `Pass1234!`)
-
-| کاربر | نقش |
-|---|---|
-| `prof.rezaei` | استاد (استودیوی محتوا، تأیید، انتشار) |
-| `ta.karimi` | دستیار آموزشی (پیش‌نویس بدون انتشار) |
-| `student.sara` | دانشجو (مطالعه، آزمون، استاد هوشمند، برنامه مطالعه) |
-| `student.amir` | دانشجو |
-| `edu.admin` | مدیر آموزشی (نسخه‌های مصوب، حسابرسی) |
-| `quality.expert` | کارشناس کیفیت محتوا |
-| `tech.admin` | مدیر فنی (پایش AI) |
-
-داده دمو با **همان سرویس‌های واقعی سامانه** ساخته می‌شود: سرفصل وارد و تأیید
-می‌شود، مفاهیم گراف ساخته می‌شوند، محتوا با AI تولید و کنترل کیفیت و **منتشر**
-می‌شود، ۱۲ سؤال تأیید می‌شوند، دانشجو آزمون و تمرین تطبیقی می‌دهد، تخمین تسلط و
-فرضیه‌های تشخیصی ساخته می‌شوند، برنامه مطالعه و مرور فاصله‌دار فعال می‌شود و
-گفتگو با استاد هوشمند (با ارجاع به منابع مجاز) انجام می‌شود.
-
-## وصل‌کردن مدل واقعی
-
-تولیدها پشت **AI Gateway** (`app/ai/gateway.py`) هستند؛ با این تنظیم مدل خارجی
-جایگزین مولد قطعی توسعه (mock) می‌شود **بدون تغییر هیچ سرویسی**:
-
-```env
-S360_AI_PROVIDER=openai_compat
-S360_AI_BASE_URL=https://<مدل-سازگار-OpenAI>/v1
-S360_AI_API_KEY=...
-S360_AI_MODEL=...
-```
-
-هر فراخوانی مدل در جدول `ai_runs` با نسخه Prompt/مدل و مصرف ثبت می‌شود و خروجی
-قبل از استفاده با Pydantic اعتبارسنجی می‌شود.
-
-## نگاشت معیارهای پذیرش به تست‌ها
-
-| AC | معیار | تست |
-|---|---|---|
-| AC-01 | تولید فقط با نسخه مشخص سرفصل | `test_content_pipeline.py::test_generation_requires_approved_syllabus` |
-| AC-02 | تأیید انسانی ساختار استخراج‌شده | `test_syllabus.py::test_import_creates_draft_needing_approval` |
-| AC-03 | بازتولید یک بخش بدون ازبین‌رفتن سایر ویرایش‌ها | `test_content_pipeline.py::test_block_edit_and_selective_regeneration` |
-| AC-04 | PDF/PPTX فارسی، فرمول و جدول صحیح | `test_exports.py::test_pdf_export_persian`, `test_pptx_export_editable` (+ بررسی بصری در sample-outputs) |
-| AC-05 | انتشار فقط پس از تأیید مجاز | `test_auth_rbac.py::test_student_cannot_publish_content`, `test_content_pipeline.py::test_publish_gate_and_student_visibility` |
-| AC-06 | تغییر سرفصل پنهان تغییر ایجاد نکند + گزارش اثر | `test_syllabus.py::test_syllabus_diff_reports_changes`، نسخه‌بندی محتوا |
-| AC-07 | ردیابی پاسخ و نسخه سؤال | `test_assessment.py::test_response_version_fixed_and_traceable` |
-| AC-08 | نبود شواهد ≠ ضعف قطعی | `test_mastery.py::test_no_evidence_is_unknown_not_weak` |
-| AC-09 | کلید امتحان خارج از RAG/گفتگو | `test_tutor.py::test_exam_key_not_retrieved_by_default`, `test_tutor_never_cites_exam_key` |
-| AC-10 | نمره تشریحی قابل بررسی/اصلاح/اعتراض | `test_assessment.py::test_essay_ai_suggestion_then_human_final_and_dispute` |
-| AC-11 | HTML/فایل خروجی بدون کد ناامن | `test_exports.py::test_html_export_safe_and_rtl` (CSP + escape) |
-| AC-12 | خرابی AI مطالعه را متوقف نکند | `test_planning_ops.py::test_ai_failure_fallback_for_syllabus_import` + حالت جایگزین در همه سرویس‌ها |
-| AC-13 | اجرای مجدد Job تکراری نسازد | `test_collab_ops.py::test_idempotency_same_key_same_job`, `test_export_idempotency` |
-| AC-14 | بازیابی دیتابیس/فایل | پشتیبان‌گیری pgdata + volume در docker-compose؛ بازیابی در محیط آزمون مستند است |
-
-اجرا: `cd backend && python -m pytest tests/ -q`
-
-## نکات معماری
-
-- **مونولیت ماژولار**: هر دامنه سرویس و مسیر مستقل دارد؛ تفکیک به Workerهای
-  Celery فقط با جابه‌جایی `app/workers` انجام می‌شود (ساختار آماده).
-- **نسخه‌بندی محتوا**: ویرایش نسخه منتشرشده، پیش‌نویس جدید می‌سازد؛ هیچ ویرایشی
-  سابقه منتشرشده را عوض نمی‌کند. قفل بهینه با `expected_revision` (پاسخ 409).
-- **دسترسی**: نقش سراسری + نقش درسی + ثبت‌نام؛ حسابرسی انتشار/نمره/مجوز در
-  `audit_logs`؛ رویدادهای یکپارچه‌سازی در `outbox_events`.
-- **RAG**: قطعه‌بندی معنایی + بردار هش‌محور در توسعه؛ در استقرار ستون pgvector
-  جایگزین می‌شود (فیلتر مجوز پیش از بازیابی، همیشه).
-- **زمان‌ها** در UTC ذخیره و به‌صورت ISO-8601 ارائه می‌شوند؛ نمایش محلی در UI.
+استقرار با PostgreSQL: `docker-compose up` (سرویس‌های api + db + web).
