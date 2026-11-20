@@ -122,6 +122,7 @@ export default function Layout() {
       items.push({ to: `/course/${defaultCourseId}/quizzes`, label: 'آزمون‌ها', icon: 'quizzes' })
       items.push({ to: `/course/${defaultCourseId}/tutor`, label: 'استاد هوشمند', icon: 'tutor' })
       items.push({ to: `/course/${defaultCourseId}/plan`, label: 'برنامه مطالعه', icon: 'plan' })
+      items.push({ to: `/course/${defaultCourseId}/smart`, label: 'سرویس‌های هوشمند', icon: 'tutor' })
     }
     if (user && GLOBAL_ADMIN_ROLES.includes(user.role)) {
       items.push({ to: '/admin', label: 'پنل مدیریت', icon: 'admin' })
@@ -176,7 +177,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">✨ نسخه ۲.۹.۰ — پرتیبل مستقل ✨</div>
+          <div className="sidebar-version">✨ نسخه ۳.۰.۰ — ۱۶ سرویس هوشمند ✨</div>
         </div>
       </aside>
 

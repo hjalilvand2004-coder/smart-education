@@ -15,6 +15,7 @@ import Admin from './pages/Admin'
 import Programyar from './pages/Programyar'
 import Reports from './pages/Reports'
 import SsoCallback from './pages/SsoCallback'
+import SmartHub from './pages/SmartHub'
 
 function LoadingScreen({ note = 'در حال بارگذاری…' }: { note?: string }) {
   return (
@@ -56,6 +57,11 @@ function MasteryRoute() {
 function StudyPlanRoute() {
   const { courseId } = useParams()
   return <StudyPlan courseId={courseId ?? ''} />
+}
+
+function SmartHubRoute() {
+  const { courseId } = useParams()
+  return <SmartHub courseId={courseId ?? ''} />
 }
 
 function AdminRoute() {
@@ -102,6 +108,7 @@ export default function App() {
             <Route path="/course/:courseId/tutor" element={<TutorRoute />} />
             <Route path="/course/:courseId/mastery" element={<MasteryRoute />} />
             <Route path="/course/:courseId/plan" element={<StudyPlanRoute />} />
+            <Route path="/course/:courseId/smart" element={<SmartHubRoute />} />
             <Route path="/studio/:courseId" element={<Studio />} />
             <Route path="/programyar" element={<Programyar />} />
             <Route path="/reports" element={<Reports />} />

@@ -65,7 +65,8 @@ def test_response_version_fixed_and_traceable(client, ctx, prof_headers, st_head
 
 
 def test_mcq_auto_grading_deterministic(client, ctx, prof_headers, st_headers, bank):
-    """تصحیح قطعی MCQ: پاسخ = فقط 0 یا 1."""
+    """تصحیح قطعی MCQ: پاسخ = فقط 0 یا 1. انتخاب سؤال تصادفی است؛ انواع
+    objective همیشه auto_scored هستند و برای انواع AI/انسانی معنا ندارند."""
     assessment = client.post("/api/v1/assessments", headers=prof_headers, json={
         "course_id": ctx["course_id"], "offering_id": ctx["offering_id"],
         "title": "آزمون تصحیح قطعی", "kind": "PRACTICE", "mode": "FIXED",
@@ -74,6 +75,9 @@ def test_mcq_auto_grading_deterministic(client, ctx, prof_headers, st_headers, b
     }).json()
     att = client.post(f"/api/v1/assessments/{assessment['id']}/attempts", headers=st_headers).json()
     q = att["questions"][0]
+    if q["type"] not in ("MCQ", "MULTI_SELECT", "TRUE_FALSE", "NUMERIC",
+                         "ORDERING", "MATCHING"):
+        return
     r = client.post(f"/api/v1/attempts/{att['id']}/responses", headers=st_headers, json={
         "question_version_id": q["question_version_id"], "answer": {"selected": ["A"]}})
     assert r.status_code == 200

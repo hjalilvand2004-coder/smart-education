@@ -6,17 +6,42 @@
 سرویس‌دهی سرفصل‌ها به سایر سامانه‌ها و یکپارچه‌سازی با **برنامه‌یار۳۶۰**.
 
 - بک‌اند: FastAPI + SQLAlchemy + SQLite/PostgreSQL — فرانت‌اند: React 18 + Vite (فارسی، RTL، بدون فریم‌ورک CSS)
-- **تم «رویایی» v3 — نسخه ۲.۹.۰**: پس‌زمینه شفق قطبی متحرک، کارت‌های شیشه‌گری با حاشیه گرادیانی، دکمه‌های درخشان با افکت Shine، ستاره‌های چشمک‌زن و پانل قهرمان در صفحه ورود، انیمیشن‌های نرم با احترام به `prefers-reduced-motion`
-- **پکیج پرتیبل کاملاً مستقل (v2.9.0)**: پایتون 3.12 embed شده + **تمام وابستگی‌های اجرایی به‌صورت wheels ویندوزی cp312** داخل `Lib\site-packages` (FastAPI، SQLAlchemy، pydantic-settings، Jinja2، گزارش‌سازهای DOCX/PPTX/PDF، matplotlib و…) — روی سیستمی که **نه پایتون دارد نه PyCharm** فقط با دابل‌کلیک `run.bat` اجرا می‌شود؛ `run.bat` فقط از پایتون داخلی پکیج استفاده می‌کند و `PYTHONHOME/PYTHONPATH` سیستم را خنثی می‌کند
+- **تم «رویایی» v3 — نسخه ۳.۰.۰**: پس‌زمینه شفق قطبی متحرک، کارت‌های شیشه‌گری با حاشیه گرادیانی، دکمه‌های درخشان با افکت Shine، ستاره‌های چشمک‌زن و پانل قهرمان در صفحه ورود، انیمیشن‌های نرم با احترام به `prefers-reduced-motion`
+- **پکیج پرتیبل کاملاً مستقل (v3.0.0)**: پایتون 3.12 embed شده + **تمام وابستگی‌های اجرایی به‌صورت wheels ویندوزی cp312** داخل `Lib\site-packages` (FastAPI، SQLAlchemy، pydantic-settings، Jinja2، گزارش‌سازهای DOCX/PPTX/PDF، matplotlib و…) — روی سیستمی که **نه پایتون دارد نه PyCharm** فقط با دابل‌کلیک `run.bat` اجرا می‌شود؛ `run.bat` فقط از پایتون داخلی پکیج استفاده می‌کند و `PYTHONHOME/PYTHONPATH` سیستم را خنثی می‌کند
 - تست‌ها: **۷۷ تست سبز** (احراز هویت، RBAC، محتوا، آزمون، SSO، گزارش، سرویس‌ها، مهاجرت legacy)
 
 ## 🚀 اجرای سریع (نسخه پرتیبل — بدون نصب پایتون و بدون PyCharm)
 
-از [Releases](../../releases) فایل `SmartLearning-360-Portable-win64-v2.9.0.zip` را بگیرید:
+از [Releases](../../releases) فایل `SmartLearning-360-Portable-win64-v3.0.0.zip` را بگیرید:
 ۱) Extract کامل ZIP ۲) دوبار کلیک روی `run.bat` ۳) مرورگر خودکار روی `http://localhost:8000`.
 هیچ نصب پیش‌نیازی لازم نیست؛ جزئیات و عیب‌یابی در `README-PORTABLE.txt` داخل پکیج.
 
 حساب‌های دمو (رمز همه `Pass1234!`): `prof.rezaei` (استاد) · `student.sara` (دانشجو) · `edu.admin` (مدیر آموزشی).
+
+## 🧠 دسته ۳ — سرویس‌های یادگیری هوشمند (۱۶ سرویس کامل — نسخه ۳.۰.۰)
+
+هسته تحلیلی روی **گراف مفاهیم + شواهد یادگیری** سوار است و همه سرویس‌ها از داده‌های واقعی سامانه استخراج می‌شوند:
+
+| # | سرویس | موتور هوشمند | endpoint |
+|---|---|---|---|
+| ۱ | تحلیل فهم مفاهیم | Knowledge Graph + بتا وزنی | `GET /me/courses/{id}/mastery` |
+| ۲ | شناسایی نقاط ضعف مفهومی | Learning Analytics (شدت×اثر پایین‌دست) | `GET /me/courses/{id}/smart/weaknesses` |
+| ۳ | تشخیص ریشه مشکلات یادگیری | AI Diagnosis (زنجیره پیش‌نیازهای ضعیف) | `GET /me/courses/{id}/smart/root-causes` |
+| ۴ | طراحی برنامه مطالعه | Personalization (ضعف+مرور+موعد آزمون) | `POST /study-plans` |
+| ۵ | پیشنهاد منابع آموزشی | Recommender (محتوا+کتاب/ویدیو، بدون منابع امتحانی) | `GET /me/courses/{id}/smart/resources` |
+| ۶ | کوییز هوشمند | AI Question Gen (هدفمند از ضعف/نامشخص) | `POST /me/courses/{id}/smart/quiz` |
+| ۷ | آزمون تطبیقی | Adaptive Testing (ضعف اول، پیش‌نیازآگاه) | `Assessment(mode=ADAPTIVE_PRACTICE)` |
+| ۸ | تحلیل پاسخ دانشجو | NLP + ML (الگوهای سریع‌و‌نادرست/کند و…) | `GET /me/courses/{id}/smart/answer-analysis` |
+| ۹ | بسته تمرین جبرانی | Personalization (سوال مصوب + بدفهمی) | `GET /me/courses/{id}/smart/remedial-pack` |
+| ۱۰ | تحلیل سبک یادگیری | Behavioral Analytics (دیداری/تمرینی/گفتگومحور) | `GET /me/courses/{id}/smart/learning-style` |
+| ۱۱ | پیش‌بینی فراموشی مطالب | Spaced Repetition AI (دوبنگاهی روی SM-2) | `GET /me/courses/{id}/smart/forgetting-curve` |
+| ۱۲ | فشار شناختی | Cognitive Modeling (زمان پاسخ + خطا) | `GET /me/courses/{id}/smart/cognitive-load` |
+| ۱۳ | آموزش‌های کوتاه مرحله‌ای | Content Chunking AI | `GET /me/courses/{id}/smart/micro-lessons` |
+| ۱۴ | استاد هوشمند گفتگومحور | Conversational AI Tutor | `POST /sessions` + پیام‌ها |
+| ۱۵ | طراحی هوشمند سوال/ارزیابی | Generative Assessment + Human-in-the-loop | `POST /courses/{id}/smart/exam-simulation` + `GET .../validation-queue` |
+| ۱۶ | یادگیری مشارکتی (دانشجو تولیدکننده) | AI Mentor/Reviewer + Moderation | `POST /student-creations` + بازبینی‌ها |
+
+**اصل حاکم:** شواهد ناکافی = «نامشخص» (نه ضعف قطعی)؛ هیچ خروجی AI بدون دروازه انسانی وارد آزمون رسمی نمی‌شود؛ رابط کاربری یکپارچه در صفحه «سرویس‌های هوشمند» هر درس.
 
 ## 🔐 ورود یکگانه (SSO)
 

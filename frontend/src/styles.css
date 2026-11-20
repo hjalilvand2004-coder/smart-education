@@ -2242,3 +2242,14 @@ button {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- سرویس‌های یادگیری هوشمند (SmartHub) ---------- */
+.smart-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.smart-map-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid rgba(148,163,184,.25); border-radius: 12px; background: rgba(255,255,255,.04); }
+.smart-map-item .chip { align-self: flex-start; font-size: .72rem; }
+.smart-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.smart-tab { padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(148,163,184,.35); background: transparent; color: inherit; cursor: pointer; font: inherit; }
+.smart-tab.active { background: linear-gradient(135deg, rgba(99,102,241,.9), rgba(168,85,247,.9)); color: #fff; border-color: transparent; box-shadow: 0 4px 14px rgba(99,102,241,.35); }
+.micro-steps { margin: 8px 0 4px; padding-inline-start: 20px; }
+.micro-steps li { margin: 4px 0; line-height: 1.9; }
+@media (max-width: 640px) { .smart-map { grid-template-columns: 1fr; } }
