@@ -176,7 +176,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">✨ نسخه ۲.۸.۰ — پرتیبل مستقل ✨</div>
+          <div className="sidebar-version">✨ نسخه ۲.۹.۰ — پرتیبل مستقل ✨</div>
         </div>
       </aside>
 
