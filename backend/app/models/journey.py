@@ -142,3 +142,38 @@ class ExamPrepPlan(TimestampMixin, Base):
     available_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
     plan: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="ACTIVE", index=True)
+
+
+MASTERDATA_MODES = ("FULL", "INCREMENTAL")
+MASTERDATA_STATUSES = ("OK", "PARTIAL", "FAILED")
+# وضعیت‌های اتصال به سرویس مرجع — هر وضعیت پیام راهنمای قابل‌اقدام دارد
+PAYEHYAR_PROBE_STATUSES = ("OK", "NEEDS_API_KEY", "INVALID_API_KEY", "NEEDS_ROLE",
+                           "UNREACHABLE", "NOT_CONFIGURED")
+
+
+class MasterdataSyncLog(TimestampMixin, Base):
+    """گزارش هر اجرای همگام‌سازی کاتالوگ (دروس + سرفصل‌ها) از پایه‌یار۳۶۰.
+
+    برخلاف ReferenceSyncLog (که گزارش هر درس است) این جدول تاریخچه اجراهای
+    کل کاتالوگ را نگه می‌دارد: آمار ایجاد/به‌روزرسانی، نسخه‌های پیش‌نویس
+    ساخته‌شده، هشدارهای نرمال‌سازی، خطای احراز هویت قابل‌اقدام و کرسر فید تغییرات.
+    """
+
+    __tablename__ = "masterdata_sync_logs"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uid_col)
+    mode: Mapped[str] = mapped_column(String(16), index=True)          # FULL / INCREMENTAL
+    status: Mapped[str] = mapped_column(String(16), index=True)        # OK / PARTIAL / FAILED
+    remote_version: Mapped[str | None] = mapped_column(String(32), nullable=True)  # نسخه سرویس مرجع
+    courses_created: Mapped[int] = mapped_column(Integer, default=0)
+    courses_updated: Mapped[int] = mapped_column(Integer, default=0)
+    up_to_date: Mapped[int] = mapped_column(Integer, default=0)
+    syllabus_drafts_created: Mapped[int] = mapped_column(Integer, default=0)
+    review_required: Mapped[int] = mapped_column(Integer, default=0)
+    warnings: Mapped[dict | None] = mapped_column(JSONB, nullable=True)  # فهرست رکوردهای نگاشت‌نشدنی
+    cursor_before: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    cursor_after: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    error_code: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    triggered_by: Mapped[uuid.UUID | None] = mapped_column(GUID, nullable=True)

@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="S360_", extra="ignore")
 
     app_name: str = "دانشجو۳۶۰ — سرویس‌های یادگیری هوشمند"
-    app_version: str = "3.2.2"
+    app_version: str = "3.3.0"
 
     # پایگاه داده؛ در محیط توسعه SQLite و در استقرار PostgreSQL:
     # postgresql+psycopg://user:pass@db:5432/student360
@@ -61,6 +61,16 @@ class Settings(BaseSettings):
     baseyar_base_url: str = ""
     baseyar_api_key: str = ""
     baseyar_timeout_seconds: int = 8
+
+    # همگام‌سازی کاتالوگ از استقرار واقعی پایه‌یار۳۶۰ (دروس + سرفصل‌ها) —
+    # سرویس «PayehYar360 — Shared Core & Master Data» (پروب ۲۰۲۶-۱۱-۲۳، نسخه ۱.۰.۸):
+    # endpoint مصرف‌کنندگان اکوسیستم /api/v1/services/masterdata/{domain} با هدر X-API-Key؛
+    # در حالت توسعه سرویس مرجع، هدر X-Dev-User با کاربر دارای نقش steward/tenant_admin
+    # و اتصال tenant نیز پذیرفته می‌شود. بدون کلید، واکشی با خطای قابل‌اقدام شکست می‌خورد.
+    payehyar_base_url: str = "http://188.212.96.235:8094"
+    payehyar_api_key: str = ""
+    payehyar_dev_user: str = ""
+    payehyar_timeout_seconds: int = 8
 
     # توکن سرویس‌دهی به سایر سامانه‌ها (خالی = سرویس بدون توکن)
     service_token: str = ""

@@ -97,6 +97,13 @@ function Icon({ name }: { name: string }) {
         <circle cx="12" cy="12" r="3" />
       </>
     ),
+    sync: (
+      <>
+        <path d="M21 12a9 9 0 0 1-15.5 6.2L3 16" />
+        <path d="M3 12a9 9 0 0 1 15.5-6.2L21 8" />
+        <path d="M21 3v5h-5M3 21v-5h5" />
+      </>
+    ),
     logout: (
       <>
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -194,6 +201,7 @@ export default function Layout() {
     }
     if (user && user.role !== 'STUDENT') {
       items.push({ to: '/programyar', label: 'برنامه‌یار۳۶۰', icon: 'integration' })
+      items.push({ to: '/payehyar', label: 'همگام‌سازی پایه‌یار', icon: 'sync' })
       items.push({ to: '/reports', label: 'گزارش‌ها', icon: 'reports' })
     }
     if (user && GLOBAL_ADMIN_ROLES.includes(user.role)) {
@@ -252,7 +260,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۲.۳ — تم دوگانه شب/روز ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۳.۰ — همگام‌سازی پایه‌یار۳۶۰ ✨</div>
         </div>
       </aside>
 

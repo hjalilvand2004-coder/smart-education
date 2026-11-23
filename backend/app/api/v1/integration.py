@@ -176,3 +176,43 @@ def baseyar_apply_review(log_id: str, db: Session = Depends(get_db),
     from app.services import baseyar_service
 
     return baseyar_service.apply_review(db, user, log_id)
+
+
+# ---------- پایه‌یار۳۶۰: همگام‌سازی کاتالوگ دروس + سرفصل‌ها (استقرار واقعی) ----------
+
+class PayehyarSyncIn(BaseModel):
+    mode: str = "FULL"  # FULL / INCREMENTAL
+
+
+@router.post("/integration/payehyar/sync")
+def payehyar_sync(body: PayehyarSyncIn, db: Session = Depends(get_db),
+                  user: User = Depends(get_current_user)):
+    """همگام‌سازی جدول دروس و سرفصل‌ها از پایه‌یار۳۶۰.
+
+    FULL: واکشی کاتالوگ کامل و upsert همه درس‌ها (با پیوند درس محلی هم‌کد).
+    تغییر نسخه سرفصل مرجع → نسخه پیش‌نویس REFERENCE_SYNC + وضعیت
+    REVIEW_REQUIRED؛ هرگز بی‌صدا اعمال نمی‌شود. خطای احراز هویت با راهنمای
+    دقیق تنظیم (کلید API / کاربر توسعه) برگردانده می‌شود."""
+    _ensure_staff_user(user)
+    from app.services import payehyar_catalog
+
+    return payehyar_catalog.sync_catalog(db, user, body.mode)
+
+
+@router.get("/integration/payehyar/status")
+def payehyar_status(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """وضعیت اتصال به پایه‌یار۳۶۰ + آمار رونوشت مرجع + آخرین اجرا."""
+    _ensure_staff_user(user)
+    from app.services import payehyar_catalog
+
+    return payehyar_catalog.catalog_status(db)
+
+
+@router.get("/integration/payehyar/logs")
+def payehyar_logs(limit: int = 20, db: Session = Depends(get_db),
+                  user: User = Depends(get_current_user)):
+    """تاریخچه اجراهای همگام‌سازی کاتالوگ."""
+    _ensure_staff_user(user)
+    from app.services import payehyar_catalog
+
+    return {"items": payehyar_catalog.recent_logs(db, limit)}

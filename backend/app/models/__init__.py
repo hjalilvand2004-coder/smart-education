@@ -16,7 +16,8 @@ from app.models.tutor import TutorSession, TutorMessage
 from app.models.collaboration import StudentCreation, PeerReview, ModerationReview
 from app.models.ops import AIRun, JobRun, AuditLog, OutboxEvent
 from app.models.journey import (ReferenceSyncLog, StuckMark, ErrorNotebookEntry,
-                                TeachBackSubmission, LearningSession, ExamPrepPlan)
+                                TeachBackSubmission, LearningSession, ExamPrepPlan,
+                                MasterdataSyncLog)
 
 __all__ = [
     "User", "CourseRole",
@@ -34,5 +35,5 @@ __all__ = [
     "StudentCreation", "PeerReview", "ModerationReview",
     "AIRun", "JobRun", "AuditLog", "OutboxEvent",
     "ReferenceSyncLog", "StuckMark", "ErrorNotebookEntry",
-    "TeachBackSubmission", "LearningSession", "ExamPrepPlan",
+    "TeachBackSubmission", "LearningSession", "ExamPrepPlan", "MasterdataSyncLog",
 ]
