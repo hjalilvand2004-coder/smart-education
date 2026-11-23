@@ -190,7 +190,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="login-footer">نسخه ۳.۰.۰ ✨ دسته کامل سرویس‌های یادگیری هوشمند</div>
+        <div className="login-footer">نسخه ۳.۲.۰ ✨ لندینگ رویایی و درس‌های چندحالته</div>
         </div>
       </div>
     </div>

@@ -2779,3 +2779,667 @@ button {
 
 /* اکشن‌های نوار بالا (حالت تمرکز + خروج) */
 .topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ============================================================
+   v3.2 «لندینگ رویایی» + حالت‌های نمایش درس‌ها (کارت/جدول/اینفوگرافیک)
+   استعاره: ورود به سامانه مثل ورود به یک رصدخانه مدرن — اول زیبایی، بعد یادگیری
+   ============================================================ */
+
+.btn-lg {
+  padding: 14px 30px;
+  font-size: 1.02rem;
+  border-radius: 16px;
+}
+
+/* ---------- لندینگ: ناوبری شیشه‌ای ---------- */
+
+.landing-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-page > * { position: relative; z-index: 1; }
+
+.landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 12px clamp(16px, 4vw, 40px);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border-bottom: 1px solid rgba(228, 231, 242, 0.8);
+}
+
+.landing-nav-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.landing-links {
+  display: flex;
+  gap: 4px;
+  margin-inline-start: 14px;
+  flex: 1;
+}
+
+.landing-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 12px;
+  transition: color var(--motion) var(--ease), background var(--motion) var(--ease);
+}
+
+.landing-links a:hover {
+  color: var(--brand-deep);
+  background: var(--brand-soft);
+}
+
+.landing-cta { margin-inline-start: auto; white-space: nowrap; }
+
+/* ---------- لندینگ: هیرو ---------- */
+
+.landing-main {
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 40px);
+  flex: 1;
+}
+
+.landing-hero {
+  text-align: center;
+  padding: clamp(48px, 8vw, 92px) 0 clamp(40px, 6vw, 64px);
+  position: relative;
+}
+
+.landing-badge {
+  display: inline-block;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-line);
+  box-shadow: var(--shadow-soft);
+  color: var(--brand-deep);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 999px;
+  margin-bottom: 22px;
+}
+
+.landing-title {
+  font-size: clamp(2.1rem, 6vw, 3.9rem);
+  line-height: 1.35;
+  margin: 0 auto 18px;
+  max-width: 760px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.grad-text {
+  background: linear-gradient(120deg, var(--brand-deep) 10%, var(--brand) 45%, var(--accent) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.landing-lead {
+  max-width: 640px;
+  margin: 0 auto 30px;
+  color: var(--text-muted);
+  font-size: clamp(0.95rem, 2vw, 1.08rem);
+  line-height: 2;
+}
+
+.landing-cta-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.landing-cta-row.center { margin-top: 8px; }
+
+.landing-ghost-btn {
+  background: var(--glass-strong);
+  border: 1px solid var(--border-strong);
+  color: var(--brand-deep);
+  font-weight: 700;
+}
+
+.landing-ghost-btn:hover {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+/* کارت‌های شناور نمونه — پیش‌نمایش کوچکی از داخل سامانه */
+
+.landing-mock {
+  position: relative;
+  max-width: 880px;
+  margin: clamp(44px, 6vw, 72px) auto 0;
+  min-height: 240px;
+}
+
+.mock-card {
+  position: absolute;
+  width: min(300px, 42vw);
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+  text-align: right;
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+}
+
+.mock-card .mock-kicker {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--brand-deep);
+  margin-bottom: 10px;
+}
+
+.mock-line {
+  height: 8px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--brand-soft), var(--neutral-bg));
+  margin-bottom: 8px;
+}
+
+.mock-line.short { width: 62%; }
+
+.mock-pill {
+  margin-top: 12px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--brand-deep);
+  background: var(--brand-soft);
+  border-radius: 999px;
+  padding: 6px 12px;
+  display: inline-block;
+}
+
+.mock-pill.accent {
+  color: var(--accent-2);
+  background: var(--success-bg);
+}
+
+.mock-dots { display: flex; gap: 8px; margin: 4px 0 2px; }
+
+.mock-dots i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--grad);
+  opacity: 0.85;
+}
+
+.mock-dots i:nth-child(2n) { background: var(--accent); opacity: 0.5; transform: scale(0.8); }
+.mock-dots i:nth-child(3) { transform: scale(1.25); }
+
+.mock-1 {
+  inset-inline-start: 4%;
+  top: 0;
+  animation: mockFloat 7s ease-in-out infinite;
+}
+
+.mock-2 {
+  inset-inline-end: 6%;
+  top: 44px;
+  animation: mockFloat 9s ease-in-out infinite reverse;
+}
+
+.mock-3 {
+  inset-inline-start: 30%;
+  top: 128px;
+  animation: mockFloat 8s ease-in-out infinite 0.8s;
+}
+
+@keyframes mockFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(-0.6deg); }
+}
+
+@media (max-width: 860px) {
+  .landing-mock { min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+  .mock-card { position: static; width: 100%; animation: none; }
+}
+
+/* ---------- لندینگ: بخش‌ها ---------- */
+
+.landing-section {
+  padding: clamp(36px, 6vw, 64px) 0;
+}
+
+.landing-h2 {
+  text-align: center;
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.landing-h2-sub {
+  text-align: center;
+  color: var(--text-muted);
+  margin: 0 auto 34px;
+  max-width: 560px;
+  line-height: 1.9;
+}
+
+.landing-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  gap: 16px;
+}
+
+.feature-card {
+  background: var(--glass);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.22s cubic-bezier(0.22, 0.8, 0.32, 1), box-shadow 0.22s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow), var(--glow);
+}
+
+.feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--grad);
+  color: #fff;
+  box-shadow: var(--glow);
+  margin-bottom: 14px;
+}
+
+.feature-icon svg { width: 22px; height: 22px; }
+
+.feature-card h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.feature-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.9;
+}
+
+.landing-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  counter-reset: step;
+}
+
+.step-card {
+  position: relative;
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius);
+  padding: 24px 20px 20px;
+  box-shadow: var(--shadow-soft);
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--grad);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  box-shadow: var(--glow);
+  margin-bottom: 12px;
+}
+
+.step-card h3 { margin: 0 0 8px; font-size: 0.98rem; }
+.step-card p { margin: 0; color: var(--text-muted); font-size: 0.85rem; line-height: 1.9; }
+
+.landing-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: clamp(22px, 4vw, 36px);
+}
+
+.stat-tile { text-align: center; }
+
+.stat-num {
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  font-weight: 700;
+  background: linear-gradient(120deg, var(--brand-deep), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.stat-label { color: var(--text-muted); font-size: 0.85rem; margin-top: 6px; }
+
+.landing-final { text-align: center; padding-bottom: 24px; }
+
+.landing-footer {
+  border-top: 1px solid var(--border);
+  padding: 26px clamp(16px, 4vw, 40px);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.landing-footer .brand { justify-content: center; margin-bottom: 8px; }
+
+@media (max-width: 860px) {
+  .landing-links { display: none; }
+}
+
+/* ---------- درس‌ها: سوییچر حالت نمایش ---------- */
+
+.view-switcher {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 4px;
+  box-shadow: var(--shadow-soft);
+}
+
+.view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background var(--motion) var(--ease), color var(--motion) var(--ease),
+    box-shadow var(--motion) var(--ease);
+}
+
+.view-btn svg { width: 16px; height: 16px; }
+
+.view-btn:hover { color: var(--brand-deep); background: var(--brand-soft); }
+
+.view-btn.active {
+  background: var(--grad);
+  color: #fff;
+  box-shadow: var(--glow);
+}
+
+/* ---------- درس‌ها: حالت کارت زیبا (v2) ---------- */
+
+.cards-v2 { grid-template-columns: repeat(auto-fill, minmax(272px, 1fr)); }
+
+.course-card-v2 { padding: 0; overflow: hidden; }
+
+.card-v2-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 18px 0;
+}
+
+.emblem {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.5px;
+}
+
+.emblem.v1 { background: linear-gradient(135deg, #6d5ef5, #8b5cf6); box-shadow: 0 6px 16px rgba(109, 94, 245, 0.35); }
+.emblem.v2 { background: linear-gradient(135deg, #0ea5a4, #16b8a6); box-shadow: 0 6px 16px rgba(22, 184, 166, 0.32); }
+.emblem.v3 { background: linear-gradient(135deg, #d97706, #d99a22); box-shadow: 0 6px 16px rgba(217, 154, 34, 0.3); }
+.emblem.v4 { background: linear-gradient(135deg, #4a3bd6, #7c3aed); box-shadow: 0 6px 16px rgba(74, 59, 214, 0.34); }
+
+.card-v2-titlebox { min-width: 0; }
+
+.course-card-v2 h3 {
+  margin: 0 0 6px;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.code-chip {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--neutral-bg);
+  border: 1px solid var(--neutral-border);
+  border-radius: 999px;
+  padding: 2px 10px;
+  direction: ltr;
+}
+
+.course-card-v2 .course-meta { padding: 10px 18px 0; margin-bottom: 10px; }
+
+.course-card-v2 .badge-row { padding: 0 18px; padding-bottom: 16px; }
+
+.card-v2-go {
+  margin-top: auto;
+  padding: 12px 18px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--brand-deep);
+  background: linear-gradient(180deg, transparent, var(--brand-softer));
+  border-top: 1px solid var(--border);
+  opacity: 0.55;
+  transition: opacity var(--motion) var(--ease);
+}
+
+.course-card-v2 { display: flex; flex-direction: column; }
+
+.course-card-v2:hover .card-v2-go { opacity: 1; }
+
+/* ---------- درس‌ها: حالت جدولی ---------- */
+
+.courses-table { min-width: 680px; }
+
+.table-course-link {
+  color: var(--brand-deep);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.table-course-link:hover { text-decoration: underline; }
+
+.cell-code {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  direction: ltr;
+  text-align: right;
+  margin-top: 3px;
+}
+
+.enrolled-yes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--success-bg);
+  color: var(--success-text);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.cell-muted { color: var(--text-muted); opacity: 0.5; }
+
+.table-go-btn { white-space: nowrap; }
+
+/* ---------- درس‌ها: حالت اینفوگرافیک ---------- */
+
+.info-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.summary-tile {
+  position: relative;
+  overflow: hidden;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-soft);
+}
+
+.summary-tile::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--grad);
+}
+
+.summary-tile.accent::before { background: linear-gradient(180deg, #0ea5a4, #16b8a6); }
+.summary-tile.warm::before { background: linear-gradient(180deg, #d97706, #d99a22); }
+.summary-tile.deep::before { background: linear-gradient(180deg, #4a3bd6, #7c3aed); }
+
+.summary-num {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--brand-deep);
+  line-height: 1.2;
+}
+
+.summary-label { color: var(--text-muted); font-size: 0.78rem; margin-top: 4px; }
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--glass);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-soft);
+  color: var(--text);
+  text-decoration: none;
+  transition: transform 0.22s cubic-bezier(0.22, 0.8, 0.32, 1), box-shadow 0.22s, border-color 0.22s;
+}
+
+.info-banner:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow), var(--glow);
+  border-color: rgba(109, 92, 255, 0.4);
+  text-decoration: none;
+}
+
+.info-main { flex: 1; min-width: 0; }
+
+.info-banner h3 {
+  margin: 0 0 6px;
+  font-size: 0.98rem;
+  color: var(--brand-deep);
+}
+
+.info-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  margin-bottom: 10px;
+}
+
+.info-meter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-meter {
+  flex: 1;
+  max-width: 260px;
+  height: 8px;
+  border-radius: 6px;
+  background: var(--brand-softer);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.info-meter span {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--grad);
+  box-shadow: 0 0 8px rgba(109, 94, 245, 0.4);
+  transition: width 0.5s var(--ease);
+}
+
+.info-meter-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.info-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 680px) {
+  .info-banner { flex-wrap: wrap; }
+  .info-side { flex-direction: row; width: 100%; justify-content: flex-start; }
+  .info-meter { max-width: none; }
+  .view-switcher { width: 100%; justify-content: space-between; }
+  .view-btn { flex: 1; justify-content: center; padding: 8px 8px; }
+}

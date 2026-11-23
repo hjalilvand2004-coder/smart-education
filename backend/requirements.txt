@@ -14,6 +14,8 @@ python-pptx>=1.0
 reportlab>=4.0
 arabic-reshaper>=3.0
 python-bidi>=0.4
+# نمودارهای گزارش (report_builder به‌صورت lazy استفاده می‌کند — بامپ ۳.۲)
+matplotlib>=3.8
 pdfplumber>=0.10
 pypdf>=4.0
 # production: psycopg[binary] , redis , celery , boto3 , pgvector

@@ -248,7 +248,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🔭 نسخه ۳.۱.۰ — مسیر یادگیری ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۲.۰ — لندینگ رویایی ✨</div>
         </div>
       </aside>
 

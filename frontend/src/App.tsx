@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes, useParams, useSearchParams } from 'react-router-dom'
 import { AuthProvider, useAuth, isGlobalAdmin } from './auth'
 import Layout from './components/Layout'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Courses from './pages/Courses'
 import CourseHome from './pages/CourseHome'
@@ -129,6 +130,8 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* لندینگ رویایی: اول زیبایی سایت، بعد ورود — کاربر احرازشده مستقیم وارد می‌شود */}
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/sso/callback" element={<SsoCallback />} />
           <Route
@@ -138,7 +141,6 @@ export default function App() {
               </RequireAuth>
             }
           >
-            <Route path="/" element={<Navigate to="/today" replace />} />
             <Route path="/today" element={<Today />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/course/:courseId" element={<CourseHome />} />
