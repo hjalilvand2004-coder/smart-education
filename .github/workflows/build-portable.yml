@@ -61,6 +61,15 @@ jobs:
           Copy-Item -Recurse frontend/dist backend/frontend_dist
           Get-ChildItem backend/frontend_dist | Select-Object Name
 
+      - name: Seed demo database (backend/education.db)
+        working-directory: backend
+        run: |
+          # دیتابیس بذرشده وارد بستهٔ PyInstaller می‌شود (education.db → _internal/)
+          # تا حساب‌های نمونه از اولین اجرا موجود باشند؛ bootstrap اپ هم پشتیبان است.
+          $env:S360_DATABASE_URL = "sqlite:///./education.db"
+          python scripts/init_db.py
+          python scripts/seed_demo.py
+
       - name: Build portable executable (PyInstaller)
         working-directory: backend
         run: |
@@ -74,11 +83,13 @@ jobs:
           $proc = Start-Process -FilePath $exe -PassThru
           $okHealth = $false
           $okRoot = $false
+          $okLogin = $false
+          $okSvc = $false
           for ($i = 0; $i -lt 30; $i++) {
             Start-Sleep -Seconds 2
             try {
-              $r = Invoke-WebRequest -Uri "http://127.0.0.1:8084/health" -UseBasicParsing -TimeoutSec 3
-              if ($r.StatusCode -eq 200) { $okHealth = $true; break }
+              $r = Invoke-WebRequest -Uri "http://127.0.0.1:8084/healthz" -UseBasicParsing -TimeoutSec 3
+              if ($r.StatusCode -eq 200 -and $r.Content -match '"status":"ok"') { $okHealth = $true; break }
             } catch { }
           }
           # ریشه باید رابط کاربری (index.html) را سرو کند — نه پیام JSON
@@ -86,33 +97,31 @@ jobs:
             $root = Invoke-WebRequest -Uri "http://127.0.0.1:8084/" -UseBasicParsing -TimeoutSec 5
             if ($root.StatusCode -eq 200 -and $root.Content -match 'id="root"') { $okRoot = $true }
           } catch { }
+          # ورود با حساب نمونهٔ دمو — دقیقاً سناریوی کاربر واقعی (رفع باگ ۳.۲.۱)
+          try {
+            $body = '{"username":"student.sara","password":"Pass1234!"}'
+            $login = Invoke-WebRequest -Uri "http://127.0.0.1:8084/api/v1/auth/login" -Method POST -Body $body -ContentType "application/json" -UseBasicParsing -TimeoutSec 5
+            if ($login.StatusCode -eq 200 -and $login.Content -match '"role":"STUDENT"') { $okLogin = $true }
+          } catch { }
           # سرویس‌دهی به سایر سامانه‌ها باید فعال باشد
-          $okSvc = $false
           try {
-            $svc = Invoke-WebRequest -Uri "http://127.0.0.1:8084/api/services/health" -UseBasicParsing -TimeoutSec 5
-            if ($svc.StatusCode -eq 200 -and $svc.Content -match 'smart-education') { $okSvc = $true }
+            $svc = Invoke-WebRequest -Uri "http://127.0.0.1:8084/api/v1/services/health" -UseBasicParsing -TimeoutSec 5
+            if ($svc.StatusCode -eq 200) { $okSvc = $true }
           } catch { }
-          # حساب مدیر پیش‌فرض باید ساخته شده و ورود کار کند
-          $okAuth = $false
-          try {
-            $body = '{"username":"admin","password":"admin123"}'
-            $login = Invoke-WebRequest -Uri "http://127.0.0.1:8084/api/auth/login" -Method POST -Body $body -ContentType "application/json" -UseBasicParsing -TimeoutSec 5
-            if ($login.StatusCode -eq 200 -and $login.Content -match '"role":"admin"') { $okAuth = $true }
-          } catch { }
-          if ($okHealth -and $okRoot -and $okSvc -and $okAuth) { Write-Host "Portable build smoke test PASSED (health + UI + services + auth)" }
-          elseif ($okHealth -and -not $okAuth) { Write-Host "Warning: auth login check failed" }
-          elseif ($okHealth -and -not $okSvc) { Write-Host "Warning: services API check failed" }
-          elseif ($okHealth) { Write-Host "Warning: health OK but root UI check failed" }
-          else { Write-Host "Warning: health check did not answer (may be port conflict)" }
+          Write-Host "health=$okHealth root=$okRoot login=$okLogin services=$okSvc"
           Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+          if (-not ($okHealth -and $okRoot -and $okLogin -and $okSvc)) {
+            throw "Portable smoke test FAILED — health=$okHealth root=$okRoot login=$okLogin services=$okSvc"
+          }
+          Write-Host "Portable build smoke test PASSED (healthz + UI + demo login + services)"
 
       - name: Package portable ZIP
         shell: pwsh
         run: |
           $readme = @'
           ==========================================================
-           سامانه هوشمند آموزش — نسخهٔ قابل حمل (Portable)
-           Smart Education — Portable Edition  (v2.4.1)
+           دانشجو۳۶۰ — نسخهٔ قابل حمل (Portable)
+           Student360 — Smart Learning Platform  (v3.2.2)
           ==========================================================
 
           روش اجرا:
@@ -127,42 +136,36 @@ jobs:
               آدرس رسمی: http://188.212.96.235:8084
             - دقت کنید فایروال ویندوز برای پورت 8084 مجوز ورودی داشته باشد.
 
-          گزارش‌سازی چهارفرمتی:
-            - از منوی کنار داشبورد، گزینهٔ «استودیو گزارش‌ها (۴ فرمت)» را بزنید
-              یا آدرس http://127.0.0.1:8084/reports-page را باز کنید.
-            - خروجی‌ها: HTML · PowerPoint (PPTX) · PDF · Word (DOCX)
+          گزارش‌سازی و خروجی‌ها:
+            - سرویس گزارش‌های استاندارد (HTML · PPTX · PDF · DOCX) از مسیرهای
+              /api/v1/reports/... در دسترس است؛ مستندات کامل در /api/docs.
             - خروجی‌های ساخته‌شده در پوشهٔ exports کنار برنامه ذخیره می‌شوند.
 
-          یکپارچگی با سامانهٔ برنامه‌ریزی درسی:
-            - لیست درس‌ها از سرویس رسمی زیر خوانده می‌شود:
-              http://188.212.96.235:8083
-            - آدرس سرویس از طریق فایل run.bat قابل تغییر است (SCHEDULER_BASE_URL).
+          یکپارچگی با پایه‌یار۳۶۰ و برنامه‌یار۳۶۰:
+            - آدرس‌های سرویس با متغیرهای S360_BASEYAR_BASE_URL و
+              S360_PROGRAMYAR_BASE_URL (در run.bat) قابل تنظیم‌اند.
 
-          سرویس‌دهی سرفصل‌ها به سایر سامانه‌ها:
-            - سامانه‌های دیگر می‌توانند سرفصل‌ها و محتوای درسی را از مسیرهای
-              /api/services/... بخوانند (شرح در استودیو گزارش‌ها و /docs).
-            - ارسال سرفصل‌ها به سامانهٔ دیگر: از استودیو گزارش‌ها، بخش
-              «ارسال سرویس به سامانهٔ دیگر (Push)».
-
-          حساب‌های کاربری و نقش‌ها:
-            - حساب پیش‌فرض مدیر سامانه:
-                نام کاربری: admin   رمز اولیه: admin123
-                (بعد از اولین ورود از منوی داشبورد رمز را عوض کنید)
+          حساب‌های کاربری و نقش‌ها (رمز همه: Pass1234!):
+            - دانشجو:   student.sara — student.amir
+            - استاد:    prof.rezaei
+            - دستیار آموزشی: ta.karimi
+            - مدیر آموزشی: edu.admin — مدیر فنی: tech.admin — کیفیت: quality.expert
             - ثبت‌نام دانشجو: فعال‌سازی خودکار
-            - ثبت‌نام استاد: نیازمند تایید مدیر سامانه یا مدیرگروه
-            - ثبت‌نام مدیرگروه: نیازمند تایید مدیر سامانه
+            - ثبت‌نام استاد/مدیرگروه: نیازمند تایید مدیر (edu.admin)
             - مدیریت کاربران: منوی «مدیریت کاربران» در داشبورد
 
           نکات مهم:
-            - نیازی به نصب Python، PyCharm، Node.js یا هر پیش‌نیاز دیگری نیست.
+            - نیازی به نصب Python، Node.js یا هر پیش‌نیاز دیگری نیست.
             - دیتابیس در پوشهٔ data کنار فایل exe ذخیره می‌شود؛
               برای انتقال برنامه به رایانهٔ دیگر، کل این پوشه را کپی کنید.
             - اگر پورت 8084 اشغال باشد، برنامه به‌صورت خودکار پورت بعدی را
               استفاده می‌کند (آدرس را در پنجرهٔ کنسول ببینید).
-            - تولید PDF و آیکون‌ها کاملاً آفلاین است (فونت وزیرمتن باندل شده).
+            - API مستندات تعاملی: http://127.0.0.1:8084/api/docs
+            - سرویس‌دهی سرفصل‌ها به سایر سامانه‌ها: مسیرهای /api/v1/services/...
 
           رفع اشکال:
             - اگر صفحه باز نشد: چند ثانیه صبر کنید و صفحه را رفرش کنید.
+            - اگر ورود خطا داد: از حساب‌های نمونهٔ بالا استفاده کنید (رمز Pass1234!).
             - اگر آنتی‌ویروس هشدار داد: فایل ANTIVIRUS-NOTE.txt را بخوانید؛
               این هشدار «مثبت کاذب» است و راه‌حل کامل آن در همان فایل آمده است.
           '@
@@ -171,8 +174,10 @@ jobs:
           $bat = @'
           @echo off
           chcp 65001 >nul
-          rem آدرس سرویس برنامه‌ریزی درسی (پیش‌فرض رسمی):
-          rem set SCHEDULER_BASE_URL=http://188.212.96.235:8083
+          rem === تنظیمات اختیاری دانشجو۳۶۰ — پیش از start، Uncomment کنید ===
+          rem set S360_DATABASE_URL=sqlite:///C:\path\to\my.db
+          rem set S360_FRONTEND_DIST=C:\path\to\frontend_dist
+          rem set S360_SSO_CLIENT_ID=...
           start "" "%~dp0SmartEducation.exe"
           '@
           Set-Content -Path "backend\dist\SmartEducation\run.bat" -Value $bat -Encoding UTF8

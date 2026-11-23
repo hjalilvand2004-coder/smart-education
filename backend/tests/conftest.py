@@ -10,6 +10,8 @@ sys.path.insert(0, str(BACKEND_DIR))
 _TMP = Path(tempfile.mkdtemp(prefix="s360_test_"))
 os.environ["S360_DATABASE_URL"] = f"sqlite:///{_TMP / 'test.db'}"
 os.environ["S360_STORAGE_DIR"] = str(_TMP / "storage")
+# بوت‌استرپ اپ فقط جدول‌ها را بسازد؛ دادهٔ دمو را تست‌ها خودشان می‌سازند
+os.environ["S360_BOOTSTRAP_DEMO_SEED"] = "false"
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

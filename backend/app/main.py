@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
+from app.core.bootstrap import ensure_schema_and_demo
 from app.core.config import get_settings
 from app.core.errors import AppError, request_id_var
 
@@ -53,6 +54,9 @@ def _resolve_frontend_dist(frontend_dist_setting: str = ""):
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    # بوت‌استرپ دیتابیس برای نسخهٔ پرتیبل (رفع «no such table: users» در ۳.۲.۱):
+    # دیتابیس SQLite خالی → ساخت جدول‌ها + دادهٔ نمونهٔ دمو؛ بقیه حالت‌ها دست‌نخورده.
+    ensure_schema_and_demo()
     app = FastAPI(
         title=settings.app_name,
         version=settings.app_version,

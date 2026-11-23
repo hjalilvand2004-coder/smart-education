@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="S360_", extra="ignore")
 
     app_name: str = "دانشجو۳۶۰ — سرویس‌های یادگیری هوشمند"
-    app_version: str = "3.2.1"
+    app_version: str = "3.2.2"
 
     # پایگاه داده؛ در محیط توسعه SQLite و در استقرار PostgreSQL:
     # postgresql+psycopg://user:pass@db:5432/student360
@@ -67,6 +67,10 @@ class Settings(BaseSettings):
 
     # مسیر build فرانت‌اند برای نسخه پرتیبل (اختیاری؛ خالی = فقط API)
     frontend_dist: str = ""
+
+    # بوت‌استرپ دیتابیس خالی (نسخهٔ پرتیبل): ساخت جدول‌ها + دادهٔ نمونهٔ دمو.
+    # در تست‌ها با S360_BOOTSTRAP_DEMO_SEED=false خاموش می‌شود.
+    bootstrap_demo_seed: bool = True
 
     @property
     def cors_list(self) -> list[str]:

@@ -71,7 +71,8 @@ def prepare_environment() -> None:
             shutil.copy2(seed, db_path)
             print(f"[i] دیتابیس نمونه در {db_path} قرار گرفت.")
         else:
-            print("[i] دیتابیس جدید ساخته می‌شود.")
+            print("[i] دیتابیس جدید ساخته می‌شود؛ جدول‌ها و دادهٔ نمونهٔ دمو "
+                  "به‌صورت خودکار آماده خواهند شد (bootstrap ۳.۲.۲).")
 
     # متغیرهای محیطی اپ — همهٔ تنظیمات دانشجو۳۶۰ با پیشوند S360_ خوانده می‌شوند
     # (اصلاح ۳.۲.۱: نام‌های قبلی DATABASE_URL/EXPORTS_DIR/FRONTEND_DIST_DIR هیچ‌گاه
@@ -105,7 +106,7 @@ def open_browser_later(url: str, delay: float = 2.2) -> None:
 
 def main() -> None:
     print("=" * 62)
-    print("  دانشجو۳۶۰ — نسخهٔ قابل حمل  (v3.2.1)")
+    print("  دانشجو۳۶۰ — نسخهٔ قابل حمل  (v3.2.2)")
     print("  Student360 — Smart Learning Platform (Portable)")
     print("=" * 62)
 
