@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 =====================================================================
-اجراکننده نسخهٔ قابل حمل (Portable) — سامانه هوشمند آموزش
+اجراکننده نسخهٔ قابل حمل (Portable) — دانشجو۳۶۰
 =====================================================================
 این اسکریپت نقطهٔ ورود ساخت فایل اجرایی با PyInstaller است:
- - سرور FastAPI + رابط کاربری + استودیو گزارش‌ها را اجرا می‌کند
- - دیتابیس و خروجی گزارش‌ها را کنار فایل exe نگه می‌دارد
-   (قابل حمل روی فلش USB)
+ - سرور FastAPI + رابط کاربری باندل‌شده (SPA) را اجرا می‌کند
+ - دیتابیس و داده‌ها را کنار فایل exe نگه می‌دارد (قابل حمل روی فلش USB)
  - مرورگر را به‌صورت خودکار باز می‌کند
- - پورت پیش‌فرض 8100 است تا اگر «سامانه برنامه‌ریزی درسی» (پورت
-   8000) همزمان اجرا باشد، هر دو سامانه بدون تداخل کار کنند و
-   سرویس‌دهی لیست درس‌ها برقرار بماند
+ - پورت پیش‌فرض 8084 است؛ اگر اشغال باشد پورت بعدی به‌صورت خودکار استفاده می‌شود
+ - تنظیمات اپ فقط با پیشوند S360_ خوانده می‌شوند (اصلاح ۳.۲.۱)
 =====================================================================
 """
 import os
@@ -75,20 +73,19 @@ def prepare_environment() -> None:
         else:
             print("[i] دیتابیس جدید ساخته می‌شود.")
 
-    os.environ["DATABASE_URL"] = f"sqlite:///{db_path}"
-    os.environ["EXPORTS_DIR"] = exports_dir
+    # متغیرهای محیطی اپ — همهٔ تنظیمات دانشجو۳۶۰ با پیشوند S360_ خوانده می‌شوند
+    # (اصلاح ۳.۲.۱: نام‌های قبلی DATABASE_URL/EXPORTS_DIR/FRONTEND_DIST_DIR هیچ‌گاه
+    #  خوانده نمی‌شدند و باعث «Not Found» صفحه وب و دیتابیس خالی در exe می‌شدند)
+    os.environ["S360_DATABASE_URL"] = f"sqlite:///{db_path}"
+    os.environ["S360_STORAGE_DIR"] = os.path.join(data_dir, "storage")
 
     # مسیر رابط کاربری ساخته‌شده
     fe = os.path.join(resource_base(), "frontend_dist")
     if os.path.isdir(os.path.join(fe, "assets")):
-        os.environ["FRONTEND_DIST_DIR"] = fe
-
-    # آدرس سرویس برنامه‌ریزی درسی (قابل تغییر با SCHEDULER_BASE_URL)
-    # پیش‌فرض رسمی: http://188.212.96.235:8083
-    os.environ.setdefault("SCHEDULER_BASE_URL", "http://188.212.96.235:8083")
-
-    # آدرس عمومی این سامانه برای معرفی در سرویس‌دهی (SERVICE_BASE_URL)
-    os.environ.setdefault("SERVICE_BASE_URL", "http://188.212.96.235:8084")
+        os.environ["S360_FRONTEND_DIST"] = fe
+        print(f"[i] رابط کاربری باندل‌شده: {fe}")
+    else:
+        print("[!] frontend_dist در بسته یافت نشد — سامانه فقط-API بالا می‌آید.")
 
     # مسیر کار برنامه کنار exe تا لاگ‌ها و فایل‌ها آنجا باشند
     os.chdir(os.path.dirname(os.path.abspath(
@@ -108,8 +105,8 @@ def open_browser_later(url: str, delay: float = 2.2) -> None:
 
 def main() -> None:
     print("=" * 62)
-    print("  سامانه هوشمند آموزش — نسخهٔ قابل حمل  (v2.3.0)")
-    print("  Smart Education — Portable Edition")
+    print("  دانشجو۳۶۰ — نسخهٔ قابل حمل  (v3.2.1)")
+    print("  Student360 — Smart Learning Platform (Portable)")
     print("=" * 62)
 
     prepare_environment()
@@ -118,12 +115,16 @@ def main() -> None:
 
     port = find_free_port()
     local_url = f"http://127.0.0.1:{port}"
-    scheduler_url = os.environ.get("SCHEDULER_BASE_URL", "")
+
+    # پیش‌فرض‌های ورود یکگانه روی همین پورت (فقط اگر مدیر مقدار نداده باشد)
+    os.environ.setdefault("S360_SSO_FRONTEND_BASE", local_url)
+    os.environ.setdefault("S360_SSO_REDIRECT_URI", f"{local_url}/api/v1/auth/sso/callback")
+    # یکپارچه‌سازی برنامه‌یار۳۶۰ (در Settings پیش‌فرض رسمی دارد؛ اینجا فقط اطمینان)
+    os.environ.setdefault("S360_PROGRAMYAR_BASE_URL", "http://188.212.96.235:8083")
 
     print(f"[i] رابط کاربری (محلی):    {local_url}  ← مرورگر خودکار باز می‌شود")
     print(f"[i] دسترسی از شبکه/IP:    http://<ip-this-server>:{port}")
-    print(f"[i] استودیو گزارش‌ها:     {local_url}/reports-page")
-    print(f"[i] سرویس برنامه‌ریزی:    {scheduler_url}")
+    print(f"[i] حساب‌های نمونه:        prof.rezaei / student.sara / edu.admin — رمز: Pass1234!")
     print("[i] برای خروج، این پنجره را ببندید یا Ctrl+C بزنید.")
     print("-" * 62)
 

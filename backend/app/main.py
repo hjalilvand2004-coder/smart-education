@@ -4,6 +4,7 @@
 مدیریت خطای استاندارد با request_id برای ردیابی.
 """
 import logging
+import sys
 import time
 import uuid
 
@@ -20,6 +21,34 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger("student360")
 
 API_PREFIX = "/api/v1"
+
+
+def _resolve_frontend_dist(frontend_dist_setting: str = ""):
+    """یافتن مسیر build فرانت‌اند در همهٔ حالت‌ها: توسعه، متغیر محیطی صریح و بستهٔ پرتیبل.
+
+    ریشهٔ باگ ۴۰۴ نسخهٔ پرتیبل ۳.۲.۰: لانچر exe متغیر FRONTEND_DIST_DIR را
+    ست می‌کرد در حالی که اپ فقط S360_FRONTEND_DIST می‌خواند، و مسیر جایگزین
+    توسعه‌ای (parents[2]/frontend/dist) در چیدمان بستهٔ PyInstaller وجود ندارد
+    (داده‌ها زیر «_internal» قرار می‌گیرند). این تابع مستقل از لانچر، همهٔ
+    چیدمان‌های ممکن را به‌ترتیب امتحان می‌کند (دفاع در عمق).
+    """
+    from pathlib import Path as _Path
+
+    candidates: list = []
+    if frontend_dist_setting:
+        candidates.append(_Path(frontend_dist_setting))
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        candidates.append(_Path(meipass) / "frontend_dist")
+    if getattr(sys, "frozen", False):
+        exe_dir = _Path(sys.executable).resolve().parent
+        candidates.append(exe_dir / "_internal" / "frontend_dist")
+        candidates.append(exe_dir / "frontend_dist")
+    candidates.append(_Path(__file__).resolve().parents[2] / "frontend" / "dist")
+    for cand in candidates:
+        if (cand / "index.html").is_file():
+            return cand
+    return None
 
 
 def create_app() -> FastAPI:
@@ -113,11 +142,8 @@ def create_app() -> FastAPI:
         return {"status": "ok", "app": settings.app_name, "version": settings.app_version}
 
     # نسخه پرتیبل: serve فرانت‌اند build‌شده + fallback SPA (بدون نیاز به nginx)
-    from pathlib import Path as _Path
-
-    dist = (_Path(settings.frontend_dist) if settings.frontend_dist
-            else _Path(__file__).resolve().parents[2] / "frontend" / "dist")
-    if dist.exists() and (dist / "index.html").exists():
+    dist = _resolve_frontend_dist(settings.frontend_dist)
+    if dist is not None:
         from fastapi.responses import FileResponse
 
         @app.get("/{full_path:path}", include_in_schema=False)
@@ -131,6 +157,8 @@ def create_app() -> FastAPI:
                 return FileResponse(target)
             return FileResponse(dist / "index.html")
         logger.info("serving frontend dist from %s", dist)
+    else:
+        logger.info("frontend dist not found — API-only mode")
 
     return app
 

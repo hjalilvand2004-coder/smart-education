@@ -190,7 +190,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="login-footer">نسخه ۳.۲.۰ ✨ لندینگ رویایی و درس‌های چندحالته</div>
+        <div className="login-footer">نسخه ۳.۲.۱ ✨ رفع serve فرانت‌اند در نسخه پرتیبل</div>
         </div>
       </div>
     </div>
