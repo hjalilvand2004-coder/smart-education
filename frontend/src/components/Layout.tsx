@@ -5,6 +5,7 @@ import { api } from '../api'
 import type { Course } from '../api'
 import { GLOBAL_ADMIN_ROLES, STAFF_COURSE_ROLES, useAuth, hasAnyStaffCourse } from '../auth'
 import { roleLabel } from './StatusBadge'
+import ThemeToggle from './ThemeToggle'
 
 function Icon({ name }: { name: string }) {
   const paths: Record<string, ReactNode> = {
@@ -234,12 +235,15 @@ export default function Layout() {
         <i className="b4" />
       </div>
       <aside className="sidebar">
-        <div className="brand">
-          <span className="brand-mark">360</span>
-          <span>
-            دانشجو۳۶۰
-            <span className="brand-sub">رصدخانه یادگیری هوشمند</span>
-          </span>
+        <div className="sidebar-top">
+          <div className="brand">
+            <span className="brand-mark">360</span>
+            <span>
+              دانشجو۳۶۰
+              <span className="brand-sub">رصدخانه یادگیری هوشمند</span>
+            </span>
+          </div>
+          <ThemeToggle />
         </div>
         <nav aria-label="ناوبری اصلی">{navList}</nav>
         <div className="sidebar-footer">
@@ -248,7 +252,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۲.۲ — Aurora Glass ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۲.۳ — تم دوگانه شب/روز ✨</div>
         </div>
       </aside>
 
@@ -263,6 +267,7 @@ export default function Layout() {
               </span>
             </div>
             <div className="topbar-actions">
+              <ThemeToggle />
               <button
                 type="button"
                 className={`btn btn-sm${focusMode ? ' btn-primary' : ''}`}

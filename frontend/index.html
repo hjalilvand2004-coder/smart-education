@@ -29,6 +29,15 @@
     </script>
   </head>
   <body>
+    <script>
+      // اعمال تم ذخیره‌شده پیش از اولین رندر (پیش‌فرض: شب)
+      try {
+        var t = localStorage.getItem('s360-theme')
+        document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark'
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark'
+      }
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

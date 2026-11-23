@@ -76,7 +76,91 @@
   --motion: 180ms;
   --motion-slow: 240ms;
   --ease: cubic-bezier(0.33, 1, 0.68, 1);
+
+  /* توکن‌های تم دوگانه و نقشه مفاهیم (v3.2.3) */
+  color-scheme: light;
+  --map-unknown: #9ca3af;
+  --map-weak: #fca5a5;
+  --map-partial: #fde047;
+  --map-known: #6ee7b7;
+  --map-edge: #cbd5e1;
+  --map-edge-prereq: #2563eb;
+  --map-node-ring: #ffffff;
+  --map-node-ring-soft: #94a3b8;
+  --map-text: #1f2937;
+  --map-text-sub: #334155;
+  --map-text-muted: #6b7280;
+  --aurora-night: 0;
 }
+/* ============================================================
+   تم شب کیهانی (پیش‌فرض v3.2.3) — آسمان عمیق شبانه با هاله بنفش-صورتی
+   توکن‌ها فقط مقادیر را عوض می‌کنند؛ هیچ قاعده‌ای تکرار نمی‌شود.
+   ============================================================ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --brand: #a49df0;            /* بنفش روشن برای لینک/تاکید روی زمینه تیره */
+  --brand-dark: #8d7ffb;
+  --brand-deep: #c9c2ff;       /* رنگ تیترها روی تیره */
+  --brand-soft: rgba(109, 94, 245, 0.20);
+  --brand-softer: rgba(109, 94, 245, 0.10);
+  --accent: #2dd4bf;
+  --accent-2: #16b8a6;
+  --pink: #fbbf24;
+  --grad: linear-gradient(135deg, #6d5ef5 0%, #a855f7 48%, #ec4899 100%);
+  --grad-hover: linear-gradient(135deg, #5b4ce6 0%, #9333ea 48%, #db2777 100%);
+  --grad-mesh: linear-gradient(120deg, rgba(109, 94, 245, 0.16), rgba(22, 184, 166, 0.10) 45%, rgba(217, 70, 239, 0.10));
+
+  --bg: #0a0920;               /* آسمان عمیق شبانه */
+  --surface: rgba(22, 19, 52, 0.78);
+  --glass: rgba(24, 21, 58, 0.72);
+  --glass-strong: rgba(28, 24, 66, 0.88);
+  --glass-line: rgba(150, 135, 255, 0.18);
+  --text: #eceaff;
+  --text-muted: #9d94d4;
+  --border: rgba(150, 135, 255, 0.16);
+  --border-strong: rgba(150, 135, 255, 0.32);
+  --dark: #111030;
+  --dark-2: #1a1744;
+
+  --success-bg: rgba(16, 185, 129, 0.14);
+  --success-text: #6ee7b7;
+  --success-border: rgba(110, 231, 183, 0.30);
+  --warn-bg: rgba(251, 191, 36, 0.12);
+  --warn-text: #fcd34d;
+  --warn-border: rgba(252, 211, 77, 0.28);
+  --danger-bg: rgba(244, 63, 94, 0.14);
+  --danger-text: #fda4af;
+  --danger-border: rgba(253, 164, 175, 0.30);
+  --info-bg: rgba(129, 140, 248, 0.15);
+  --info-text: #b1b4fc;
+  --info-border: rgba(165, 172, 252, 0.30);
+  --neutral-bg: rgba(150, 135, 255, 0.10);
+  --neutral-text: #c4c0f0;
+  --neutral-border: rgba(150, 135, 255, 0.22);
+  --ai-bg: rgba(168, 85, 247, 0.14);
+  --ai-text: #d8b4fe;
+  --ai-border: rgba(216, 180, 254, 0.30);
+
+  --shadow: 0 6px 18px rgba(2, 2, 16, 0.5), 0 22px 48px rgba(2, 2, 16, 0.45);
+  --shadow-soft: 0 2px 6px rgba(2, 2, 16, 0.4), 0 10px 26px rgba(2, 2, 16, 0.35);
+  --glow: 0 6px 22px rgba(217, 70, 239, 0.35);
+
+  --map-unknown: #94a3b8;
+  --map-weak: #f87171;
+  --map-partial: #fbbf24;
+  --map-known: #34d399;
+  --map-edge: rgba(150, 135, 255, 0.30);
+  --map-edge-prereq: #818cf8;
+  --map-node-ring: #14113a;
+  --map-node-ring-soft: rgba(150, 135, 255, 0.45);
+  --map-text: #eceaff;
+  --map-text-sub: #c4c0f0;
+  --map-text-muted: #9d94d4;
+
+  --aurora-night: 1;
+}
+
 
 /* ---------- لایه‌های بصری سه‌گانه ---------- */
 /* کشف: هنر کامل؛ تمرکز: بدون تزئین؛ تحلیل: هنر کمرنگ */
@@ -3661,4 +3745,174 @@ button {
   .info-meter { max-width: none; }
   .view-switcher { width: 100%; justify-content: space-between; }
   .view-btn { flex: 1; justify-content: center; padding: 8px 8px; }
+}
+
+
+/* ============================================================
+   v3.2.3 — دکمه تعویض تم شب/روز + اووررایدهای تم شب
+   ============================================================ */
+
+body {
+  transition: background-color var(--motion-slow) var(--ease), color var(--motion-slow) var(--ease);
+}
+
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sidebar-top .brand {
+  margin-bottom: 0;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid var(--border-strong);
+  background: var(--brand-softer);
+  color: var(--text);
+  transition: background var(--motion) var(--ease), border-color var(--motion) var(--ease),
+    color var(--motion) var(--ease), box-shadow var(--motion) var(--ease);
+  white-space: nowrap;
+}
+
+.theme-toggle:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.theme-toggle svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* دکمه تم همیشه روی سایدبار/نوار بالای تیره می‌نشیند (در هر دو تم) */
+.sidebar .theme-toggle,
+.topbar .theme-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #e9e7ff;
+}
+
+.sidebar .theme-toggle.theme-toggle-dark,
+.topbar .theme-toggle.theme-toggle-dark {
+  background: linear-gradient(135deg, rgba(109, 94, 245, 0.32), rgba(236, 72, 153, 0.28));
+  border-color: rgba(240, 171, 252, 0.45);
+}
+
+.sidebar .theme-toggle:hover,
+.topbar .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-color: #a49df0;
+}
+
+@media (max-width: 640px) {
+  .topbar-actions .theme-toggle span { display: none; }
+  .topbar-actions .theme-toggle { padding: 6px 9px; }
+}
+
+/* ---------- شب: سحابی کیهانی + ستاره‌های پس‌زمینه ---------- */
+
+:root[data-theme='dark'] .aurora {
+  background:
+    radial-gradient(1100px 520px at 85% -8%, rgba(109, 94, 245, 0.16), transparent 60%),
+    radial-gradient(900px 460px at 8% 108%, rgba(22, 184, 166, 0.10), transparent 62%),
+    radial-gradient(760px 420px at 50% 45%, rgba(217, 70, 239, 0.07), transparent 65%),
+    var(--bg);
+}
+
+:root[data-theme='dark'] .aurora i {
+  opacity: 0.5;
+}
+
+:root[data-theme='dark'] .aurora .b4 {
+  background: radial-gradient(circle at 50% 50%, rgba(217, 70, 239, 0.26), transparent 66%);
+}
+
+/* ستاره‌های ریز ثابت روی سحابی — فقط در شب */
+:root[data-theme='dark'] .aurora::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.6px 1.6px at 26px 40px, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
+    radial-gradient(1.1px 1.1px at 118px 92px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(1.3px 1.3px at 189px 155px, rgba(214, 222, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(0.9px 0.9px at 67px 175px, rgba(255, 255, 255, 0.6) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 231px 62px, rgba(226, 232, 255, 0.75) 50%, transparent 51%),
+    radial-gradient(0.8px 0.8px at 152px 210px, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 39px 118px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 208px 129px, rgba(214, 222, 255, 0.65) 50%, transparent 51%);
+  background-size: 260px 240px;
+  opacity: 0.55;
+}
+
+/* ---------- شب: اصلاح نقاط با رنگ هاردکد روشن ---------- */
+
+:root[data-theme='dark'] .btn:hover {
+  background: rgba(109, 94, 245, 0.16);
+}
+
+:root[data-theme='dark'] .input:hover,
+:root[data-theme='dark'] .select:hover,
+:root[data-theme='dark'] .textarea:hover {
+  background: rgba(28, 24, 66, 0.6);
+}
+
+:root[data-theme='dark'] .input:focus,
+:root[data-theme='dark'] .select:focus,
+:root[data-theme='dark'] .textarea:focus {
+  background: rgba(12, 10, 34, 0.85);
+}
+
+:root[data-theme='dark'] .table-wrap {
+  background: rgba(24, 21, 58, 0.75);
+}
+
+:root[data-theme='dark'] .block-worked_example,
+:root[data-theme='dark'] .block-exercise {
+  background: rgba(20, 184, 166, 0.10);
+}
+
+:root[data-theme='dark'] .badge-ai {
+  background: linear-gradient(120deg, var(--ai-bg), rgba(217, 70, 239, 0.10));
+}
+
+:root[data-theme='dark'] .day-title {
+  background: linear-gradient(120deg, rgba(109, 94, 245, 0.24), rgba(236, 72, 153, 0.16));
+}
+
+:root[data-theme='dark'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+:root[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: rgba(150, 135, 255, 0.28);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: #8d7ffb;
+  background-clip: content-box;
 }

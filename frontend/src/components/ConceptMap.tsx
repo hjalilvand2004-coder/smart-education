@@ -7,10 +7,10 @@ interface NodePos extends ConceptNode {
 }
 
 const MASTERY_COLORS: Record<MasteryStatus, { fill: string; label: string }> = {
-  UNKNOWN: { fill: '#9ca3af', label: 'نامشخص' },
-  WEAK: { fill: '#fca5a5', label: 'ضعیف' },
-  PARTIAL: { fill: '#fde047', label: 'جزئی' },
-  KNOWN: { fill: '#6ee7b7', label: 'مسلط' },
+  UNKNOWN: { fill: 'var(--map-unknown)', label: 'نامشخص' },
+  WEAK: { fill: 'var(--map-weak)', label: 'ضعیف' },
+  PARTIAL: { fill: 'var(--map-partial)', label: 'جزئی' },
+  KNOWN: { fill: 'var(--map-known)', label: 'مسلط' },
 }
 
 const EDGE_LABELS: Record<string, string> = {
@@ -69,7 +69,7 @@ export default function ConceptMap({ graph }: { graph: ConceptGraph }) {
                 y1={a.y}
                 x2={b.x}
                 y2={b.y}
-                stroke={isPrereq ? '#2563eb' : '#cbd5e1'}
+                style={{ stroke: isPrereq ? 'var(--map-edge-prereq)' : 'var(--map-edge)' }}
                 strokeWidth={isPrereq ? 2 : 1.4}
                 strokeDasharray={isPrereq ? undefined : '5 4'}
               >
@@ -92,15 +92,15 @@ export default function ConceptMap({ graph }: { graph: ConceptGraph }) {
                 }}
                 onMouseLeave={() => setTooltip(null)}
               >
-                <circle r={26} fill={color} stroke="#ffffff" strokeWidth={2.5} />
-                <circle r={26} fill="transparent" stroke="#94a3b8" strokeWidth={1} />
-                <text textAnchor="middle" dy="0.35em" fontSize="11" fill="#1f2937" fontWeight="700">
+                <circle r={26} style={{ fill: color, stroke: 'var(--map-node-ring)' }} strokeWidth={2.5} />
+                <circle r={26} fill="transparent" style={{ stroke: 'var(--map-node-ring-soft)' }} strokeWidth={1} />
+                <text textAnchor="middle" dy="0.35em" fontSize="11" style={{ fill: 'var(--map-text)' }} fontWeight="700">
                   {truncate(n.name, 3)}
                 </text>
-                <text textAnchor="middle" y={42} fontSize="11.5" fill="#334155" fontWeight="700">
+                <text textAnchor="middle" y={42} fontSize="11.5" style={{ fill: 'var(--map-text-sub)' }} fontWeight="700">
                   {truncate(n.name, 16)}
                 </text>
-                <text textAnchor="middle" y={57} fontSize="9.5" fill="#6b7280">
+                <text textAnchor="middle" y={57} fontSize="9.5" style={{ fill: 'var(--map-text-muted)' }}>
                   تسلط: {MASTERY_COLORS[masteryStatus]?.label || 'نامشخص'}
                 </text>
                 <title>{`${n.name} — تسلط: ${MASTERY_COLORS[masteryStatus]?.label || 'نامشخص'}`}</title>
@@ -128,7 +128,7 @@ export default function ConceptMap({ graph }: { graph: ConceptGraph }) {
           </span>
         ))}
         <span>
-          <span className="legend-dot" style={{ background: '#2563eb' }} />
+          <span className="legend-dot" style={{ background: 'var(--map-edge-prereq)' }} />
           خط پیوسته: پیش‌نیاز — خط نقطه‌چین: سایر روابط
         </span>
       </div>
