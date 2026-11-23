@@ -8,7 +8,17 @@
   ۱) خط فرمان:  python scripts/seed_demo.py   (پس از scripts/init_db.py)
   ۲) بوت‌استرپ خودکار نسخهٔ پرتیبل (app/core/bootstrap.py) وقتی دیتابیس خالی است.
 """
-from app.core.database import SessionLocal
+import sys
+
+# چاپ فارسی روی کنسول‌های cp1252/cp1256 ویندوز (CI و cmd) بدون کرش —
+# ریشهٔ خطای UnicodeEncodeError در گام بذر CI روی رانر ویندوز
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
+from app.core.database import SessionLocal  # noqa: E402
 from app.core.jobs import add_step, succeed_job  # noqa: E402
 from app.core.security import hash_password  # noqa: E402
 from app.core.permissions import Role  # noqa: E402

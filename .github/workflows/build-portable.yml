@@ -63,6 +63,8 @@ jobs:
 
       - name: Seed demo database (backend/education.db)
         working-directory: backend
+        env:
+          PYTHONUTF8: "1"
         run: |
           # دیتابیس بذرشده وارد بستهٔ PyInstaller می‌شود (education.db → _internal/)
           # تا حساب‌های نمونه از اولین اجرا موجود باشند؛ bootstrap اپ هم پشتیبان است.
