@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="S360_", extra="ignore")
 
     app_name: str = "دانشجو۳۶۰ — سرویس‌های یادگیری هوشمند"
-    app_version: str = "3.0.0"
+    app_version: str = "3.1.0"
 
     # پایگاه داده؛ در محیط توسعه SQLite و در استقرار PostgreSQL:
     # postgresql+psycopg://user:pass@db:5432/student360
@@ -16,7 +16,9 @@ class Settings(BaseSettings):
 
     jwt_secret: str = "dev-only-secret-change-me-rotate-this-in-production-0123456789"
     jwt_algorithm: str = "HS256"
-    access_token_expire_minutes: int = 720
+    # بازنگری نشست (بازخورد ۳.۱): عمر کوتاه‌تر توکن + تمدید با /auth/refresh؛
+    # مقدار قبلی (۷۲۰ دقیقه) برای محیط پرریسک طولانی بود.
+    access_token_expire_minutes: int = 120
 
     storage_dir: str = "./data/storage"
 
@@ -26,6 +28,9 @@ class Settings(BaseSettings):
     ai_api_key: str = ""
     ai_model: str = ""
     ai_daily_token_budget: int = 2_000_000
+    # سهم‌بندی بودجه (بازخورد ۳.۱): مصرف یک سرویس/کاربر نباید کل سامانه را ببندد
+    ai_purpose_daily_budget: int = 800_000     # سقف توکن روزانه هر purpose
+    ai_user_daily_token_budget: int = 200_000  # سقف توکن روزانه هر کاربر
 
     # سیاست‌های آموزشی قابل تنظیم توسط دانشگاه
     ta_can_publish: bool = False          # انتشار محتوا فقط توسط استاد (پیش‌فرض)
@@ -48,6 +53,14 @@ class Settings(BaseSettings):
     sso_redirect_uri: str = "http://localhost:8000/api/v1/auth/sso/callback"
     sso_frontend_base: str = "http://localhost:8000"  # مقصد ریدایرکت پس از callback
     sso_scope: str = "openid profile email"
+    # حاکمیت ورود (بازخورد ۳.۱): در استقرار تولیدی S360_SSO_REQUIRED=true
+    # ورود محلی با کاربران نمونه را می‌بندد؛ فقط TECH_ADMIN برای مدیریت می‌ماند.
+    sso_required: bool = False
+
+    # یکپارچه‌سازی با پایه‌یار۳۶۰ (مرجع درس/سرفصل) — خالی = حالت نمونه توسعه
+    baseyar_base_url: str = ""
+    baseyar_api_key: str = ""
+    baseyar_timeout_seconds: int = 8
 
     # توکن سرویس‌دهی به سایر سامانه‌ها (خالی = سرویس بدون توکن)
     service_token: str = ""

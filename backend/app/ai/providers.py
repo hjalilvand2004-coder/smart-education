@@ -62,6 +62,7 @@ class MockProvider(BaseProvider):
             "short_answer_check": mock_content.mock_short_answer_check,
             "tutor_answer": mock_content.mock_tutor_answer,
             "creation_feedback": mock_content.mock_creation_feedback,
+            "teach_back_feedback": mock_content.mock_teach_back_feedback,
         }
         fn = dispatch.get(purpose)
         out = fn(inputs) if fn else {"error": "unknown purpose"}

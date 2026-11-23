@@ -37,19 +37,29 @@ class AIGateway:
         self.settings = get_settings()
         self.provider = get_provider()
 
-    def _check_budget(self) -> None:
+    def _check_budget(self, purpose: str | None = None, created_by=None) -> None:
+        """سقف مصرف سه‌لایه: کل سامانه، هر سرویس (purpose)، هر کاربر —
+        تا مصرف یک بخش کل سامانه را متوقف نکند (بازخورد ۳.۱)."""
         from app.models.ops import AIRun
 
         since = utcnow() - timedelta(days=1)
-        used = (
-            self.db.query(AIRun)
-            .filter(AIRun.created_at >= since)
-            .with_entities(AIRun.tokens_out)
-            .all()
-        )
-        total = sum(t[0] or 0 for t in used)
-        if total >= self.settings.ai_daily_token_budget:
+        base_q = self.db.query(AIRun).filter(AIRun.created_at >= since)
+        s = self.settings
+        total = sum((t[0] or 0) for t in base_q.with_entities(AIRun.tokens_out).all())
+        if total >= s.ai_daily_token_budget:
             raise ai_unavailable("سقف مصرف روزانه هوش مصنوعی پر شده است؛ حالت جایگزین (بدون AI) در دسترس است.")
+        if purpose is not None:
+            purpose_used = sum((t[0] or 0) for t in
+                               base_q.filter(AIRun.purpose == purpose)
+                               .with_entities(AIRun.tokens_out).all())
+            if purpose_used >= s.ai_purpose_daily_budget:
+                raise ai_unavailable("سقف مصرف روزانه این سرویس هوشمند پر شده است؛ فردا یا با پیکربندی ادمین ادامه می‌دهیم.")
+        if created_by is not None:
+            user_used = sum((t[0] or 0) for t in
+                            base_q.filter(AIRun.created_by == created_by)
+                            .with_entities(AIRun.tokens_out).all())
+            if user_used >= s.ai_user_daily_token_budget:
+                raise ai_unavailable("سقف مصرف روزانه شما از سرویس‌های هوشمند پر شده است؛ فردا دوباره در دسترس است.")
 
     def run(self, purpose: str, inputs: dict, schema=None, created_by=None, job_id=None):
         """اجرای یک purpose با اعتبارسنجی Schema؛ خروجی: نمونه Schema یا dict."""
@@ -57,7 +67,7 @@ class AIGateway:
 
         from app.models.ops import AIRun
 
-        self._check_budget()
+        self._check_budget(purpose=purpose, created_by=created_by)
         prompt = get_prompt(purpose)
         user_msg = json.dumps({"purpose": purpose, "inputs": inputs}, ensure_ascii=False, default=str)
         input_hash = hashlib.sha256(user_msg.encode("utf-8")).hexdigest()

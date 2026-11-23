@@ -267,12 +267,21 @@ def _slow_wrong_pattern(db: Session, learner_id, concept_id) -> bool:
 
 def mastery_payload(db: Session, learner_id, course_id) -> list[dict]:
     from app.services.concept_service import get_prerequisites
+    from sqlalchemy import func
 
     recompute_mastery(db, learner_id, course_id)
     estimates = db.query(MasteryEstimate).filter(
         MasteryEstimate.learner_id == learner_id,
         MasteryEstimate.course_id == course_id).all()
     concepts = {str(c.id): c for c in db.query(Concept).filter(Concept.course_id == course_id)}
+    # تنوع شواهد: تعداد سؤال‌های متمایز هر مفهوم — شواهد تکراری از یک سؤال، اعتبار کمتری دارد
+    distinct_q = dict(
+        (str(row[0]), row[1])
+        for row in db.query(LearningEvent.concept_id, func.count(func.distinct(LearningEvent.question_version_id)))
+        .filter(LearningEvent.learner_id == learner_id,
+                LearningEvent.course_id == course_id)
+        .group_by(LearningEvent.concept_id).all()
+    )
     out = []
     for m in estimates:
         c = concepts.get(str(m.concept_id))
@@ -295,7 +304,56 @@ def mastery_payload(db: Session, learner_id, course_id) -> list[dict]:
             "model_version": m.model_version,
             "prerequisites": prereqs,
         })
+        out[-1].update(_mastery_narrative(m, c, prereqs, distinct_q.get(str(c.id)) or 0))
     return out
+
+
+def _mastery_narrative(m: MasteryEstimate, concept: Concept, prereqs: list[dict],
+                       distinct_questions: int) -> dict:
+    """روایت‌سازی تسلط (بازخورد ۳.۱): به‌جای عدد خشک، وضعیت/شواهد/چرا/قدم بعدی.
+    «نامشخص» خنثی نمایش داده می‌شود و هرگز رنگ هشدار نمی‌گیرد."""
+    unc = m.uncertainty or {}
+    n_eff = unc.get("n_eff")
+    diverse = bool(m.evidence_count and distinct_questions >= 2)
+    spread = None
+    if m.estimated_mastery is not None and n_eff:
+        # فاصله عدم‌قطعیت پسینه بتا (تقریب sd): هرچه شواهد مؤثر کمتر، بازه پهن‌تر
+        p = float(m.estimated_mastery)
+        spread = round((p * (1 - p) / (n_eff + 3.0)) ** 0.5, 3)
+    state_label = {
+        "KNOWN": "تثبیت‌شده", "PARTIAL": "در حال تثبیت",
+        "WEAK": "نیازمند تمرین", "UNKNOWN": "هنوز ارزیابی نشده",
+    }[m.status]
+    ev_line = (f"{m.evidence_count} پاسخ ارزیابی‌شده"
+               + (f" در {distinct_questions} سؤال متمایز" if distinct_questions > 1 else ""))
+    if m.status == "UNKNOWN":
+        why = "شواهد کافی برای قضاوت وجود ندارد؛ این وضعیت خنثی است، نه نشانه ضعف."
+        next_step = {"label": "کوییز کوتاه تشخیصی", "url": "/quiz-smart", "ref": str(concept.id)}
+    elif m.status == "WEAK":
+        weak_prereq = next((p for p in prereqs if p["status"] == "WEAK"), None)
+        if weak_prereq:
+            why = f"پیش‌نیاز «{weak_prereq['concept_name']}» هم ضعیف است؛ احتمالاً ریشه ضعف همین است."
+            next_step = {"label": f"مرور پیش‌نیاز: {weak_prereq['concept_name']}",
+                         "url": "/concept-map", "ref": weak_prereq["concept_id"]}
+        else:
+            why = "نسبت پاسخ‌های نادرست به درست در شواهد اخیر بالا است."
+            next_step = {"label": "تمرین جبرانی هدفمند", "url": "/smart", "ref": str(concept.id)}
+    elif m.status == "PARTIAL":
+        why = "پاسخ‌ها ترکیبی از درست و نادرست است؛ مفهوم در آستانه تثبیت است."
+        next_step = {"label": "تمرین کوتاه تثبیتی", "url": "/quiz-smart", "ref": str(concept.id)}
+    else:
+        why = "شواهد اخیر پاسخ‌های درست را در دشواری‌های متنوع نشان می‌دهد."
+        next_step = {"label": "مرور فاصله‌دار برای تثبیت بلندمدت", "url": "/plan", "ref": str(concept.id)}
+    return {
+        "narrative": {
+            "state_label": state_label,
+            "evidence_line": ev_line,
+            "uncertainty_spread": spread,
+            "evidence_diverse": diverse,
+            "why": why,
+            "next_step": next_step,
+        },
+    }
 
 
 def aggregate_mastery(db: Session, course_id) -> list[dict]:

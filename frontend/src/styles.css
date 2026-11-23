@@ -1,8 +1,8 @@
 /* ============================================================
-   دانشجو۳۶۰ — استایل سراسری v3 «رویایی»
-   زبان طراحی: شفق قطبی متحرک + شیشه‌گری (Glassmorphism) +
-   گرادیان‌های بنفش-صورتی-فیروزه‌ای + میکرو-اینترکشن‌های نرم
-   RTL · فونت وزیرمتن · واکنش‌گرا · دوست‌داشتنی برای دانشجو
+   دانشجو۳۶۰ — استایل سراسری v3.1 «رصدخانه دانش» (Observatory of Knowledge)
+   استعاره: مفاهیم نقاط روشن آسمان‌اند؛ یادگیری، کشف ارتباط و روشن‌شدن مسیر میان آن‌هاست.
+   سه لایه بصری: کشف (ورود/خانه/نقشه — رویایی) · تمرکز (مطالعه/آزمون — آرام و کم‌حواس‌پرتی) · تحلیل (گزارش‌ها — دقیق)
+   RTL · فونت وزیرمتن · حرکت کوتاه ۱۵۰–۲۵۰ms · هدف دسترس‌پذیری WCAG 2.2 AA
    ============================================================ */
 
 @font-face {
@@ -22,53 +22,86 @@
 }
 
 :root {
-  --brand: #6d5cff;
-  --brand-dark: #5a48f5;
-  --brand-deep: #4735e8;
-  --brand-soft: #ece9ff;
-  --brand-softer: #f6f4ff;
-  --accent: #a855f7;
-  --accent-2: #22d3ee;
-  --pink: #ec4899;
-  --grad: linear-gradient(135deg, #6d5cff 0%, #a855f7 52%, #ec4899 108%);
-  --grad-hover: linear-gradient(135deg, #5a48f5 0%, #9333ea 52%, #db2777 108%);
-  --grad-mesh: linear-gradient(120deg, rgba(109, 92, 255, 0.14), rgba(168, 85, 247, 0.12) 45%, rgba(34, 211, 238, 0.12));
-  --bg: #f5f3ff;
+  /* پالت «رصدخانه دانش» — از بازخورد طراحی ۳.۱ */
+  --brand: #6d5ef5;            /* بنفش اصلی */
+  --brand-dark: #5b4ce6;
+  --brand-deep: #4a3bd6;
+  --brand-soft: #eceaff;
+  --brand-softer: #f7f8fc;     /* سفید مایل به یاسی */
+  --accent: #16b8a6;           /* فیروزه‌ای مکمل */
+  --accent-2: #0e9c8c;
+  --pink: #d99a22;             /* کهربایی راهنما */
+  --grad: linear-gradient(135deg, #6d5ef5 0%, #7c5cf0 45%, #16b8a6 115%);
+  --grad-hover: linear-gradient(135deg, #5b4ce6 0%, #6d4fe0 45%, #0e9c8c 115%);
+  --grad-mesh: linear-gradient(120deg, rgba(109, 94, 245, 0.12), rgba(22, 184, 166, 0.10) 45%, rgba(217, 154, 34, 0.08));
+  --bg: #f7f8fc;
   --surface: #ffffff;
-  --glass: rgba(255, 255, 255, 0.74);
-  --glass-strong: rgba(255, 255, 255, 0.88);
-  --glass-line: rgba(255, 255, 255, 0.65);
-  --text: #241f3f;
-  --text-muted: #6f6a8f;
-  --border: #e7e3fb;
-  --border-strong: #d6d0f0;
-  --dark: #191536;
-  --dark-2: #221b52;
+  /* شیشه‌گری محدود: فقط اجزای تزئینی؛ متن‌های آموزشی روی سطح صاف می‌نشینند */
+  --glass: rgba(255, 255, 255, 0.86);
+  --glass-strong: rgba(255, 255, 255, 0.94);
+  --glass-line: rgba(255, 255, 255, 0.7);
+  --text: #111827;             /* سرمه‌ای عمیق — متن اصلی */
+  --text-muted: #4b5563;
+  --border: #e4e7f2;
+  --border-strong: #cfd5e8;
+  --dark: #111827;
+  --dark-2: #1b2338;
 
-  --success-bg: #e9fbf2;
-  --success-text: #067a53;
-  --success-border: #a9efd2;
-  --warn-bg: #fff7e6;
-  --warn-text: #b45309;
-  --warn-border: #ffe1a6;
-  --danger-bg: #fef0f3;
-  --danger-text: #c11a46;
-  --danger-border: #ffcdda;
-  --info-bg: #eceaff;
-  --info-text: #5344e8;
-  --info-border: #d4ceff;
-  --neutral-bg: #f3f1fb;
-  --neutral-text: #5b5580;
-  --neutral-border: #e5e1f5;
-  --ai-bg: #f3edff;
-  --ai-text: #7c3aed;
-  --ai-border: #e0d4ff;
+  --success-bg: #e7f8f2;
+  --success-text: #06664c;
+  --success-border: #a7e8d3;
+  --warn-bg: #fdf5e6;
+  --warn-text: #8a6110;
+  --warn-border: #f2ddb0;
+  --danger-bg: #fdeff1;
+  --danger-text: #a31b3d;
+  --danger-border: #f6ccd6;
+  --info-bg: #ecebff;
+  --info-text: #4638d8;
+  --info-border: #d6d1ff;
+  --neutral-bg: #f2f4fa;
+  --neutral-text: #525d75;
+  --neutral-border: #e2e6f2;
+  --ai-bg: #efecff;
+  --ai-text: #5546e0;
+  --ai-border: #dcd6ff;
 
   --radius: 20px;
   --radius-sm: 12px;
-  --shadow: 0 6px 18px rgba(88, 60, 210, 0.10), 0 22px 48px rgba(88, 60, 210, 0.10);
-  --shadow-soft: 0 2px 6px rgba(88, 60, 210, 0.06), 0 10px 26px rgba(88, 60, 210, 0.07);
-  --glow: 0 6px 22px rgba(109, 92, 255, 0.38);
+  --shadow: 0 6px 18px rgba(17, 24, 39, 0.08), 0 22px 48px rgba(17, 24, 39, 0.08);
+  --shadow-soft: 0 2px 6px rgba(17, 24, 39, 0.05), 0 10px 26px rgba(17, 24, 39, 0.06);
+  --glow: 0 6px 22px rgba(109, 94, 245, 0.35);
+
+  /* توکن حرکت — کوتاه و هدفمند (۱۵۰–۲۵۰ms) */
+  --motion: 180ms;
+  --motion-slow: 240ms;
+  --ease: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* ---------- لایه‌های بصری سه‌گانه ---------- */
+/* کشف: هنر کامل؛ تمرکز: بدون تزئین؛ تحلیل: هنر کمرنگ */
+body[data-layer='focus'] .aurora { display: none; }
+body[data-layer='focus'] .page { padding-top: 8px; }
+body[data-layer='analysis'] .aurora { opacity: 0.35; }
+body[data-layer='focus'] .app-shell { font-size: var(--study-font, 16px); }
+body.focus-mode .sidebar,
+body.focus-mode .topbar { visibility: hidden; pointer-events: none; }
+body.focus-mode .app-shell { grid-template-columns: minmax(0, 1fr); }
+
+/* رینگ فوکوس برای ناوبری صفحه‌کلید (WCAG 2.4.7) */
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* احترام به تنظیم کاهش حرکت کاربر */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 * {
@@ -119,7 +152,7 @@ button {
 }
 
 /* ============================================================
-   شفق رویایی — لایه پس‌زمینه متحرک (روی همه صفحات)
+   سحابی رصدخانه — لایه پس‌زمینه «کشف» (عمق ملایم، نور، بدون تیزبینی)
    ============================================================ */
 
 .aurora {
@@ -128,6 +161,11 @@ button {
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
+  background:
+    radial-gradient(1100px 520px at 85% -8%, rgba(109, 94, 245, 0.10), transparent 60%),
+    radial-gradient(900px 460px at 8% 108%, rgba(22, 184, 166, 0.09), transparent 62%),
+    var(--bg);
+  transition: opacity var(--motion-slow) var(--ease);
 }
 
 .aurora i {
@@ -135,7 +173,7 @@ button {
   display: block;
   border-radius: 50%;
   filter: blur(95px);
-  opacity: 0.5;
+  opacity: 0.42;
   will-change: transform;
 }
 
@@ -144,7 +182,7 @@ button {
   height: 46vw;
   inset-inline-start: -12vw;
   top: -16vw;
-  background: radial-gradient(circle at 40% 40%, rgba(109, 92, 255, 0.55), transparent 68%);
+  background: radial-gradient(circle at 40% 40%, rgba(109, 94, 245, 0.5), transparent 68%);
   animation: drift1 26s ease-in-out infinite alternate;
 }
 
@@ -153,7 +191,7 @@ button {
   height: 40vw;
   inset-inline-end: -10vw;
   top: 6vh;
-  background: radial-gradient(circle at 55% 45%, rgba(236, 72, 153, 0.38), transparent 66%);
+  background: radial-gradient(circle at 55% 45%, rgba(22, 184, 166, 0.34), transparent 66%);
   animation: drift2 31s ease-in-out infinite alternate;
 }
 
@@ -162,7 +200,7 @@ button {
   height: 44vw;
   inset-inline-start: 22vw;
   bottom: -20vw;
-  background: radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.35), transparent 66%);
+  background: radial-gradient(circle at 50% 50%, rgba(76, 62, 220, 0.30), transparent 66%);
   animation: drift3 29s ease-in-out infinite alternate;
 }
 
@@ -171,7 +209,7 @@ button {
   height: 26vw;
   inset-inline-end: 24vw;
   bottom: -8vw;
-  background: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.30), transparent 66%);
+  background: radial-gradient(circle at 50% 50%, rgba(217, 154, 34, 0.18), transparent 66%);
   animation: drift1 34s ease-in-out infinite alternate-reverse;
 }
 
@@ -2253,3 +2291,491 @@ button {
 .micro-steps { margin: 8px 0 4px; padding-inline-start: 20px; }
 .micro-steps li { margin: 4px 0; line-height: 1.9; }
 @media (max-width: 640px) { .smart-map { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   رصدخانه دانش — اجزای اختصاصی نسخه ۳.۱
+   ============================================================ */
+
+/* ---------- آسمان ستاره‌ای کشف (سبک، CSS خالص) ---------- */
+.obs-stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.obs-stars span {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  background: var(--brand);
+  opacity: 0.22;
+  animation: obsTwinkle 3.6s ease-in-out infinite;
+}
+.obs-stars span:nth-child(2n) { background: var(--accent); animation-delay: 1.2s; }
+.obs-stars span:nth-child(3n) { opacity: 0.3; animation-delay: 2.1s; }
+.obs-stars span:nth-child(5n) { animation-delay: 0.7s; }
+.obs-stars span:nth-child(7n) { animation-delay: 2.8s; }
+@keyframes obsTwinkle {
+  0%, 100% { opacity: 0.08; transform: scale(0.8); }
+  50% { opacity: 0.5; transform: scale(1.25); }
+}
+
+/* ---------- قهرمان کشف (امروزِ من) ---------- */
+.observe-hero {
+  position: relative;
+  border-radius: 24px;
+  padding: 28px 26px;
+  color: #fff;
+  background: linear-gradient(140deg, #111827 0%, #1d2544 52%, #24365e 100%);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.observe-hero::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: -70px;
+  top: -70px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(109, 94, 245, 0.45), transparent 68%);
+  filter: blur(6px);
+}
+.observe-hero .oh-kicker {
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+.observe-hero h1 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+.observe-hero .oh-hint {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.9rem;
+}
+
+/* کارت پیشنهاد اصلی امروز — یک دکمه اصلی، نه چند اقدام هم‌ارزش */
+.suggestion-card {
+  position: relative;
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+  border-inline-start: 4px solid var(--brand);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform var(--motion) var(--ease), box-shadow var(--motion) var(--ease);
+}
+.suggestion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.suggestion-card .sug-badge {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--ai-bg);
+  color: var(--ai-text);
+  border: 1px solid var(--ai-border);
+}
+.suggestion-card .sug-title { font-weight: 700; font-size: 1.05rem; color: var(--text); }
+.suggestion-card .sug-reason { color: var(--text-muted); font-size: 0.88rem; line-height: 1.9; }
+.suggestion-card .sug-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* سه انتخاب اصلی مسیر */
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.choice-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color var(--motion) var(--ease), transform var(--motion) var(--ease), box-shadow var(--motion) var(--ease);
+}
+.choice-card:hover {
+  text-decoration: none;
+  border-color: var(--brand);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+.choice-card .c-title { font-weight: 700; font-size: 0.95rem; }
+.choice-card .c-hint { font-size: 0.78rem; color: var(--text-muted); }
+
+/* ---------- محیط یادگیری سه‌پنلی (RTL: راست فهرست، مرکز محتوا، چپ استاد) ---------- */
+.learning-grid {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr) 320px;
+  gap: 14px;
+  align-items: start;
+}
+.learning-pane {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  max-height: 78vh;
+  overflow-y: auto;
+}
+.learning-pane h3 {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.concept-list { display: flex; flex-direction: column; gap: 6px; }
+.concept-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 0.85rem;
+  color: var(--text);
+  transition: background var(--motion) var(--ease), border-color var(--motion) var(--ease);
+}
+.concept-item:hover { background: var(--brand-softer); }
+.concept-item.active { border-color: var(--brand); background: var(--brand-soft); }
+.stage-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: 10px 0 4px;
+  letter-spacing: 0.5px;
+}
+
+/* نوار حالت تمرکز + اندازه متن */
+.focus-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+.focus-bar .fb-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color var(--motion) var(--ease), color var(--motion) var(--ease);
+}
+.focus-bar .fb-btn:hover { border-color: var(--brand); color: var(--brand); }
+.focus-bar .fb-btn.on { background: var(--brand-soft); color: var(--brand); border-color: var(--brand); }
+
+/* ---------- «اینجا گیر کردم» ---------- */
+.stuck-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+.stuck-btn {
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px dashed var(--pink);
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  cursor: pointer;
+  transition: background var(--motion) var(--ease), transform var(--motion) var(--ease);
+}
+.stuck-btn:hover { background: var(--warn-border); transform: translateY(-1px); }
+.stuck-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--warn-border);
+  border-radius: var(--radius-sm);
+  background: var(--warn-bg);
+}
+.stuck-options button {
+  text-align: start;
+  font-size: 0.84rem;
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--warn-border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color var(--motion) var(--ease);
+}
+.stuck-options button:hover { border-color: var(--pink); }
+
+/* ---------- نردبان راهنمایی استاد هوشمند ---------- */
+.ladder-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.ladder-btn {
+  font-size: 0.8rem;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--motion) var(--ease);
+}
+.ladder-btn:hover { border-color: var(--brand); color: var(--brand); }
+.ladder-btn.on {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+  box-shadow: var(--glow);
+}
+.ladder-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-inline-start: 3px solid var(--brand);
+  padding: 4px 10px;
+  background: var(--brand-softer);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+/* ---------- تسلط روایی ---------- */
+.narrative-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  break-inside: avoid;
+}
+.narrative-card .n-state {
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.narrative-card .n-state .n-chip {
+  font-size: 0.72rem;
+  font-weight: 400;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--neutral-bg);
+  color: var(--neutral-text);
+  border: 1px solid var(--neutral-border);
+}
+.narrative-card .n-state .n-chip.unknown { background: var(--neutral-bg); color: var(--neutral-text); }
+.narrative-card .n-evidence { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+.narrative-card .n-why {
+  font-size: 0.85rem;
+  line-height: 1.9;
+  margin-top: 8px;
+  padding-inline-start: 10px;
+  border-inline-start: 3px solid var(--brand-soft);
+}
+.narrative-card .n-next { margin-top: 10px; font-size: 0.85rem; }
+
+/* ---------- مسیر ساده نقشه مفاهیم ---------- */
+.stage-path { display: flex; flex-direction: column; gap: 10px; }
+.stage-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.stage-block .st-title { font-size: 0.78rem; color: var(--brand); font-weight: 700; margin-bottom: 8px; }
+.stage-block .st-items { display: flex; flex-wrap: wrap; gap: 8px; }
+.map-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--brand-softer);
+  font-size: 0.82rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--motion) var(--ease);
+}
+.map-node:hover { border-color: var(--brand); box-shadow: var(--shadow-soft); }
+.map-node .dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot.KNOWN { background: var(--accent); }
+.dot.PARTIAL { background: var(--brand); }
+.dot.WEAK { background: var(--pink); }
+.dot.UNKNOWN { background: var(--border-strong); }
+
+/* کارت مفهوم کاوش‌شده */
+.concept-card {
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-top: 12px;
+}
+.concept-card .cc-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+/* ---------- کلینیک خطا ---------- */
+.clinic-entry {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-inline-start: 4px solid var(--pink);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.clinic-entry.resolved { border-inline-start-color: var(--accent); opacity: 0.85; }
+.clinic-entry .ce-title { font-weight: 700; font-size: 0.95rem; }
+.clinic-entry .ce-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+.clinic-entry .ce-explain {
+  margin-top: 8px;
+  font-size: 0.84rem;
+  background: var(--warn-bg);
+  border: 1px dashed var(--warn-border);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+/* ---------- به من یاد بده ---------- */
+.teach-panel { max-width: 720px; }
+.rubric-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 0.88rem;
+}
+.rubric-row .rr-score { font-weight: 700; color: var(--brand); min-width: 64px; }
+.followup-card {
+  margin-top: 12px;
+  background: var(--ai-bg);
+  border: 1px solid var(--ai-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  color: var(--ai-text);
+}
+
+/* ---------- جلسه یادگیری زمان‌دار ---------- */
+.session-steps { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.session-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  transition: border-color var(--motion) var(--ease);
+}
+.session-step.done { border-color: var(--success-border); background: var(--success-bg); }
+.session-step .ss-min {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: var(--neutral-bg);
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.duration-picker { display: flex; gap: 8px; margin: 10px 0; }
+.duration-chip {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--motion) var(--ease);
+}
+.duration-chip:hover { border-color: var(--brand); }
+.duration-chip.on { background: var(--grad); color: #fff; border-color: transparent; box-shadow: var(--glow); }
+
+/* ---------- آمادگی آزمون صادقانه ---------- */
+.tier-block {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: var(--surface);
+}
+.tier-block .tier-label { font-weight: 700; color: var(--brand); font-size: 0.85rem; margin-bottom: 6px; }
+.honesty-note {
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+  color: var(--info-text);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin: 10px 0;
+}
+
+/* ---------- داشبورد اقدام‌محور استاد ---------- */
+.action-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-inline-start: 4px solid var(--brand);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.action-card[data-tone='warn'] { border-inline-start-color: var(--pink); }
+.action-card[data-tone='info'] { border-inline-start-color: var(--accent); }
+.action-card .ac-title { font-weight: 700; }
+.action-card .ac-detail { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; line-height: 1.9; }
+
+/* ---------- آزمون آرام (لایه تمرکز) ---------- */
+.exam-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--neutral-bg);
+  border: 1px solid var(--neutral-border);
+}
+.exam-status .dot-live {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--success-text);
+  animation: obsTwinkle 2s ease-in-out infinite;
+}
+
+/* ---------- واکنش‌گرایی محیط یادگیری: سه پنل → تب ---------- */
+.learning-tabs { display: none; gap: 8px; margin-bottom: 10px; }
+@media (max-width: 1000px) {
+  .learning-grid { grid-template-columns: minmax(0, 1fr); }
+  .learning-tabs { display: flex; }
+  .learning-pane { display: none; max-height: none; }
+  .learning-pane.mobile-on { display: block; }
+  .learning-pane.pane-tutor { max-height: 60vh; }
+}
+
+/* اکشن‌های نوار بالا (حالت تمرکز + خروج) */
+.topbar-actions { display: flex; gap: 8px; align-items: center; }

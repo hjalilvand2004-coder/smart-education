@@ -137,3 +137,42 @@ def import_course_from_programyar(body: ImportCourseIn, db: Session = Depends(ge
         "topics_count": len(body.topics),
         "message": f"درس «{body.title}» با {len(body.topics)} سرفصل در دانشجو۳۶۰ ثبت شد.",
     }
+
+
+# ---------- پایه‌یار۳۶۰: مرجع حقیقت درس/سرفصل (بازخورد ۳.۱) ----------
+
+class BaseyarSyncIn(BaseModel):
+    course_id: str
+    mode: str = "INITIAL_PULL"  # INITIAL_PULL / CHANGE_EVENT / RECONCILE
+
+
+@router.post("/integration/baseyar/sync")
+def baseyar_sync(body: BaseyarSyncIn, db: Session = Depends(get_db),
+                 user: User = Depends(get_current_user)):
+    """همگام‌سازی رونوشت درس/سرفصل با مرجع پایه‌یار۳۶۰ (سه مسیر).
+
+    تغییر نسخه سرفصل هرگز بی‌صدا اعمال نمی‌شود؛ گزارش تغییر و نگاشت‌های
+    نیازمند بررسی استاد تولید می‌شود و شواهد/محتوا به نسخه خود وفادار می‌مانند."""
+    _ensure_staff_user(user)
+    from app.services import baseyar_service
+
+    return baseyar_service.sync_course(db, user, body.course_id, body.mode)
+
+
+@router.get("/integration/baseyar/status")
+def baseyar_status(course_id: str, db: Session = Depends(get_db),
+                   user: User = Depends(get_current_user)):
+    _ensure_staff_user(user)
+    from app.services import baseyar_service
+
+    return baseyar_service.status_for(db, course_id)
+
+
+@router.post("/integration/baseyar/reviews/{log_id}/apply")
+def baseyar_apply_review(log_id: str, db: Session = Depends(get_db),
+                         user: User = Depends(get_current_user)):
+    """پس از بررسی استاد: هم‌ترازکردن رونوشت با نسخه مرجع + پاک‌سازی پرچم‌های بررسی."""
+    _ensure_staff_user(user)
+    from app.services import baseyar_service
+
+    return baseyar_service.apply_review(db, user, log_id)

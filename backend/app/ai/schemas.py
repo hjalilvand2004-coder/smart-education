@@ -106,6 +106,22 @@ class TutorOut(BaseModel):
     citations: list[TutorCitation] = Field(default_factory=list)
     insufficient_evidence: bool = False
     needs_teacher: bool = False
+    help_mode: str | None = None      # EXPLAIN/GUIDE/PRACTICE — نردبان راهنمایی
+    ladder_level: int | None = None   # 1 سؤال راهنما … 5 راه‌حل کامل
+
+
+class TeachBackCriterion(BaseModel):
+    criterion: str
+    score: float
+    max_score: float
+    evidence: str = ""
+
+
+class TeachBackFeedbackOut(BaseModel):
+    rubric_scores: list[TeachBackCriterion] = Field(default_factory=list)
+    follow_up_question: str = ""
+    gaps: list[str] = Field(default_factory=list)
+    encouragement: str = ""
 
 
 class CreationFeedbackOut(BaseModel):

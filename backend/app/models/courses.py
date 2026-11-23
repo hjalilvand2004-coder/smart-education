@@ -20,6 +20,13 @@ class Course(TimestampMixin, Base):
     term: Mapped[str | None] = mapped_column(String(40), nullable=True)
     description: Mapped[str | None] = mapped_column(nullable=True)
     created_by: Mapped[uuid.UUID | None] = mapped_column(GUID, nullable=True)
+    # --- رونوشت همگام‌شده از مرجع (پایه‌یار۳۶۰): منبع حقیقت درس/سرفصل خارج است ---
+    reference_system: Mapped[str | None] = mapped_column(String(32), nullable=True)  # baseyar360
+    reference_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    reference_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    owner_system: Mapped[str | None] = mapped_column(String(32), nullable=True)  # مالک داده مرجع
+    last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    sync_state: Mapped[str | None] = mapped_column(String(16), nullable=True)  # VALID/REVIEW_REQUIRED/STALE/UNLINKED
 
 
 class CourseOffering(TimestampMixin, Base):

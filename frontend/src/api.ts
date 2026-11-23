@@ -632,3 +632,165 @@ export function downloadBlob(blob: Blob, fileName: string): void {
   a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 3000)
 }
+
+/* ============================================================
+   رصدخانه دانش — DTOهای «مسیر یادگیری» (نسخه ۳.۱)
+   ============================================================ */
+
+export interface TodaySuggestion {
+  type: string
+  title: string
+  minutes: number
+  concept_id: string | null
+  reason: string
+  url: string
+  primary_action: string
+}
+
+export interface TodayChoice {
+  key: string
+  label: string
+  url: string
+  hint?: string
+}
+
+export interface ReviewSuggestion {
+  concept_id: string
+  concept_name: string
+  due_at: string | null
+  note: string
+}
+
+export interface TodayFocus {
+  greeting: string
+  course: { id: string; title: string; code: string }
+  today_suggestion: TodaySuggestion
+  choices: TodayChoice[]
+  my_progress: { known: number; partial: number; weak: number; unassessed: number; total: number }
+  reviews_suggested: ReviewSuggestion[]
+  continue_session: SessionPlan | null
+  note: string
+}
+
+export interface SessionStep {
+  index: number
+  kind: string
+  title: string
+  minutes: number
+  done: boolean
+  ref: string | null
+  url: string
+}
+
+export interface SessionPlan {
+  id: string
+  course_id: string
+  minutes: number
+  state: 'ACTIVE' | 'PAUSED' | 'DONE'
+  composition: SessionStep[] | null
+  progress: { step_index: number } | null
+  started_at: string | null
+  completed_at: string | null
+}
+
+export interface PrepTier {
+  tier: number
+  label: string
+  concepts: Array<{
+    concept_id: string
+    concept_name: string
+    action: string
+    minutes_hint: number
+    why: string
+    prereq_required?: string[]
+  }>
+}
+
+export interface ExamPrepPlan {
+  exam_date: string | null
+  available_minutes: number | null
+  priority_order: PrepTier[]
+  prereq_required: string[]
+  insufficient_evidence: Array<{ concept_id: string; concept_name: string }>
+  coverage: { total_concepts: number; with_evidence: number; coverage_ratio: number | null; meaning: string }
+  allocated_minutes: { total_needed: number; fits: boolean; covered?: string[]; left_minutes?: number; message: string } | null
+  honesty_note: string
+  programyar_note: string
+  uncertainty_note: string
+}
+
+export interface MapNodeCard {
+  concept_id: string
+  concept_name: string
+  status: string
+  estimated_mastery: number | null
+  card: {
+    simple_explanation: string
+    real_use: string | null
+    prerequisites: string[]
+    common_pitfalls: string[]
+    evidence: { count: number; state_label?: string }
+    practice: { label: string; url: string }
+    ask_tutor: { label: string; url: string }
+  }
+}
+
+export interface ConceptMapData {
+  mode: string
+  course_id: string
+  stages: Array<Array<{ concept_id: string; concept_name: string; status: string; state_label?: string | null; next_step?: { label: string; url: string; ref?: string } | null }>>
+  nodes?: MapNodeCard[]
+  edges?: Array<{ from: string; to: string; type: string }>
+  legend_note?: string
+}
+
+export interface StuckResult {
+  id: string
+  kind: string
+  kind_label: string
+  tutor_session_id: string | null
+  message: string
+}
+
+export interface ClinicEntry {
+  id: string
+  pattern_key: string
+  title: string
+  concept_id: string | null
+  concept_name: string | null
+  status: string
+  recurrence_count: number
+  evidence_count: number
+  student_explanation: string | null
+  suggested_practice: { label: string; url: string } | null
+  last_seen_at: string | null
+  question: string
+}
+
+export interface ClinicData {
+  entries: ClinicEntry[]
+  note: string
+}
+
+export interface TeachBackResult {
+  id: string
+  concept_name: string
+  rubric_scores: Array<{ criterion: string; score: number; max_score: number; evidence: string }> | null
+  follow_up_question: string | null
+  gaps: string[]
+  encouragement: string
+  note: string
+}
+
+export interface ProfessorActionsData {
+  course_id: string
+  cards: Array<{ type: string; title: string; detail: string; action_label: string; action_url: string }>
+  note: string
+}
+
+export interface CoverageInfo {
+  blueprint_concepts: string[]
+  covered_concepts: string[]
+  missing_concepts: string[]
+  coverage_ratio: number | null
+}

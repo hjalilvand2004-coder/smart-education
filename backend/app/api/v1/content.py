@@ -6,13 +6,46 @@ from sqlalchemy.orm import Session
 from app.api.deps import schedule_job
 from app.core.database import get_db
 from app.core.errors import conflict, not_found, validation_error
-from app.core.permissions import Role, ensure_course_role, ensure_staff
+from app.core.permissions import Role, ensure_course_role, ensure_enrolled_or_staff, ensure_staff
 from app.core.security import get_current_user
 from app.models.content import ContentDocument, ContentPlan, ContentVersion
 from app.models.identity import User
 from app.services import content_service
 
 router = APIRouter(tags=["content"])
+
+
+@router.get("/resources/{resource_id}/download")
+def download_resource(resource_id: str, db: Session = Depends(get_db),
+                      user: User = Depends(get_current_user)):
+    """دریافت فایل منبع با کنترل دسترسی (بازخورد ۳.۱): ACL منابع فقط در RAG
+    اعمال نمی‌شود؛ هنگام دریافت فایل هم نقش/ثبت‌نام بررسی می‌شود و منبع امتحانی
+    فقط برای نقش‌های مجاز درس قابل دانلود است."""
+    from fastapi import Response
+
+    from app.core.errors import forbidden
+    from app.core.storage import LocalStorage
+    from app.models.resources import Resource, ResourcePermission
+
+    res = db.get(Resource, resource_id)
+    if res is None:
+        raise not_found("منبع یافت نشد")
+    role = ensure_enrolled_or_staff(db, user, str(res.course_id))
+    if res.contains_exam_material and role not in ("PROFESSOR", "ASSISTANT"):
+        raise forbidden("منبع امتحانی فقط برای استاد و دستیار درس قابل دریافت است")
+    perm = db.query(ResourcePermission).filter(
+        ResourcePermission.resource_id == res.id).first()
+    if perm is not None and perm.allowed_roles and role not in perm.allowed_roles:
+        raise forbidden("نقش شما مجاز به دریافت این منبع نیست")
+    if not res.storage_path:
+        raise not_found("این منبع فایل پیوست ندارد؛ از external_url استفاده کنید")
+    path = LocalStorage().open_path(res.storage_path)
+    media = "application/octet-stream"
+    if (res.file_name or "").lower().endswith((".pdf",)):
+        media = "application/pdf"
+    return Response(content=path.read_bytes(), media_type=media,
+                    headers={"Content-Disposition":
+                             f'attachment; filename="{res.file_name or "resource"}"'})
 
 
 class DocumentIn(BaseModel):

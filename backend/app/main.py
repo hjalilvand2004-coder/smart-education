@@ -105,6 +105,8 @@ def create_app() -> FastAPI:
     app.include_router(ai_stats.router, prefix=API_PREFIX)
     from app.api.v1 import smart
     app.include_router(smart.router, prefix=API_PREFIX)
+    from app.api.v1 import journey
+    app.include_router(journey.router, prefix=API_PREFIX)
 
     @app.get("/healthz", tags=["ops"])
     def health():

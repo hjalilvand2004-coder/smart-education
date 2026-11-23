@@ -63,13 +63,37 @@ def _build_context(db: Session, session: TutorSession, question: str) -> list[di
     return chunks
 
 
-def answer(db: Session, session: TutorSession, question: str) -> TutorMessage:
-    """پاسخ کامل (بدون جریان) — شامل ثبت پیام‌ها و ارجاع‌های معتبر."""
+HELP_MODES = ("EXPLAIN", "GUIDE", "PRACTICE")
+
+
+def _help_policy(session: TutorSession, help_mode: str | None) -> dict:
+    """سیاست نردبان راهنمایی هر نشست: در آزمون فقط توضیح صورت سؤال و بالاترین
+    سطح ۱ (سؤال راهنما) مجاز است؛ در یادگیری سه حالت کامل داریم."""
+    if session.mode == "ASSESSMENT":
+        return {"help_mode": "GUIDE", "max_ladder_level": 1,
+                "note": "در حالت آزمون فقط سؤال راهنما و توضیح صورت سؤال مجاز است."}
+    hm = help_mode or "EXPLAIN"
+    if hm not in HELP_MODES:
+        hm = "EXPLAIN"
+    return {"help_mode": hm, "max_ladder_level": 5,
+            "note": {"EXPLAIN": "توضیح کامل با مثال ساده‌تر.",
+                     "GUIDE": "فقط سؤال راهنما و اشاره به مفهوم؛ پاسخ کامل با درخواست شما.",
+                     "PRACTICE": "حل گام‌به‌گام مشترک؛ هر گام را شما می‌نویسید."}[hm]}
+
+
+def answer(db: Session, session: TutorSession, question: str,
+           help_mode: str | None = None) -> TutorMessage:
+    """پاسخ کامل (بدون جریان) — شامل ثبت پیام‌ها و ارجاع‌های معتبر؛
+    بر پایه نردبان راهنمایی: سؤال راهنما → مفهوم مرتبط → مثال ساده‌تر →
+    حل جزئی → راه‌حل کامل فقط با درخواست دانشجو."""
     chunks = _build_context(db, session, question)
     gateway = AIGateway(db)
+    policy = _help_policy(session, help_mode)
     out: TutorOut = gateway.run(
         "tutor_answer",
         {"question": question, "mode": session.mode,
+         "help_mode": policy["help_mode"],
+         "max_ladder_level": policy["max_ladder_level"],
          "learner_state": _learner_state(db, session),
          "context_chunks": [
              {"id": ch["chunk_id"], "resource_id": ch["resource_id"],
@@ -78,6 +102,7 @@ def answer(db: Session, session: TutorSession, question: str) -> TutorMessage:
              for ch in chunks
          ]},
         schema=TutorOut,
+        created_by=session.student_id,
     )
     # بررسی خروجی: ارجاع فقط به منابع واقعاً بازیابی‌شده — نقل‌قول ساختگی حذف می‌شود
     valid_resources = {ch["resource_id"]: ch for ch in chunks}
@@ -90,7 +115,10 @@ def answer(db: Session, session: TutorSession, question: str) -> TutorMessage:
                     "resource_title": valid_resources[c.resource_id]["resource_title"]}
                    for c in citations],
         meta={"insufficient_evidence": out.insufficient_evidence,
-              "needs_teacher": out.needs_teacher, "mode": session.mode},
+              "needs_teacher": out.needs_teacher, "mode": session.mode,
+              "help_mode": out.help_mode or policy["help_mode"],
+              "ladder_level": out.ladder_level or 0,
+              "policy_note": policy["note"]},
     )
     db.add(msg)
     db.flush()

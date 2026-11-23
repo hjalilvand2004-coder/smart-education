@@ -85,6 +85,10 @@ def weaknesses(db: Session, learner_id, course_id) -> dict:
             "evidence_count": m.evidence_count,
             "confidence": (m.uncertainty or {}).get("confidence"),
             "prerequisites": prereq_status,
+            # هر «ضعف» یک فرضیه آموزشی است؛ سؤال تشخیصی کوتاه آن را تأیید/رد می‌کند
+            "nature": "HYPOTHESIS",
+            "probe": {"type": "DIAGNOSTIC_QUIZ", "label": "تأیید با کوییز تشخیصی کوتاه",
+                      "ref": str(c.id)},
         })
     # شدت × اثر پایین‌دست — مفاهیمی که خراب‌کردنشان گران است اول
     out.sort(key=lambda w: (w["severity"] + 0.2 * w["impact_downstream"], w["severity"]),
@@ -407,7 +411,7 @@ def _diff(db: Session, qv: QuestionVersion) -> str:
     return q.difficulty_estimated if q else "MEDIUM"
 
 
-# ---------------- سرویس ۱۰: تحلیل سبک یادگیری ----------------
+# ---------------- سرویس ۱۰: الگوی تعامل و ترجیحات (بازطراحی علمی) ----------------
 
 _STYLE_WEIGHTS = {
     "CONTENT_VIEWED": "VISUAL", "RESOURCE_VIEWED": "VISUAL",
@@ -415,23 +419,34 @@ _STYLE_WEIGHTS = {
     "TUTOR_MESSAGE": "CONVERSATIONAL",
 }
 _STYLE_LABELS = {
-    "VISUAL": "دیداری/خوانشی — با متن و تصویر بهتر یاد می‌گیرید",
-    "PRACTICAL": "تمرینی/عمل‌گرا — با حل مسئله تثبیت می‌کنید",
-    "CONVERSATIONAL": "گفتگومحور — با پرسش‌وپاسخ و توضیح شفاهی یاد می‌گیرید",
+    "VISUAL": "الگوی کنونی شما خوانشی است — بیشتر با متن و قطعه‌های آموزشی کار می‌کنید",
+    "PRACTICAL": "الگوی کنونی شما تمرین‌محور است — یادگیری را با حل مسئله جلو می‌برید",
+    "CONVERSATIONAL": "الگوی کنونی شما گفتگومحور است — با پرسش و بازگویی یاد می‌گیرید",
 }
 _STYLE_TIPS = {
     "VISUAL": "قطعه‌های آموزشی کوتاه و خلاصه‌نویسی پس از هر مطالعه.",
     "PRACTICAL": "کوییز هوشمند و بسته تمرین جبرانی را پیش از مرور محتوا شروع کنید.",
-    "CONVERSATIONAL": "از استاد هوشمند بپرسید و توضیح‌ها را با کلام خود بازگو کنید.",
+    "CONVERSATIONAL": "از استاد هوشمند بپرسید و توضیح‌ها را با کلام خود بازگو کنید («به من یاد بده»).",
 }
 
 
 def learning_style(db: Session, learner_id, course_id) -> dict:
+    """الگوی تعامل و ترجیحات — «قابل تغییر»، نه برچسب ثابت یادگیری.
+
+    این تحلیل فقط رفتار مشاهده‌شده را توصیف می‌کند و ادعا نمی‌کند دانشجو با چه
+    رسانه‌ای «بهتر یاد می‌گیرد»؛ شخصی‌سازی بر پایه عملکرد، هدف، ترجیح اعلام‌شده
+    (POST /me/interaction-preferences) و نیاز دسترس‌پذیری انجام می‌شود."""
     events = db.query(LearningEvent).filter(
         LearningEvent.learner_id == learner_id,
         LearningEvent.course_id == course_id).all()
+    declared = None
+    for e in reversed(events):
+        if e.event_type == "PREFERENCE_SET" and e.payload:
+            declared = e.payload
+            break
     if len(events) < 5:
         return {"status": "UNKNOWN", "event_count": len(events),
+                "model": "interaction-pattern-v2", "declared_preference": declared,
                 "note": "شواهد تعامل ناکافی است؛ پس از چند جلسه مطالعه/تمرین تحلیل می‌شود."}
     scores = {"VISUAL": 0.0, "PRACTICAL": 0.0, "CONVERSATIONAL": 0.0}
     for e in events:
@@ -452,10 +467,15 @@ def learning_style(db: Session, learner_id, course_id) -> dict:
     dominant = max(dist, key=dist.get)
     return {
         "status": "OK", "event_count": len(events),
+        "model": "interaction-pattern-v2",
         "distribution": dist, "dominant_style": dominant,
         "label": _STYLE_LABELS[dominant],
         "recommendation": _STYLE_TIPS[dominant],
-        "note": "سبک یادگیری تخمین رفتاری است و با داده بیشتر به‌روزرسانی می‌شود.",
+        "declared_preference": declared,
+        "is_fixed_label": False,
+        "changeable_note": ("این الگوی رفتار مشاهده‌شده است، نه توانایی ثابت شما؛ "
+                            "با ترجیح اعلام‌شده یا نیاز دسترس‌پذیری، توصیه‌ها عوض می‌شود."),
+        "note": "الگوی تعامل تخمین رفتاری است و با داده بیشتر به‌روزرسانی می‌شود.",
     }
 
 
@@ -499,12 +519,20 @@ def forgetting_curve(db: Session, learner_id, course_id) -> dict:
         "concepts": out, "urgent_count": len(urgent),
         "summary": (f"{len(urgent)} مفهوم به مرور فوری نیاز دارد؛ "
                     "پیش‌بینی بر پایه مدل فراموشی دوبنگاهی روی فاصله‌های SM-2 است."),
+        "scheduling_vs_memory_note": ("این خروجی «زمان‌بندی پیشنهادی مرور» است؛ ادعای "
+                                      "اندازه‌گیری حافظه واقعی نیست و با ارزیابی دوره‌ای "
+                                      "کالیبره می‌شود."),
     }
 
 
-# ---------------- سرویس ۱۲: تحلیل فشار شناختی ----------------
+# ---------------- سرویس ۱۲: نشانه‌های دشواری (بازطراحی علمی) ----------------
 
 def cognitive_load(db: Session, learner_id, course_id) -> dict:
+    """نشانه‌های دشواری فعالیت — شاخص غیرمستقیم از زمان/خطا/راهنما.
+
+    زمان پاسخ معادل «فشار ذهنی» نیست (کندی اینترنت، وقفه محیطی، دشواری زبان یا
+    نیاز دسترس‌پذیری زمان را بالا می‌برند)؛ بنابراین خروجی با نام‌گذاری محتاطانه
+    «نشانه‌های دشواری» همراه با پرسش خودگزارش کوتاه ارائه می‌شود."""
     rows = (
         db.query(Response, Question)
         .join(Attempt, Response.attempt_id == Attempt.id)
@@ -518,7 +546,8 @@ def cognitive_load(db: Session, learner_id, course_id) -> dict:
     )
     if len(rows) < 3:
         return {"status": "UNKNOWN", "sample": len(rows),
-                "note": "برای تحلیل فشار شناختی به حداقل ۳ پاسخ زمان‌دار نیاز است."}
+                "model": "difficulty-signals-v2",
+                "note": "برای تحلیل نشانه‌های دشواری به حداقل ۳ پاسخ زمان‌دار نیاز است."}
     ratios, wrong, hints = [], 0, 0
     for r, q in rows:
         exp = _EXPECTED_MS.get(q.difficulty_estimated, 90_000)
@@ -532,19 +561,24 @@ def cognitive_load(db: Session, learner_id, course_id) -> dict:
     index = int(round(100 * max(0.0, min(1.0, 0.5 * temporal + 0.3 * error_p + 0.2 * hint_p))))
     band = "LOW" if index < 35 else "MEDIUM" if index <= 65 else "HIGH"
     rec = {
-        "LOW": ("فشار شناختی پایین است؛ برای پیشگیری از افت انگیزه، دشواری تمرین‌ها "
+        "LOW": ("نشانه‌های دشواری کم است؛ برای پیشگیری از افت انگیزه، دشواری تمرین‌ها "
                 "را یک پله بالا ببرید.", "HARD"),
-        "MEDIUM": ("فشار شناختی در محدوده بهینه است؛ همین روند ادامه دارد.", "MEDIUM"),
-        "HIGH": ("فشار شناختی بالاست: تمرین‌ها را به قطعه‌های کوتاه تقسیم کنید و "
-                 "موقتاً دشواری را یک پله پایین بیاورید.", "EASY"),
+        "MEDIUM": ("نشانه‌های دشواری در محدوده متعادل است؛ همین روند ادامه دارد.", "MEDIUM"),
+        "HIGH": ("نشانه‌های دشواری بالاست: یک مثال ساده‌تر یا قطعه‌های کوتاه‌تر را "
+                 "امتحان کن؛ اگر مشکل از سرعت اینترنت یا شرایط محیطی بود، نادیده‌اش بگیر.", "EASY"),
     }[band]
     return {
         "status": "OK", "sample": n, "load_index": index, "band": band,
+        "model": "difficulty-signals-v2",
         "components": {"time_pressure": round(temporal, 2),
                        "error_rate": round(wrong / n, 2),
                        "hint_rate": round(hints / n, 2)},
         "recommendation": rec[0], "suggested_difficulty": rec[1],
-        "note": "شاخص از زمان پاسخ نسبت به دشواری سؤال + نرخ خطا و راهنما ساخته می‌شود.",
+        "self_report_question": ("نشانه‌هایی از دشواری در این فعالیت دیده می‌شود؛ "
+                                 "آیا ترجیح می‌دهی یک مثال ساده‌تر ببینی؟"),
+        "confounds_note": ("زمان پاسخ می‌تواند از کندی اینترنت، وقفه محیطی، دشواری زبان "
+                           "یا نیاز دسترس‌پذیری باشد و لزوماً «فشار ذهنی» نیست."),
+        "note": "شاخص غیرمستقیم از زمان پاسخ نسبت به دشواری سؤال + نرخ خطا و راهنما ساخته می‌شود.",
     }
 
 
@@ -710,7 +744,7 @@ def overview(db: Session, learner_id, course_id) -> dict:
         actions.append({"type": "DIAGNOSTIC", "label": f"کوییز تشخیصی برای {w['unknown_count']} مفهوم نامشخص",
                         "ref": "quiz"})
     if load.get("status") == "OK" and load["band"] == "HIGH":
-        actions.append({"type": "MICRO", "label": "فشار شناختی بالا — قطعه‌های کوتاه امروز",
+        actions.append({"type": "MICRO", "label": "نشانه‌های دشواری بالا — قطعه‌های کوتاه امروز",
                         "ref": "micro"})
     if not actions:
         actions.append({"type": "KEEP_GOING", "label": "وضعیت یادگیری پایدار است؛ مرور فاصله‌دار را ادامه دهید.",

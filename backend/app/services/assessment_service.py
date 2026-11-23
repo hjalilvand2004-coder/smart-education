@@ -142,6 +142,17 @@ def _concept_of_qv(db: Session, qv_id) -> str | None:
     return str(row.concept_id) if row else None
 
 
+def _last_concepts_in_log(db: Session, selection_log: list, k: int) -> set[str]:
+    """مفهوم‌های k انتخاب آخر — برای قید تنوع در انتخاب تطبیقی."""
+    ids = [e.get("question_version_id") for e in (selection_log or [])[-k:]]
+    out = set()
+    for qv_id in ids:
+        cid = _concept_of_qv(db, qv_id)
+        if cid:
+            out.add(cid)
+    return out
+
+
 def _qid(db: Session, qv_id):
     qv = db.get(QuestionVersion, qv_id)
     return qv.question_id if qv else None
@@ -172,7 +183,15 @@ def _next_adaptive_question(db: Session, assessment: Assessment, student_id,
         order = {"WEAK": 0, "PARTIAL": 1, "KNOWN": 3}
         return (order.get(m.status, 2), float(m.estimated_mastery or 0.5), cid)
 
-    for cid in sorted(set(blueprint_concepts) - asked, key=rank):
+    ordered = sorted(set(blueprint_concepts) - asked, key=rank)
+    deferred: dict[str, str] = {}  # cid → دلیل تعلیق (قید تنوع)
+    for cid in ordered:
+        # کنترل تنوع: از تکرار یک مفهوم در دو سؤال متوالی پرهیز می‌شود تا
+        # ترکیب سؤال‌ها «یک‌نمونه‌ای» نشود (بازخورد ۳.۱) — فقط اگر گزینه
+        # دیگری موجود باشد؛ در غیر این صورت همان مفهوم پذیرفته می‌شود.
+        if len(selection_log) >= 2 and _last_concepts_in_log(db, selection_log, 2) == {cid}:
+            deferred[cid] = "قید تنوع — تکرار متوالی یک مفهوم"
+            continue
         # اگر پیش‌نیاز این مفهوم ضعیف است، اول پیش‌نیاز تمرین شود
         prereqs = get_prerequisites(db, cid)
         for p in prereqs:
@@ -191,6 +210,13 @@ def _next_adaptive_question(db: Session, assessment: Assessment, student_id,
             m = estimates.get(cid)
             reason = ("سؤال تشخیصی — شواهد کافی نیست" if m is None or m.status == "UNKNOWN"
                       else f"تمرین مفهوم ضعیف (وضعیت {m.status})")
+            selection_log.append({"question_version_id": str(qv.id), "reason": reason})
+            return qv
+    # همه نامزدها با قید تنوع تعلیق شده بودند → از رتبه اول بدون قید ادامه می‌دهیم
+    for cid, reason in deferred.items():
+        easy_first = estimates.get(cid) is None or estimates.get(cid).status == "UNKNOWN"
+        qv = _find_question_for_concept(db, assessment, student_id, cid, asked, easy=easy_first)
+        if qv is not None:
             selection_log.append({"question_version_id": str(qv.id), "reason": reason})
             return qv
     return None
@@ -359,8 +385,22 @@ def finish_attempt(db: Session, attempt: Attempt) -> dict:
             if q:
                 q.difficulty_empirical = round(1.0 - float(rows[0]), 3)
     db.flush()
+    # کنترل پوشش اهداف Blueprint در آزمون تطبیقی (بازخورد ۳.۱): پوشش، دشواری و
+    # تکرار گزارش می‌شود تا «تطبیق آموزشی» قابل ارزیابی باشد
+    coverage = None
+    if assessment.mode == "ADAPTIVE_PRACTICE":
+        blueprint_concepts = [str(c) for s in assessment.blueprint.get("sections", [])
+                              for c in s.get("concept_ids", [])]
+        covered = {cid for cid in per_concept if cid in blueprint_concepts}
+        coverage = {
+            "blueprint_concepts": blueprint_concepts,
+            "covered_concepts": sorted(covered),
+            "missing_concepts": sorted(set(blueprint_concepts) - covered),
+            "coverage_ratio": round(len(covered) / len(blueprint_concepts), 2) if blueprint_concepts else None,
+        }
     return {"score": score, "max_score": max_score,
-            "per_concept": per_concept, "pending_count": len(pending)}
+            "per_concept": per_concept, "pending_count": len(pending),
+            "coverage": coverage}
 
 
 def human_grading_review(db: Session, response: Response, reviewer, payload: dict) -> Response:

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.core.audit import audit
 from app.core.config import get_settings
 from app.core.database import get_db
-from app.core.errors import unauthorized, validation_error
+from app.core.errors import forbidden, unauthorized, validation_error
 from app.core.ratelimit import rate_limit
 from app.core.security import (create_access_token, get_current_user,
                                hash_password, verify_password)
@@ -43,7 +43,12 @@ class ExchangeIn(BaseModel):
 
 @router.post("/login")
 def login(body: LoginIn, db: Session = Depends(get_db), _rl=Depends(rate_limit("login", 20, 60))):
+    s = get_settings()
     user = db.query(User).filter(User.username == body.username).first()
+    # حاکمیت ورود: در استقرار تولیدی (S360_SSO_REQUIRED=true) ورود محلی بسته است
+    # و فقط مدیر فنی برای عملیات می‌تواند وارد شود (بازخورد ۳.۱).
+    if s.sso_required and user and user.role != "TECH_ADMIN":
+        raise forbidden("ورود محلی در این محیط غیرفعال است؛ از ورود یکگانه پرتال مرکزی استفاده کنید")
     if user is None or not verify_password(body.password, user.password_hash):
         raise unauthorized("نام کاربری یا رمز عبور اشتباه است")
     if user.approval_status == "PENDING":
@@ -52,6 +57,22 @@ def login(body: LoginIn, db: Session = Depends(get_db), _rl=Depends(rate_limit("
         raise unauthorized("حساب شما غیرفعال است؛ با مدیر سامانه تماس بگیرید")
     token = create_access_token(user.id, user.role)
     audit(db, user.id, "LOGIN", "user", user.id)
+    db.commit()
+    return {"access_token": token, "token_type": "bearer", "user": _user_payload(db, user)}
+
+
+class RefreshIn(BaseModel):
+    pass  # توکن فعلی از سربرگ Authorization خوانده می‌شود
+
+
+@router.post("/refresh")
+def refresh_token(db: Session = Depends(get_db),
+                  _rl=Depends(rate_limit("refresh", 60, 60)),
+                  user: User = Depends(get_current_user)):
+    """تمدید نشست: توکن جدید با عمر کامل برای کاربرِ توکن معتبر —
+    عمر کوتاه توکن + تمدید کنترل‌شده (بازنگری نشست، بازخورد ۳.۱)."""
+    token = create_access_token(user.id, user.role)
+    audit(db, user.id, "TOKEN_REFRESH", "user", user.id)
     db.commit()
     return {"access_token": token, "token_type": "bearer", "user": _user_payload(db, user)}
 
@@ -113,9 +134,11 @@ def sso_login():
     discovery = sso_client.get_discovery(s.sso_base_url)
     state = secrets.token_urlsafe(16)
     verifier, challenge = sso_client.pkce_pair()
-    sso_client.store_state(state, verifier)
+    nonce = secrets.token_urlsafe(12)
+    sso_client.store_state(state, verifier, nonce)
     url = sso_client.build_authorize_url(
-        discovery, s.sso_client_id, s.sso_redirect_uri, s.sso_scope, state, challenge)
+        discovery, s.sso_client_id, s.sso_redirect_uri, s.sso_scope, state, challenge,
+        nonce=nonce)
     return RedirectResponse(url, status_code=302)
 
 
@@ -131,16 +154,18 @@ def sso_callback(code: str | None = None, state: str | None = None,
 
     if error:
         return _redir(f"error={error}")
-    verifier = sso_client.pop_state(state) if state else None
-    if not (code and verifier):
+    popped = sso_client.pop_state_full(state) if state else None
+    if popped is None or not code:
         return _redir("error=state")
+    verifier, nonce = popped
     try:
         discovery = sso_client.get_discovery(s.sso_base_url)
         tokens = sso_client.exchange_code(
             discovery, s.sso_client_id, s.sso_client_secret, s.sso_redirect_uri, code, verifier)
         id_token = tokens.get("id_token", "")
         claims = sso_client.verify_id_token(
-            id_token, discovery["jwks_uri"], discovery["issuer"], s.sso_client_id)
+            id_token, discovery["jwks_uri"], discovery["issuer"], s.sso_client_id,
+            expected_nonce=nonce)
         info = sso_client.fetch_userinfo(discovery, tokens.get("access_token", ""))
     except Exception:
         return _redir("error=exchange")

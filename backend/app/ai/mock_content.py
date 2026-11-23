@@ -366,6 +366,7 @@ def mock_short_answer_check(inputs: dict) -> dict:
 def mock_tutor_answer(inputs: dict) -> dict:
     chunks = inputs.get("context_chunks") or []
     mode = inputs.get("mode", "LEARNING")
+    help_mode = inputs.get("help_mode") or "EXPLAIN"
     question = inputs.get("question", "")
     weak = inputs.get("learner_state", {}).get("weak_concepts", [])
     lower = question.lower()
@@ -376,6 +377,32 @@ def mock_tutor_answer(inputs: dict) -> dict:
             "citations": [],
             "insufficient_evidence": False,
             "needs_teacher": False,
+            "help_mode": "GUIDE",
+            "ladder_level": 1,
+        }
+    ladder_map = {"GUIDE": 1, "PRACTICE": 3, "EXPLAIN": 4}
+    ladder_level = ladder_map.get(help_mode, 4)
+    if help_mode == "GUIDE":
+        ladder_level = 2
+        if not chunks:
+            return {
+                "answer": "برای شروع، یک سؤال راهنما: این مسئله به کدام مفهوم درس شبیه است؟ "
+                          "اسم مفهوم را بگو تا از همان‌جا شروع کنیم. فعلاً پاسخ کامل نمی‌دهم تا خودت امتحان کنی.",
+                "citations": [],
+                "insufficient_evidence": False,
+                "needs_teacher": False,
+                "help_mode": "GUIDE",
+                "ladder_level": 1,
+            }
+        return {
+            "answer": "یک سؤال راهنما (بدون پاسخ کامل): " + chunks[0]["text"][:200]
+                      + " … بر اساس این، قدم اول حل چیست؟ اگر گیر کردی، «مثال ساده‌تر» را بخواه.",
+            "citations": [{"resource_id": chunks[0]["resource_id"], "locator": chunks[0].get("locator", ""),
+                           "quote": chunks[0]["text"][:120]}],
+            "insufficient_evidence": False,
+            "needs_teacher": False,
+            "help_mode": "GUIDE",
+            "ladder_level": 2,
         }
     if not chunks:
         return {
@@ -384,6 +411,8 @@ def mock_tutor_answer(inputs: dict) -> dict:
             "citations": [],
             "insufficient_evidence": True,
             "needs_teacher": True,
+            "help_mode": help_mode,
+            "ladder_level": 0,
         }
     top = chunks[:2]
     parts = [f"بر اساس منابع مجاز درس، خلاصه پاسخ:"]
@@ -391,13 +420,50 @@ def mock_tutor_answer(inputs: dict) -> dict:
         parts.append("• " + ch["text"][:320])
     if weak:
         parts.append(f"پیشنهاد: پیش از ادامه، مفهوم «{weak[0]}» را مرور کن؛ شواهد یادگیری‌ات نشان می‌دهد آن مفهوم هنوز تثبیت نشده است.")
-    parts.append("سؤال سقراطی برای تمرین ذهن: اگر همین مفهوم را در یک موقعیت واقعی دیگر به‌کار ببریم، کدام بخش تعریف تغییر نمی‌کند و کدام بخش وابسته به موقعیت است؟")
+    if help_mode == "PRACTICE":
+        parts.append("حل را با هم جلو می‌بریم: قدم اول را تو بنویس؛ من بررسی و گام بعدی را پیشنهاد می‌دهم.")
+    else:
+        parts.append("سؤال سقراطی برای تمرین ذهن: اگر همین مفهوم را در یک موقعیت واقعی دیگر به‌کار ببریم، کدام بخش تعریف تغییر نمی‌کند و کدام بخش وابسته به موقعیت است؟")
     return {
         "answer": "\n".join(parts),
         "citations": [{"resource_id": ch["resource_id"], "locator": ch.get("locator", ""),
                        "quote": ch["text"][:120]} for ch in top],
         "insufficient_evidence": False,
         "needs_teacher": False,
+        "help_mode": help_mode,
+        "ladder_level": ladder_level,
+    }
+
+
+def mock_teach_back_feedback(inputs: dict) -> dict:
+    """بازخورد روبرکی «به من یاد بده» — دقت تعریف/پوشش روابط/کیفیت مثال/ابهام‌ها."""
+    content = (inputs.get("content") or "").strip()
+    concept = inputs.get("concept_name", "مفهوم")
+    words = len(content.split()) if content else 0
+    has_relation_words = any(w in content for w in ("پیش‌نیاز", "وابسته", "متصل", "بر پایه", "منجر")) if content else False
+    has_example = "مثال" in content or "مثلاً" in content or "مثل " in content if content else False
+    definition_score = 2.0 if words >= 40 else 1.0 if words >= 15 else 0.5
+    coverage_score = 2.0 if has_relation_words else 1.0
+    example_score = 2.0 if has_example else 1.0 if words >= 30 else 0.5
+    gaps = []
+    if not has_relation_words:
+        gaps.append(f"ارتباط «{concept}» با مفاهیم پیش‌نیاز یا کاربردهای آن گفته نشده است")
+    if not has_example:
+        gaps.append("یک مثال واقعی یا حل‌شده اضافه کن تا توضیح ملموس شود")
+    follow = (f"خوب بود؛ اگر شرط اصلی «{concept}» برقرار نباشد، نتیجه چه تغییری می‌کند؟ "
+              "در یک جمله پاسخ بده تا سطح فهمت را بسنجیم.")
+    return {
+        "rubric_scores": [
+            {"criterion": "دقت تعریف", "score": definition_score, "max_score": 2,
+             "evidence": f"طول توضیح: {words} واژه"},
+            {"criterion": "پوشش روابط اصلی", "score": coverage_score, "max_score": 2,
+             "evidence": "ارتباط با پیش‌نیازها ذکر شد" if has_relation_words else "بدون اشاره به روابط"},
+            {"criterion": "کیفیت مثال", "score": example_score, "max_score": 2,
+             "evidence": "مثال موجود است" if has_example else "مثالی یافت نشد"},
+        ],
+        "follow_up_question": follow,
+        "gaps": gaps,
+        "encouragement": "بازگویی با کلام خودتان یکی از قوی‌ترین ابزارهای تثبیت یادگیری است — ادامه بده!",
     }
 
 

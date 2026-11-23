@@ -32,6 +32,7 @@ def create_session(body: SessionIn, db: Session = Depends(get_db), user: User = 
 class MessageIn(BaseModel):
     content: str
     stream: bool = False
+    help_mode: str | None = None  # EXPLAIN/GUIDE/PRACTICE — نردبان راهنمایی (۳.۱)
 
 
 @router.post("/sessions/{session_id}/messages")
@@ -48,7 +49,7 @@ def send_message(session_id: str, body: MessageIn, db: Session = Depends(get_db)
                 yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
         return StreamingResponse(event_gen(), media_type="text/event-stream",
                                  headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
-    msg = tutor_service.answer(db, session, body.content)
+    msg = tutor_service.answer(db, session, body.content, help_mode=body.help_mode)
     db.commit()
     return {
         "id": str(msg.id), "role": "assistant", "content": msg.content,

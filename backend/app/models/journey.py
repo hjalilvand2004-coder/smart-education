@@ -1,0 +1,144 @@
+"""مدل‌های تجربه «مسیر یادگیری» و یکپارچگی مرجع (نسخه ۳.۱).
+
+اصل معماری: داده مرجع (درس/سرفصل) متعلق به پایه‌یار۳۶۰ است؛ در این سامانه
+فقط «رونوشت همگام‌شده» نگهداری می‌شود و هر تغییر مرجع، بدون بازنویسی بی‌صدای
+گراف مفاهیم و شواهد دانشجو، به‌صورت گزارش تغییر برای بررسی استاد ثبت می‌گردد.
+
+قابلیت‌های متمایز این نسخه:
+- «اینجا گیر کردم» (StuckMark) → ورود استاد هوشمند از همان نقطه محتوا
+- کلینیک خطا (ErrorNotebookEntry) → دفتر خطای آموزشی با برچسب قابل اصلاح
+- «به من یاد بده» (TeachBackSubmission) → دانشجو در نقش مدرس با روبرک AI
+- جلسه یادگیری با زمان انتخابی (LearningSession) → ۵/۱۵/۳۰ دقیقه با توقف/ادامه
+- آمادگی آزمون صادقانه (ExamPrepPlan) → اولویت‌بندی با نمایش عدم‌قطعیت
+"""
+import uuid
+from datetime import datetime
+
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.core.database import GUID, Base, TimestampMixin, JSONB, uid_col
+
+STUCK_KINDS = (
+    "NOT_UNDERSTOOD",       # معنی عبارت را نمی‌فهمم
+    "CONNECTION_UNCLEAR",   # ارتباطش با مطلب قبلی روشن نیست
+    "STEP_UNCLEAR",         # نمی‌دانم چرا این مرحله انجام شد
+    "KNOWS_BUT_CANT_SOLVE", # مفهوم را می‌دانم اما نمی‌توانم حل کنم
+)
+ERROR_STATUSES = ("OPEN", "ATTRIBUTED", "RESOLVED")
+SESSION_STATES = ("ACTIVE", "PAUSED", "DONE")
+SYNC_DIRECTIONS = ("INITIAL_PULL", "CHANGE_EVENT", "RECONCILE")
+SYNC_STATUSES = ("SYNCED", "UP_TO_DATE", "REVIEW_REQUIRED", "FAILED")
+
+
+class ReferenceSyncLog(TimestampMixin, Base):
+    """گزارش هر همگام‌سازی با پایه‌یار۳۶۰ — مرجع حقیقت درس/سرفصل خارج است.
+
+    سامانه هرگز نسخه مصوب سرفصل و گراف مفاهیم را بی‌صدا بازنویسی نمی‌کند؛
+    تغییر مرجع → نسخه پیش‌نویس جدید + فهرست نگاشت‌های نیازمند بررسی استاد.
+    """
+
+    __tablename__ = "reference_sync_logs"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uid_col)
+    course_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("courses.id"), index=True)
+    direction: Mapped[str] = mapped_column(String(16), index=True)   # INITIAL_PULL/CHANGE_EVENT/RECONCILE
+    status: Mapped[str] = mapped_column(String(16), index=True)      # SYNCED/UP_TO_DATE/REVIEW_REQUIRED/FAILED
+    reference_system: Mapped[str] = mapped_column(String(32), default="baseyar360")
+    reference_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    new_syllabus_version_id: Mapped[uuid.UUID | None] = mapped_column(GUID, nullable=True)
+    report: Mapped[dict | None] = mapped_column(JSONB, nullable=True)  # گزارش تغییر به فارسی
+    message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    synced_by: Mapped[uuid.UUID | None] = mapped_column(GUID, nullable=True)
+    applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class StuckMark(TimestampMixin, Base):
+    """«اینجا گیر کردم» — علامت‌گذاری نقطه گیر در محتوا با نوع مشکل."""
+
+    __tablename__ = "stuck_marks"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uid_col)
+    learner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    course_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("courses.id"), index=True)
+    content_version_id: Mapped[uuid.UUID | None] = mapped_column(GUID, nullable=True, index=True)
+    block_index: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    block_anchor: Mapped[str | None] = mapped_column(Text, nullable=True)  # عبارت علامت‌گذاری‌شده
+    kind: Mapped[str] = mapped_column(String(32), index=True)  # یکی از STUCK_KINDS
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    resolved: Mapped[bool] = mapped_column(Boolean, default=False)
+    tutor_session_id: Mapped[uuid.UUID | None] = mapped_column(GUID, nullable=True)
+
+
+class ErrorNotebookEntry(TimestampMixin, Base):
+    """دفتر خطای آموزشی (کلینیک خطا) — تفسیر خطا «فرضیه» است و دانشجو می‌تواند
+    برچسب را اصلاح/رد کند؛ بازگشت خطا در تلاش بعدی شمرده می‌شود."""
+
+    __tablename__ = "error_notebook_entries"
+    __table_args__ = (UniqueConstraint("learner_id", "course_id", "concept_id", "pattern_key",
+                                       name="uq_error_note"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uid_col)
+    learner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    course_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("courses.id"), index=True)
+    concept_id: Mapped[uuid.UUID | None] = mapped_column(GUID, nullable=True, index=True)
+    pattern_key: Mapped[str] = mapped_column(String(64), index=True)  # SIGN_ERROR/TRANSPOSE/UNIT/CONCEPT_GAP/...
+    title: Mapped[str] = mapped_column(String(200))
+    evidence: Mapped[list | None] = mapped_column(JSONB, nullable=True)  # شواهد: response_id ها
+    suggested_practice: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    status: Mapped[str] = mapped_column(String(16), default="OPEN", index=True)
+    student_explanation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    recurrence_count: Mapped[int] = mapped_column(Integer, default=0)
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class TeachBackSubmission(TimestampMixin, Base):
+    """«به من یاد بده» — دانشجو مفهوم را با کلام خود توضیح می‌دهد؛ سامانه با
+    روبرک (دقت تعریف، پوشش روابط، کیفیت مثال، ابهام‌ها) بازخورد می‌دهد.
+    خروجی بازخورد یادگیری است، نه نمره رسمی."""
+
+    __tablename__ = "teach_back_submissions"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uid_col)
+    learner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    course_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("courses.id"), index=True)
+    concept_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("concepts.id"), index=True)
+    modality: Mapped[str] = mapped_column(String(8), default="TEXT")  # TEXT/AUDIO
+    content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    audio_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    rubric: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    follow_up_question: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(16), default="REVIEWED", index=True)
+
+
+class LearningSession(TimestampMixin, Base):
+    """جلسه یادگیری با زمان انتخابی (۵/۱۵/۳۰ دقیقه) — ترکیب مرور/مثال/تمرین
+    متناسب با زمان؛ قابل توقف و ادامه."""
+
+    __tablename__ = "learning_sessions"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uid_col)
+    learner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    course_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("courses.id"), index=True)
+    minutes: Mapped[int] = mapped_column(Integer)  # 5/15/30
+    composition: Mapped[list | None] = mapped_column(JSONB, nullable=True)  # گام‌ها
+    state: Mapped[str] = mapped_column(String(12), default="ACTIVE", index=True)
+    progress: Mapped[dict | None] = mapped_column(JSONB, nullable=True)  # گام جاری/انجام‌شده‌ها
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
+    paused_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class ExamPrepPlan(TimestampMixin, Base):
+    """برنامه آمادگی آزمون با اولویت‌بندی صادقانه — پوشش یادگیری و عدم‌قطعیت
+    نمایش داده می‌شود؛ هیچ وعده نمره/قبولی وجود ندارد."""
+
+    __tablename__ = "exam_prep_plans"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uid_col)
+    learner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    course_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("courses.id"), index=True)
+    exam_date: Mapped[str | None] = mapped_column(String(10), nullable=True)  # ISO date
+    available_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    plan: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    status: Mapped[str] = mapped_column(String(16), default="ACTIVE", index=True)

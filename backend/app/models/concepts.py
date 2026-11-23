@@ -57,6 +57,8 @@ class TopicConcept(TimestampMixin, Base):
     id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uid_col)
     topic_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("syllabus_topics.id"), index=True)
     concept_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("concepts.id"), index=True)
+    needs_review: Mapped[bool] = mapped_column(Boolean, default=False)  # تغییر مرجع → بررسی استاد
+    review_reason: Mapped[str | None] = mapped_column(String(300), nullable=True)
 
 
 class ConceptMisconception(TimestampMixin, Base):

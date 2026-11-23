@@ -7,12 +7,12 @@
 
 - بک‌اند: FastAPI + SQLAlchemy + SQLite/PostgreSQL — فرانت‌اند: React 18 + Vite (فارسی، RTL، بدون فریم‌ورک CSS)
 - **تم «رویایی» v3 — نسخه ۳.۰.۰**: پس‌زمینه شفق قطبی متحرک، کارت‌های شیشه‌گری با حاشیه گرادیانی، دکمه‌های درخشان با افکت Shine، ستاره‌های چشمک‌زن و پانل قهرمان در صفحه ورود، انیمیشن‌های نرم با احترام به `prefers-reduced-motion`
-- **پکیج پرتیبل کاملاً مستقل (v3.0.0)**: پایتون 3.12 embed شده + **تمام وابستگی‌های اجرایی به‌صورت wheels ویندوزی cp312** داخل `Lib\site-packages` (FastAPI، SQLAlchemy، pydantic-settings، Jinja2، گزارش‌سازهای DOCX/PPTX/PDF، matplotlib و…) — روی سیستمی که **نه پایتون دارد نه PyCharm** فقط با دابل‌کلیک `run.bat` اجرا می‌شود؛ `run.bat` فقط از پایتون داخلی پکیج استفاده می‌کند و `PYTHONHOME/PYTHONPATH` سیستم را خنثی می‌کند
+- **پکیج پرتیبل کاملاً مستقل (v3.1.0)**: پایتون 3.12 embed شده + **تمام وابستگی‌های اجرایی به‌صورت wheels ویندوزی cp312** داخل `Lib\site-packages` (FastAPI، SQLAlchemy، pydantic-settings، Jinja2، گزارش‌سازهای DOCX/PPTX/PDF، matplotlib و…) — روی سیستمی که **نه پایتون دارد نه PyCharm** فقط با دابل‌کلیک `run.bat` اجرا می‌شود؛ `run.bat` فقط از پایتون داخلی پکیج استفاده می‌کند و `PYTHONHOME/PYTHONPATH` سیستم را خنثی می‌کند
 - تست‌ها: **۷۷ تست سبز** (احراز هویت، RBAC، محتوا، آزمون، SSO، گزارش، سرویس‌ها، مهاجرت legacy)
 
 ## 🚀 اجرای سریع (نسخه پرتیبل — بدون نصب پایتون و بدون PyCharm)
 
-از [Releases](../../releases) فایل `SmartLearning-360-Portable-win64-v3.0.0.zip` را بگیرید:
+از [Releases](../../releases) فایل `SmartLearning-360-Portable-win64-v3.1.0.zip` را بگیرید:
 ۱) Extract کامل ZIP ۲) دوبار کلیک روی `run.bat` ۳) مرورگر خودکار روی `http://localhost:8000`.
 هیچ نصب پیش‌نیازی لازم نیست؛ جزئیات و عیب‌یابی در `README-PORTABLE.txt` داخل پکیج.
 

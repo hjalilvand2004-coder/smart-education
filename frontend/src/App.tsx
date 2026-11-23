@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useParams, useSearchParams } from 'react-router-dom'
 import { AuthProvider, useAuth, isGlobalAdmin } from './auth'
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -16,6 +16,13 @@ import Programyar from './pages/Programyar'
 import Reports from './pages/Reports'
 import SsoCallback from './pages/SsoCallback'
 import SmartHub from './pages/SmartHub'
+import Today from './pages/Today'
+import Learning from './pages/Learning'
+import ConceptExplorer from './pages/ConceptExplorer'
+import ErrorClinic from './pages/ErrorClinic'
+import TeachBack from './pages/TeachBack'
+import ExamPrep from './pages/ExamPrep'
+import ProfessorActions from './pages/ProfessorActions'
 
 function LoadingScreen({ note = 'در حال بارگذاری…' }: { note?: string }) {
   return (
@@ -64,6 +71,37 @@ function SmartHubRoute() {
   return <SmartHub courseId={courseId ?? ''} />
 }
 
+function LearningRoute() {
+  const { courseId } = useParams()
+  return <Learning courseId={courseId ?? ''} />
+}
+
+function ConceptExplorerRoute() {
+  const { courseId } = useParams()
+  return <ConceptExplorer courseId={courseId ?? ''} />
+}
+
+function TeachBackRoute() {
+  const { courseId } = useParams()
+  return <TeachBack courseId={courseId ?? ''} />
+}
+
+function ExamPrepRoute() {
+  const { courseId } = useParams()
+  return <ExamPrep courseId={courseId ?? ''} />
+}
+
+function ProfessorActionsRoute() {
+  const { courseId } = useParams()
+  return <ProfessorActions courseId={courseId ?? ''} />
+}
+
+/** کلینیک خطا: مسیر سراسری با شناسه درس در پارامتر نشانی */
+function ErrorClinicRoute() {
+  const [params] = useSearchParams()
+  return <ErrorClinic courseId={params.get('course_id') ?? ''} />
+}
+
 function AdminRoute() {
   const { user } = useAuth()
   if (!isGlobalAdmin(user)) {
@@ -100,15 +138,22 @@ export default function App() {
               </RequireAuth>
             }
           >
-            <Route path="/" element={<Navigate to="/courses" replace />} />
+            <Route path="/" element={<Navigate to="/today" replace />} />
+            <Route path="/today" element={<Today />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/course/:courseId" element={<CourseHome />} />
             <Route path="/course/:courseId/content/:versionId" element={<ContentReaderRoute />} />
+            <Route path="/course/:courseId/learn" element={<LearningRoute />} />
+            <Route path="/course/:courseId/map" element={<ConceptExplorerRoute />} />
             <Route path="/course/:courseId/quizzes" element={<AssessmentsRoute />} />
             <Route path="/course/:courseId/tutor" element={<TutorRoute />} />
             <Route path="/course/:courseId/mastery" element={<MasteryRoute />} />
             <Route path="/course/:courseId/plan" element={<StudyPlanRoute />} />
             <Route path="/course/:courseId/smart" element={<SmartHubRoute />} />
+            <Route path="/course/:courseId/teach-back" element={<TeachBackRoute />} />
+            <Route path="/course/:courseId/exam-prep" element={<ExamPrepRoute />} />
+            <Route path="/course/:courseId/actions" element={<ProfessorActionsRoute />} />
+            <Route path="/me/error-clinic" element={<ErrorClinicRoute />} />
             <Route path="/studio/:courseId" element={<Studio />} />
             <Route path="/programyar" element={<Programyar />} />
             <Route path="/reports" element={<Reports />} />

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api'
-import type { FinishResult, QuestionForStudent, QuestionOption } from '../api'
+import type { CoverageInfo, FinishResult, QuestionForStudent, QuestionOption } from '../api'
 import StatusBadge from '../components/StatusBadge'
 
 const TRUE_FALSE_OPTIONS: QuestionOption[] = [
@@ -41,6 +41,7 @@ export default function Quiz() {
   const [result, setResult] = useState<FinishResult | null>(null)
   const [courseId, setCourseId] = useState<string | null>(null)
   const [conceptNames, setConceptNames] = useState<Record<string, string>>({})
+  const [saveState, setSaveState] = useState<'saving' | 'saved' | null>(null)
   const questionShownAt = useRef<number>(Date.now())
 
   useEffect(() => {
@@ -112,6 +113,7 @@ export default function Quiz() {
       payload = { selected: answer.selected || [] }
     }
     try {
+      setSaveState('saving')
       const res = await api.post<{
         response_id: string
         auto_scored: boolean
@@ -124,6 +126,8 @@ export default function Quiz() {
         answer: payload,
         time_spent_ms: timeSpent,
       })
+      setSaveState('saved')
+      window.setTimeout(() => setSaveState(null), 1600)
       setAnsweredCount((n) => n + 1)
       // بازخورد فوری طبق سیاست آزمون
       if (feedbackPolicy === 'IMMEDIATE') {
@@ -197,6 +201,12 @@ export default function Quiz() {
         </div>
         <div className="card">
           <h3>نتایج به تفکیک مفهوم</h3>
+          {(result as FinishResult & { coverage?: CoverageInfo | null }).coverage && (
+            <p className="muted" style={{ fontSize: '0.82rem', marginBottom: 8 }}>
+              پوشش اهداف: {Math.round(((result as FinishResult & { coverage?: CoverageInfo | null }).coverage?.coverage_ratio ?? 0) * 100)}٪
+              از مفاهیم blueprint در این تلاش دیده شد — گزارش انتخاب تطبیقی در «مسیر تلاش» ثبت شده است.
+            </p>
+          )}
           {Object.keys(result.per_concept).length === 0 ? (
             <div className="muted">داده‌ای برای تفکیک مفهومی ثبت نشد.</div>
           ) : (
@@ -267,6 +277,13 @@ export default function Quiz() {
           <h1>{title}</h1>
           <div className="subtitle">
             سؤال {index + 1} از {Math.max(queue.length, index + 1)} — پاسخ‌های ثبت‌شده: {answeredCount}
+          </div>
+          {/* محیط آرام: بدون پس‌زمینه متحرک + وضعیت ذخیره خودکار */}
+          <div className="exam-status" role="status" style={{ marginTop: 6 }}>
+            <span className="dot-live" aria-hidden="true" />
+            ذخیره خودکار فعال
+            {saveState === 'saving' && ' — در حال ذخیره…'}
+            {saveState === 'saved' && ' — پاسخ شما ذخیره شد ✓'}
           </div>
         </div>
         <button type="button" className="btn btn-sm" disabled={finishing} onClick={finish}>

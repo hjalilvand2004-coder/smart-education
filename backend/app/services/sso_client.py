@@ -56,7 +56,8 @@ def get_discovery(base_url: str) -> dict:
 
 
 def build_authorize_url(discovery: dict, client_id: str, redirect_uri: str,
-                        scope: str, state: str, challenge: str) -> str:
+                        scope: str, state: str, challenge: str,
+                        nonce: str | None = None) -> str:
     from urllib.parse import urlencode
     params = {
         "response_type": "code",
@@ -67,6 +68,8 @@ def build_authorize_url(discovery: dict, client_id: str, redirect_uri: str,
         "code_challenge": challenge,
         "code_challenge_method": "S256",
     }
+    if nonce:  # nonce ضد تکرار پاسخ (بازخورد ۳.۱)
+        params["nonce"] = nonce
     return f"{discovery['authorization_endpoint']}?{urlencode(params)}"
 
 
@@ -88,11 +91,16 @@ def exchange_code(discovery: dict, client_id: str, client_secret: str,
         return resp.json()
 
 
-def verify_id_token(id_token: str, jwks_uri: str, issuer: str, audience: str) -> dict:
-    """اعتبارسنجی امضای RS256 id_token با JWKS و برگرداندن claims."""
+def verify_id_token(id_token: str, jwks_uri: str, issuer: str, audience: str,
+                    expected_nonce: str | None = None) -> dict:
+    """اعتبارسنجی امضای RS256 id_token با JWKS و برگرداندن claims؛
+    در صورت ارائه nonce، مطابقت claim بررسی می‌شود."""
     key = PyJWKClient(jwks_uri).get_signing_key_from_jwt(id_token)
-    return jwt.decode(id_token, key.key, algorithms=["RS256"],
-                      audience=audience, issuer=issuer)
+    claims = jwt.decode(id_token, key.key, algorithms=["RS256"],
+                        audience=audience, issuer=issuer)
+    if expected_nonce and claims.get("nonce") != expected_nonce:
+        raise RuntimeError("nonce id_token مطابقت ندارد")
+    return claims
 
 
 def fetch_userinfo(discovery: dict, access_token: str) -> dict:
@@ -123,14 +131,14 @@ def pop_ticket(ticket: str) -> uuid_mod.UUID | None:
     return item[0]
 
 
-# ---------- state ضد CSRF ----------
+# ---------- state ضد CSRF + nonce ضد تکرار ----------
 
-_STATES: dict[str, tuple[str, float]] = {}
+_STATES: dict[str, tuple[str, float, str | None]] = {}
 STATE_TTL = 600
 
 
-def store_state(state: str, verifier: str) -> None:
-    _STATES[state] = (verifier, time.time() + STATE_TTL)
+def store_state(state: str, verifier: str, nonce: str | None = None) -> None:
+    _STATES[state] = (verifier, time.time() + STATE_TTL, nonce)
 
 
 def pop_state(state: str) -> str | None:
@@ -138,3 +146,11 @@ def pop_state(state: str) -> str | None:
     if item is None or item[1] < time.time():
         return None
     return item[0]
+
+
+def pop_state_full(state: str) -> tuple[str, str | None] | None:
+    """(verifier, nonce) — با مصرف یک‌باره state."""
+    item = _STATES.pop(state, None)
+    if item is None or item[1] < time.time():
+        return None
+    return item[0], item[2]
