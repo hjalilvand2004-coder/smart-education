@@ -36,50 +36,24 @@ else:
 if os.path.exists(SEED_DB):
     datas.append((SEED_DB, "."))
 
-# فونت‌ها و صفحهٔ استودیو گزارش‌ها داخل پکیج app
-datas.append(
-    (os.path.join(BACKEND_DIR, "app", "reports", "fonts"),
-     os.path.join("app", "reports", "fonts"))
-)
-datas.append(
-    (os.path.join(BACKEND_DIR, "app", "static"),
-     os.path.join("app", "static"))
-)
+# فونت‌های فارسی داخل پکیج app — مبنای FONTS_DIR در app/services/export_service.py
+# مسیر واقعی: backend/app/assets/fonts (نسخهٔ قدیمی app/reports/fonts دیگر وجود ندارد)
+ASSETS_DIR = os.path.join(BACKEND_DIR, "app", "assets")
+if os.path.isdir(ASSETS_DIR):
+    datas.append((ASSETS_DIR, os.path.join("app", "assets")))
 
-hiddenimports = (
-    [
-        # --- پکیج برنامه ---
-        "app",
-        "app.main",
-        "app.config",
-        "app.database",
-        "app.models",
-        "app.schemas",
-        "app.crud",
-        "app.ai_service",
-        "app.routers",
-        "app.routers.content",
-        "app.routers.courses",
-        "app.routers.quizzes",
-        "app.routers.ai",
-        "app.routers.ai_stats",
-        "app.routers.upload",
-        "app.routers.reports",
-        "app.routers.integration",
-        "app.routers.services",
-        "app.routers.auth",
-        "app.routers.users",
-        "app.security",
-        "app.services",
-        "app.services.scheduler_client",
-        "app.reports",
-        "app.reports.builder",
-        "app.reports.theme",
-        "app.reports.html_report",
-        "app.reports.pptx_report",
-        "app.reports.pdf_report",
-        "app.reports.docx_report",
+# کشف خودکار همهٔ زیرماژول‌های پکیج app از روی سیستم فایل —
+# مقاوم به تغییر ساختار (سیاههٔ ثابتِ قدیمی به معماری حاضر نمی‌خورد)
+app_pkg_dir = os.path.join(BACKEND_DIR, "app")
+app_modules = ["app", "app.main"]
+for _root, _dirs, _files in os.walk(app_pkg_dir):
+    _dirs[:] = [d for d in _dirs if d != "__pycache__"]
+    for _f in sorted(_files):
+        if _f.endswith(".py"):
+            _rel = os.path.relpath(os.path.join(_root, _f), os.path.dirname(app_pkg_dir))
+            app_modules.append(_rel[:-3].replace(os.sep, "."))
 
+hiddenimports = (app_modules + [
         # --- uvicorn ---
         "uvicorn.logging",
         "uvicorn.loops",
@@ -122,7 +96,8 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=["tkinter", "matplotlib", "numpy", "pandas"],
+    # matplotlib (وابسته به numpy) به‌صورت lazy در report_builder استفاده می‌شود — نباید حذف شود
+    excludes=["tkinter", "pandas"],
     noarchive=False,
     optimize=1,
 )
