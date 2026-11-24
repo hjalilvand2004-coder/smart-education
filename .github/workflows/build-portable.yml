@@ -72,6 +72,16 @@ jobs:
           python scripts/init_db.py
           python scripts/seed_demo.py
 
+      - name: Seed payehyar masterdata (اختیاری — نیازمند repo secret)
+        working-directory: backend
+        env:
+          PYTHONUTF8: "1"
+          S360_PAYEHYAR_API_KEY: ${{ secrets.S360_PAYEHYAR_API_KEY }}
+        run: |
+          # اگر secret تنظیم نشده باشد، گام با پیام رد می‌شود؛ شکست واکشی
+          # بیلد را نمی‌شکند (داخل اسکریپت مدیریت شده است).
+          python scripts/seed_payehyar.py
+
       - name: Build portable executable (PyInstaller)
         working-directory: backend
         run: |
@@ -123,7 +133,7 @@ jobs:
           $readme = @'
           ==========================================================
            دانشجو۳۶۰ — نسخهٔ قابل حمل (Portable)
-           Student360 — Smart Learning Platform  (v3.2.2)
+           Student360 — Smart Learning Platform  (v3.4.1)
           ==========================================================
 
           روش اجرا:

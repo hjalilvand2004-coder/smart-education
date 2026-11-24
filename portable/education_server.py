@@ -11,6 +11,7 @@
  - تنظیمات اپ فقط با پیشوند S360_ خوانده می‌شوند (اصلاح ۳.۲.۱)
 =====================================================================
 """
+VERSION = "3.4.1"  # نسخهٔ بستهٔ قابل حمل — همگام با تگ ریلیز به‌روزرسانی شود
 import os
 import sys
 import time
@@ -106,7 +107,7 @@ def open_browser_later(url: str, delay: float = 2.2) -> None:
 
 def main() -> None:
     print("=" * 62)
-    print("  دانشجو۳۶۰ — نسخهٔ قابل حمل  (v3.2.2)")
+    print(f"  دانشجو۳۶۰ — نسخهٔ قابل حمل  (v{VERSION})")
     print("  Student360 — Smart Learning Platform (Portable)")
     print("=" * 62)
 

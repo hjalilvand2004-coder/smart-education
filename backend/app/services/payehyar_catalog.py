@@ -178,7 +178,8 @@ def merge_syllabi(courses: list[dict], syllabi: list[dict], warnings: list[str])
     if syllabi and matched < unmatched:
         warnings.append(
             f"{unmatched - matched} سرفصل مصوب بدون تطبیق عنوان با درس‌های یکتا ماند "
-            "(اتصال نهایی پس از رفع دامنه split-courses یا نگاشت دستی انجام می‌شود).")
+            "(عنوان‌های OCR مجموعه ۱۳۹۴ با نام‌گذاری درس‌یار هم‌ارز نیستند؛ اتصال با "
+            "«اتصال خودکار سرفصل‌ها» در پنل پایه‌یار یا نگاشت دستی انجام می‌شود).")
 
 
 def normalize_course(raw) -> tuple[dict | None, str | None]:
