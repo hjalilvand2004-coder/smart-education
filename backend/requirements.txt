@@ -20,3 +20,4 @@ pdfplumber>=0.10
 pypdf>=4.0
 # production: psycopg[binary] , redis , celery , boto3 , pgvector
 pytest>=8.0
+aio-pika>=9.4

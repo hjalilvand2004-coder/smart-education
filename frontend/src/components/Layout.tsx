@@ -260,7 +260,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۳.۱ — واکشی مستند پایه‌یار۳۶۰ ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۴.۰ — یکپارچگی کامل پایه‌یار۳۶۰ ✨</div>
         </div>
       </aside>
 

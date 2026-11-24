@@ -23,6 +23,28 @@ logger = logging.getLogger("student360")
 
 API_PREFIX = "/api/v1"
 
+# ---------- یکپارچگی کامل پایه‌یار۳۶۰ (سند فنی v3.4.0) ----------
+# زمان‌بند همگام‌سازی (cron 0 */30 * * * * → هر ۳۰ دقیقه) و مصرف‌کننده رویدادهای
+# RabbitMQ — هر دو فقط با فعال بودن تنظیم مربوطه بالا می‌آیند و خاموشی‌شان هرگز
+# مانع سرویس اصلی نمی‌شود.
+_payehyar_tasks: list = []
+
+
+async def _payehyar_lifespan(app):
+    import asyncio
+
+    from app.services import payehyar_events, payehyar_scheduler
+
+    if get_settings().payehyar_auto_sync:
+        _payehyar_tasks.append(asyncio.create_task(payehyar_scheduler.scheduler_loop()))
+        logger.info("payehyar auto-sync scheduler started")
+    if get_settings().payehyar_events_enabled:
+        _payehyar_tasks.append(asyncio.create_task(payehyar_events.consume_forever()))
+        logger.info("payehyar events consumer started")
+    yield
+    for task in _payehyar_tasks:
+        task.cancel()
+
 
 def _resolve_frontend_dist(frontend_dist_setting: str = ""):
     """یافتن مسیر build فرانت‌اند در همهٔ حالت‌ها: توسعه، متغیر محیطی صریح و بستهٔ پرتیبل.
@@ -66,6 +88,7 @@ def create_app() -> FastAPI:
         ),
         docs_url="/api/docs",
         openapi_url="/api/openapi.json",
+        lifespan=_payehyar_lifespan,
     )
 
     app.add_middleware(

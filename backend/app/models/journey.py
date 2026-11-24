@@ -177,3 +177,48 @@ class MasterdataSyncLog(TimestampMixin, Base):
     error_code: Mapped[str | None] = mapped_column(String(40), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     triggered_by: Mapped[uuid.UUID | None] = mapped_column(GUID, nullable=True)
+
+
+class PayehyarRecord(TimestampMixin, Base):
+    """رونوشت عمومی رکوردهای masterdata پایه‌یار۳۶۰ (دامنه‌های بدون مدل بومی).
+
+    دامنه‌های درس/سرفصل (unique-courses / split-courses / course-syllabi) در
+    مدل‌های بومی (Course / SyllabusVersion) ذخیره می‌شوند؛ دامنه‌های گسترش‌یافته
+    سند فنی (professors / classrooms / academic-groups / reference-sets) اینجا
+    «یکتا و تفکیکی» نگه داشته می‌شوند: UNIQUE(domain, external_id) و تشخیص
+    تغییر واقعی با content_hash (بدون تکرار و بدون ادغام رکوردها).
+    """
+
+    __tablename__ = "payehyar_masterdata_records"
+    __table_args__ = (UniqueConstraint("domain", "external_id",
+                                       name="uq_payehyar_domain_extid"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uid_col)
+    domain: Mapped[str] = mapped_column(String(64), index=True)
+    external_id: Mapped[str] = mapped_column(String(128), index=True)
+    code: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
+    title: Mapped[str | None] = mapped_column(String(512), nullable=True, index=True)
+    payload: Mapped[dict] = mapped_column(JSONB, default=dict)
+    content_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    source: Mapped[str] = mapped_column(String(32), default="payehyar360")
+    source_route: Mapped[str | None] = mapped_column(String(32), nullable=True)  # services/admin
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class PayehyarEventInbox(TimestampMixin, Base):
+    """صندوق ورودی رویدادهای RabbitMQ پایه‌یار۳۶۰ (سند فنی: smart_learning_event_inbox).
+
+    کلید اصلی event_id است؛ پردازش idempotent: رویداد تکراری بدون اثر دومین
+    نادیده گرفته می‌شود و شکست پردازش با وضعیت FAILED + پیام خطا ثبت می‌گردد
+    (پیام به DLQ می‌رود و پس از رفع می‌تواند دوباره اعمال شود).
+    """
+
+    __tablename__ = "smart_learning_event_inbox"
+
+    event_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    routing_key: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
+    payload: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    status: Mapped[str] = mapped_column(String(16), default="PENDING", index=True)  # PENDING/PROCESSED/FAILED
+    processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)

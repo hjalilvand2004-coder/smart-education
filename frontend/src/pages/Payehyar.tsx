@@ -54,6 +54,40 @@ interface PyStatusResp {
   note: string
 }
 
+interface PySystemStatus {
+  scheduler: {
+    enabled: boolean
+    interval_seconds: number
+    running: boolean
+    cycles: number
+    last_run_at: string | null
+    last_status: string | null
+    last_message: string | null
+  }
+  events: {
+    enabled: boolean
+    configured: boolean
+    exchange: string
+    queue: string
+    dlq: string
+    routing_key: string
+    connected: boolean
+    processed: number
+    duplicates: number
+    failed: number
+    last_event_at: string | null
+  }
+  records_counts: Record<string, number>
+  extended_domains: string[]
+}
+
+const EXT_DOMAIN_FA: Record<string, string> = {
+  professors: 'اساتید',
+  classrooms: 'کلاس‌ها',
+  'academic-groups': 'گروه‌های آموزشی',
+  'reference-sets': 'مجموعه‌های مرجع',
+}
+
 const PROBE_BADGE: Record<string, { cls: string; label: string }> = {
   OK: { cls: 'badge badge-success', label: 'اتصال سالم — احراز هویت موفق' },
   NEEDS_API_KEY: { cls: 'badge badge-warn', label: 'نیازمند کلید API' },
@@ -81,6 +115,9 @@ export default function Payehyar() {
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState<'FULL' | 'INCREMENTAL' | null>(null)
   const [lastResult, setLastResult] = useState<PyLog | null>(null)
+  const [sys, setSys] = useState<PySystemStatus | null>(null)
+  const [extRunning, setExtRunning] = useState(false)
+  const [extMsg, setExtMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
@@ -93,6 +130,11 @@ export default function Payehyar() {
       ])
       setStatus(st)
       setLogs(lg.items || [])
+      try {
+        setSys(await api.get<PySystemStatus>('/integration/payehyar/system-status'))
+      } catch {
+        setSys(null) // نسخه‌های قدیمی‌تر بدون این endpoint
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'دریافت وضعیت همگام‌سازی ناموفق بود')
     } finally {
@@ -116,6 +158,20 @@ export default function Payehyar() {
       setError(e instanceof Error ? e.message : 'اجرای همگام‌سازی ناموفق بود')
     } finally {
       setRunning(null)
+    }
+  }
+
+  const runExtendedSync = async () => {
+    setExtRunning(true)
+    setExtMsg(null)
+    try {
+      const res = await api.post<{ message: string; courses_created: number; courses_updated: number }>('/integration/payehyar/sync-extended', {})
+      setExtMsg(res.message || 'همگام‌سازی دامنه‌های گسترش‌یافته انجام شد.')
+      await load()
+    } catch (e) {
+      setExtMsg(e instanceof Error ? `خطا: ${e.message}` : 'اجرای همگام‌سازی ناموفق بود')
+    } finally {
+      setExtRunning(false)
     }
   }
 
@@ -197,6 +253,41 @@ export default function Payehyar() {
               </div>
             ))}
           </div>
+
+          {/* ---------- زیرساخت خودکار یکپارچگی (سند فنی v3.4.0) ---------- */}
+          {sys && (
+            <div className="card">
+              <strong>زیرساخت خودکار یکپارچگی</strong>
+              <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginTop: 8, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                <span>
+                  زمان‌بند همگام‌سازی: {sys.scheduler.enabled
+                    ? `فعال ✓ (هر ${fa(sys.scheduler.interval_seconds)} ثانیه)`
+                    : 'غیرفعال (S360_PAYEHYAR_AUTO_SYNC=true)'}
+                  {sys.scheduler.last_run_at ? ` — آخرین اجرا: ${faTime(sys.scheduler.last_run_at)}` : ''}
+                </span>
+                <span>
+                  رویدادهای RabbitMQ: {!sys.events.enabled
+                    ? 'غیرفعال (نیازمند اعتبارنامه از مدیر پایه‌یار)'
+                    : sys.events.connected ? 'متصل ✓' : 'در انتظار اتصال…'}
+                  {sys.events.enabled ? ` — پردازش‌شده: ${fa(sys.events.processed)} | تکراری: ${fa(sys.events.duplicates)} | ناموفق: ${fa(sys.events.failed)}` : ''}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+                {sys.extended_domains.map((d) => (
+                  <span key={d} className="badge badge-neutral" style={{ fontSize: '0.75rem' }}>
+                    {EXT_DOMAIN_FA[d] || d}: {fa(sys.records_counts[d] ?? 0)}
+                  </span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginTop: 12 }}>
+                <button type="button" className="btn" disabled={extRunning}
+                  onClick={() => void runExtendedSync()}>
+                  {extRunning ? '⏳ در حال واکشی…' : '⇄ همگام‌سازی دامنه‌های گسترش‌یافته'}
+                </button>
+                {extMsg && <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{extMsg}</span>}
+              </div>
+            </div>
+          )}
 
           {/* ---------- اجرای همگام‌سازی ---------- */}
           <div className="card">

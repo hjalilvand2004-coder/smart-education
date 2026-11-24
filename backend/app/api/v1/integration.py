@@ -216,3 +216,55 @@ def payehyar_logs(limit: int = 20, db: Session = Depends(get_db),
     from app.services import payehyar_catalog
 
     return {"items": payehyar_catalog.recent_logs(db, limit)}
+
+
+# ---------- پایه‌یار۳۶۰: یکپارچگی کامل طبق سند فنی (v3.4.0) ----------
+
+class PayehyarExtendedSyncIn(BaseModel):
+    domains: list[str] | None = None  # خالی = همه دامنه‌های پیکربندی‌شده
+    since: str | None = None          # دلتا طبق سند (بدون since = کامل)
+
+
+@router.post("/integration/payehyar/sync-extended")
+def payehyar_sync_extended(body: PayehyarExtendedSyncIn | None = None,
+                           db: Session = Depends(get_db),
+                           user: User = Depends(get_current_user)):
+    """همگام‌سازی دامنه‌های گسترش‌یافته (اساتید/کلاس‌ها/گروه‌های آموزشی/مجموعه‌های مرجع).
+
+    هر دامنه مستقل واکشی می‌شود؛ شکست هر دامنه فقط هشدار است و بقیه ادامه
+    می‌یابند. رکوردها «یکتا و تفکیکی» در payehyar_masterdata_records نگه داشته
+    می‌شوند (UNIQUE(domain, external_id) + تشخیص تغییر واقعی با content_hash)."""
+    _ensure_staff_user(user)
+    from app.services import payehyar_records
+
+    b = body or PayehyarExtendedSyncIn()
+    return payehyar_records.sync_extended_domains(db, user, domains=b.domains,
+                                                  since=b.since)
+
+
+@router.get("/integration/payehyar/records/{domain}")
+def payehyar_records_view(domain: str, limit: int = 50, offset: int = 0,
+                          include_deleted: bool = False,
+                          db: Session = Depends(get_db),
+                          user: User = Depends(get_current_user)):
+    """فهرست رکوردهای همگام‌شده یک دامنه گسترش‌یافته (صفحه‌بندی limit/offset)."""
+    _ensure_staff_user(user)
+    from app.services import payehyar_records
+
+    return payehyar_records.records_list(db, domain, limit=limit, offset=offset,
+                                         include_deleted=include_deleted)
+
+
+@router.get("/integration/payehyar/system-status")
+def payehyar_system_status(db: Session = Depends(get_db),
+                           user: User = Depends(get_current_user)):
+    """وضعیت زیرساخت خودکار یکپارچگی: زمان‌بند، رویدادهای RabbitMQ و آمار رکوردها."""
+    _ensure_staff_user(user)
+    from app.services import payehyar_events, payehyar_records, payehyar_scheduler
+
+    return {
+        "scheduler": payehyar_scheduler.scheduler_status(),
+        "events": payehyar_events.events_status(),
+        "records_counts": payehyar_records.domain_counts(db),
+        "extended_domains": payehyar_records.extended_domains(),
+    }

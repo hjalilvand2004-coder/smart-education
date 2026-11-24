@@ -17,7 +17,7 @@ from app.models.collaboration import StudentCreation, PeerReview, ModerationRevi
 from app.models.ops import AIRun, JobRun, AuditLog, OutboxEvent
 from app.models.journey import (ReferenceSyncLog, StuckMark, ErrorNotebookEntry,
                                 TeachBackSubmission, LearningSession, ExamPrepPlan,
-                                MasterdataSyncLog)
+                                MasterdataSyncLog, PayehyarRecord, PayehyarEventInbox)
 
 __all__ = [
     "User", "CourseRole",
@@ -36,4 +36,5 @@ __all__ = [
     "AIRun", "JobRun", "AuditLog", "OutboxEvent",
     "ReferenceSyncLog", "StuckMark", "ErrorNotebookEntry",
     "TeachBackSubmission", "LearningSession", "ExamPrepPlan", "MasterdataSyncLog",
+    "PayehyarRecord", "PayehyarEventInbox",
 ]

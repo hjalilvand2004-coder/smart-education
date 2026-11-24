@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="S360_", extra="ignore")
 
     app_name: str = "دانشجو۳۶۰ — سرویس‌های یادگیری هوشمند"
-    app_version: str = "3.3.1"
+    app_version: str = "3.4.0"
 
     # پایگاه داده؛ در محیط توسعه SQLite و در استقرار PostgreSQL:
     # postgresql+psycopg://user:pass@db:5432/student360
@@ -71,6 +71,37 @@ class Settings(BaseSettings):
     payehyar_api_key: str = ""
     payehyar_dev_user: str = ""
     payehyar_timeout_seconds: int = 8
+
+    # سند فنی اتصال v3.4.0 — احراز OAuth2 client_credentials (جایگزین/مکمل کلید API).
+    # secret فقط از env می‌آید (S360_PAYEHYAR_CLIENT_SECRET یا PAYEHYAR_CLIENT_SECRET
+    # مطابق سند) و هرگز در مخزن قرار نمی‌گیرد؛ تا وقتی خالی است، کلید API / کاربر
+    # توسعه مسیر اصلی احراز هویت می‌مانند.
+    payehyar_client_id: str = "smart-learning"
+    payehyar_client_secret: str = ""
+    payehyar_token_endpoint: str = "http://188.212.96.235:8086/oauth/token"
+    payehyar_oauth_scope: str = "masterdata.read"
+
+    # سند فنی — HTTP: timeout 30 و retry نمایی (حداکثر ۵ تلاش) روی 502/503/504
+    payehyar_retry_max_attempts: int = 5
+    payehyar_retry_backoff_seconds: float = 1.0
+    payehyar_http_timeout_seconds: int = 30
+
+    # سند فنی — همگام‌سازی زمان‌بندی‌شده (cron: 0 */30 * * * * → هر ۳۰ دقیقه)
+    payehyar_auto_sync: bool = False          # در استقرار واقعی true شود
+    payehyar_sync_interval_seconds: int = 1800
+    payehyar_etag_cache: bool = True          # If-None-Match → 304 بدون انتقال داده
+    payehyar_extended_domains: str = "professors,classrooms,academic-groups,reference-sets"
+
+    # سند فنی — رویدادهای RabbitMQ (صف اختصاصی + DLQ + پردازش idempotent با inbox)
+    payehyar_events_enabled: bool = False     # پس از دریافت اعتبار از مدیر پایه‌یار true شود
+    payehyar_rabbitmq_host: str = "188.212.96.235"
+    payehyar_rabbitmq_port: int = 5672
+    payehyar_rabbitmq_user: str = ""
+    payehyar_rabbitmq_password: str = ""
+    payehyar_rabbitmq_exchange: str = "payehyar.events"
+    payehyar_rabbitmq_queue: str = "smart-learning.masterdata.q"
+    payehyar_rabbitmq_routing_key: str = "payehyar.masterdata.#"
+    payehyar_rabbitmq_dlq: str = "smart-learning.masterdata.q.dlq"
 
     # توکن سرویس‌دهی به سایر سامانه‌ها (خالی = سرویس بدون توکن)
     service_token: str = ""
