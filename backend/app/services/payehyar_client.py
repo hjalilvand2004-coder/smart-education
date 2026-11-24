@@ -177,8 +177,8 @@ class PayehyarClient:
             if self.dev_user and not self.api_key:
                 self._request("GET", "/api/v1/masterdata/instructors", params={"limit": 1})
             else:
-                self._request("GET", "/api/v1/services/masterdata/catalog",
-                              params={"limit": 1})
+                # سبک‌ترین دامنه رسمی مصرف‌کننده طبق راهنمای یکپارچه‌سازی
+                self._request("GET", "/api/v1/services/masterdata/unique-courses")
             info["status"] = "OK"
         except PayehyarError as exc:
             info["status"] = exc.code
@@ -189,23 +189,48 @@ class PayehyarClient:
         return info
 
     def fetch_catalog(self) -> dict:
-        """واکشی کاتالوگ کامل (دروس + سرفصل‌ها) از سرویس مرجع.
+        """واکشی کاتالوگ از سه دامنه مستند راهنمای یکپارچه‌سازی (v1.0.12):
+        unique-courses + split-courses → رکوردهای درس؛ course-syllabi → سرفصل مصوب.
 
-        مسیر اول: endpoint رسمی اکوسیستم با X-API-Key؛ اگر کلید تنظیم نشده باشد
-        و کاربر توسعه تنظیم شده باشد، مسیر دوم مدیریتی با X-Dev-User امتحان می‌شود.
+        پاسخ هر دامنه: {ok, domain, title, count, generated_at, items[]}.
+        خطای هر دامنه بحرانی نیست: در «warnings» ثبت و ادامه می‌دهیم (تاب‌آوری).
         """
-        if not self.api_key and not self.dev_user:
+        if not self.api_key:
+            # طبق راهنما، endpoint سرویس‌ها فقط با X-API-Key باز می‌شود؛
+            # هدر X-Dev-User فقط مسیرهای مدیریتی پنل را باز می‌کند.
             raise PayehyarError("NEEDS_API_KEY",
-                                "نه کلید API و نه کاربر توسعه تنظیم نشده است.",
+                                "مسیر مصرف‌کننده فقط با کلید API باز می‌شود.",
                                 hint=_HINTS["NEEDS_API_KEY"])
-        try:
-            return self._request("GET", "/api/v1/services/masterdata/catalog")
-        except PayehyarError as exc:
-            if exc.code in ("NEEDS_API_KEY", "INVALID_API_KEY") and self.dev_user \
-                    and not self.api_key:
-                # مسیر جایگزین حالت توسعه: endpoint مدیریتی با X-Dev-User
-                return self._request("GET", "/api/v1/masterdata/catalog", force_dev=True)
-            raise
+        warnings: list[str] = []
+        courses: list[dict] = []
+        syllabi: list[dict] = []
+        meta: dict = {"domains": {}}
+        for domain in ("unique-courses", "split-courses", "course-syllabi"):
+            try:
+                body = self._request("GET", f"/api/v1/services/masterdata/{domain}")
+            except PayehyarError as exc:
+                warnings.append(f"{domain}: {exc.code} — {exc.message}")
+                continue
+            items = body.get("items") or []
+            meta["domains"][domain] = {"count": body.get("count", len(items)),
+                                       "generated_at": body.get("generated_at")}
+            if domain in ("unique-courses", "split-courses"):
+                courses.extend(items)
+            else:
+                syllabi.extend(items)
+        if not courses:
+            # هیچ درسی واکشی نشد — خطای واقعی را بالا بفرست تا لاگ شود
+            if warnings:
+                raise PayehyarError("REMOTE_ERROR", "؛ ".join(warnings[:3]))
+            raise PayehyarError("REMOTE_ERROR", "پاسخ خالی از سرویس مرجع")
+        return {"courses": courses, "syllabi": syllabi,
+                "warnings": warnings, "meta": meta}
+
+    def fetch_domain(self, domain: str, since: str | None = None) -> dict:
+        """واکشی یک دامنه مشخص با پارامتر since طبق راهنما (برای sync افزایشی)."""
+        params = {"since": since} if since else None
+        return self._request("GET", f"/api/v1/services/masterdata/{domain}",
+                             params=params)
 
     def fetch_changes(self, cursor: str | None = None, limit: int = 200) -> dict:
         """فید تغییرات cursor-based برای همگام‌سازی افزایشی."""

@@ -1,0 +1,14 @@
+{
+ "unique-courses": {
+  "count": 84,
+  "len_items": 84,
+  "title": "درس‌های یکتا",
+  "generated_at": "2026-11-24T04:17:59+00:00"
+ },
+ "course-syllabi": {
+  "count": 195,
+  "len_items": 195,
+  "title": "سرفصل‌های مصوب دروس",
+  "generated_at": "2026-11-24T04:18:08+00:00"
+ }
+}

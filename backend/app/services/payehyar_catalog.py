@@ -77,6 +77,110 @@ def normalize_chapter(raw) -> dict | None:
     return {"title": str(title).strip(), "topics": topics}
 
 
+def _norm_title(s) -> str:
+    """نرمال‌سازی عنوان فارسی برای تطبیق سرفصل با درس یکتا."""
+    import re
+    if not s:
+        return ""
+    s = re.sub(r"[\u200c\u064b-\u0652]", "", str(s))
+    s = re.sub(r"[\(\)\[\]«»\-\u0640\s]+", " ", s).strip()
+    return s
+
+
+def _is_documented_course(raw: dict) -> bool:
+    """تشخیص رکورد با شکل مستند راهنما (unique-courses / split-courses)."""
+    return "set" in raw or "attrs" in raw or "unique_course_code" in raw
+
+
+def normalize_documented_course(raw: dict) -> tuple[dict | None, str | None]:
+    """نگاشت رکورد مستند unique-courses / split-courses به شکل داخلی.
+
+    نقشه فیلدها طبق راهنمای یکپارچه‌سازی (بخش ۷):
+    - unique-courses: کلید یکتا code؛ attrs.section → گروه‌بندی؛
+      unit_theory+unit_practice → واحد کل؛ updated_at → reference_version
+      (هر تغییر منبع، نسخه جدید می‌سازد و جریان بررسی استاد فعال می‌شود).
+    - split-courses: کلید یکتا unique_course_code + year/cohort.
+    """
+    attrs = raw.get("attrs") or {}
+    is_split = "unique_course_code" in raw or raw.get("set") == "split_courses" \
+        or raw.get("set") == "split-courses"
+    title = _first(raw, "title", "course_name")
+    if not title:
+        return None, f"رکورد مستند بدون عنوان (code={raw.get('code')})"
+    updated_at = str(_first(raw, "updated_at", default="") or "")
+    if is_split:
+        uniq = str(_first(raw, "unique_course_code", "parent_code", default="") or "")
+        year = attrs.get("year_label")
+        external = attrs.get("external_id")
+        ref_id = f"py-split:{uniq}:{year or external or title}"
+        code = f"{uniq}-{year}" if uniq and year else None
+        title = f"{title} ({year})" if year else title
+    else:
+        code = str(_first(raw, "code", default="") or "") or None
+        ref_id = f"py:{code}" if code else None
+    if not ref_id:
+        return None, f"رکورد مستند بدون شناسه (title={title})"
+    units_theory = _as_int(attrs.get("unit_theory"))
+    units_practice = _as_int(attrs.get("unit_practice"))
+    credits = None
+    if units_theory is not None or units_practice is not None:
+        credits = (units_theory or 0) + (units_practice or 0)
+    prereq = attrs.get("prerequisite")
+    return {
+        "reference_id": ref_id,
+        "code": code,
+        "title": str(title).strip()[:200],
+        "credits": credits,
+        "term": None,
+        "department": None,
+        "degree_level": attrs.get("section") if not is_split else attrs.get("cohort_set"),
+        "field_of_study": None,
+        "description": f"پیش‌نیاز: {prereq}" if prereq else None,
+        "reference_version": (updated_at[:32] or "v1"),
+        "chapters": [],
+    }, None
+
+
+def merge_syllabi(courses: list[dict], syllabi: list[dict], warnings: list[str]) -> None:
+    """اتصال سرفصل‌های مصوب به درس‌های یکتا با تطبیق عنوان نرمال‌شده.
+
+    کد درس سرفصل (مانند CSE-101) با کد درس یکتا (مانند ۱۰۰۱) هم‌خانواده نیست؛
+    بنابراین اتصال اولیه با عنوان انجام می‌شود و سرفصل‌های بی‌تطبیق گزارش می‌شوند.
+    """
+    by_title: dict[str, dict] = {}
+    for c in courses:
+        key = _norm_title(c["title"])
+        if key and key not in by_title:
+            by_title[key] = c
+    matched = 0
+    for s in (s for s in syllabi if isinstance(s, dict)):
+        key = _norm_title(s.get("title_fa"))
+        course = by_title.get(key)
+        if course is None or course["chapters"]:
+            continue
+        source_set, source_file = s.get("source_set"), s.get("source_file")
+        topics = []
+        for t in (s.get("topics") or []):
+            if not isinstance(t, dict) or not t.get("title"):
+                continue
+            topics.append({
+                "reference_id": f"{source_set}:{source_file}:{t.get('seq')}",
+                "title": str(t["title"]).strip(),
+                "suggested_hours": _as_int(t.get("hours")),
+            })
+        if topics:
+            course["chapters"] = [{"title": "سرفصل مصوب (پایه‌یار۳۶۰)", "topics": topics}]
+            sv_updated = str(s.get("updated_at") or "")
+            if sv_updated and sv_updated > course["reference_version"]:
+                course["reference_version"] = sv_updated[:32]
+            matched += 1
+    unmatched = sum(1 for s in syllabi if isinstance(s, dict) and s.get("title_fa"))
+    if syllabi and matched < unmatched:
+        warnings.append(
+            f"{unmatched - matched} سرفصل مصوب بدون تطبیق عنوان با درس‌های یکتا ماند "
+            "(اتصال نهایی پس از رفع دامنه split-courses یا نگاشت دستی انجام می‌شود).")
+
+
 def normalize_course(raw) -> tuple[dict | None, str | None]:
     """نگاشت یک رکورد درس مرجع به شکل داخلی — None + هشدار اگر نگاشت‌نشدنی."""
     if not isinstance(raw, dict):
@@ -125,7 +229,11 @@ def normalize_catalog(raw) -> dict:
                 items = [raw]
     courses, warnings = [], []
     for r in items:
-        c, warn = normalize_course(r)
+        c, warn = None, None
+        if isinstance(r, dict) and _is_documented_course(r):
+            c, warn = normalize_documented_course(r)
+        else:
+            c, warn = normalize_course(r)
         if c is None:
             if warn:
                 warnings.append(warn)
@@ -136,6 +244,11 @@ def normalize_catalog(raw) -> dict:
             if c["reference_id"] is None:
                 c["reference_id"] = f"code:{c['code']}"
             courses.append(c)
+    # سرفصل‌های مصوب مستند (course-syllabi): اتصال با تطبیق عنوان
+    if isinstance(raw, dict) and isinstance(raw.get("syllabi"), list):
+        merge_syllabi(courses, raw["syllabi"], warnings)
+    if isinstance(raw, dict) and isinstance(raw.get("warnings"), list):
+        warnings.extend(str(w) for w in raw["warnings"])
     return {"courses": courses, "warnings": warnings, "raw_version": raw_version}
 
 
@@ -155,7 +268,9 @@ def _log_summary(log: MasterdataSyncLog, extra: dict | None = None) -> dict:
         "log_id": str(log.id), "mode": log.mode, "status": log.status,
         "courses_created": log.courses_created, "courses_updated": log.courses_updated,
         "up_to_date": log.up_to_date, "syllabus_drafts_created": log.syllabus_drafts_created,
-        "review_required": log.review_required, "warnings": log.warnings or [],
+        "review_required": log.review_required,
+        "warnings": (log.warnings or {}).get("items", []) if isinstance(log.warnings, dict)
+        else (log.warnings or []),
         "duration_ms": log.duration_ms, "remote_version": log.remote_version,
         "error_code": log.error_code, "error_message": log.error_message,
         "message": log.error_message or (
@@ -254,7 +369,9 @@ def _upsert_course(db: Session, user, ref: dict, stats: dict) -> None:
         db.add(course)
         db.flush()
         stats["courses_created"] += 1
-        _ensure_reference_syllabus(db, user, course, ref, stats)
+        if ref["chapters"]:
+            # نسخه سرفصل فقط وقتی ساخته می‌شود که سرفصلِ تطبیق‌یافته‌ای وجود دارد
+            _ensure_reference_syllabus(db, user, course, ref, stats)
         return
 
     changed = False
@@ -275,7 +392,8 @@ def _upsert_course(db: Session, user, ref: dict, stats: dict) -> None:
         stats["courses_updated"] += 1
     else:
         stats["up_to_date"] += 1
-    _ensure_reference_syllabus(db, user, course, ref, stats)
+    if ref["chapters"]:
+        _ensure_reference_syllabus(db, user, course, ref, stats)
 
 
 def sync_catalog(db: Session, user, mode: str = "FULL") -> dict:

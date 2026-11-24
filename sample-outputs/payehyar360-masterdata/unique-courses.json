@@ -1,0 +1,1354 @@
+{
+ "ok": true,
+ "domain": "unique-courses",
+ "title": "درس‌های یکتا",
+ "count": 84,
+ "generated_at": "2026-11-24T04:17:59+00:00",
+ "generated_at_jalali": "۱۴۰۵/۰۹/۰۳ ۰۴:۱۷",
+ "items": [
+  {
+   "set": "unique_courses",
+   "code": "1001",
+   "title": "آزمایشگاه پایگاه داده 2",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": null,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "پایگاه داده ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.117334"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1002",
+   "title": "آزمایشگاه ریزپردازنده",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "ریزپردازنده و زبان اسمبلی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.059196"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1003",
+   "title": "آزمایشگاه زبان های برنامه نویسی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": null,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "پس از گذراندن 50 واحد درسی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.074045"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1004",
+   "title": "کارگاه سیستم عامل",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 1,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "سیستم های عامل",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.143346"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1005",
+   "title": "آزمایشگاه شبکه های کامپیوتری",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "شبکه های کامپیوتری",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.931622"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1006",
+   "title": "آزمایشگاه طراحی واسط کاربری",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": null,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "پس از گذراندن 50 واحد درسی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.081177"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1007",
+   "title": "آزمایشگاه فیزیک 2",
+   "parent_code": null,
+   "attrs": {
+    "section": "پایه",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "فیزیک 2",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.842181"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1008",
+   "title": "آزمایشگاه گرافیک و متحرک سازی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": null,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.150267"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1009",
+   "title": "آزمایشگاه مدارهای الکتریکی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "مدار های الکتریکی و الکترونیکی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.017320"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1010",
+   "title": "آزمایشگاه مدارهای منطقی و معماری کامپیوتر",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.057434"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1011",
+   "title": "آزمایشگاه معماری کامپیوتر",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "معماری کامپیوتر، آزمایشگاه مدارهای منطقی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.875208"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1012",
+   "title": "آزمایشگاه مهندسی نرم افزار",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 1,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "مهندسی نرم‎افزار",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.112533"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1013",
+   "title": "آزمایشگاه هوش مصنوعی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": null,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "هوش مصنوعی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.101250"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1014",
+   "title": "آزمون نرم‎افزار",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "تحلیل و طراحی نرم‎افزار",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.129132"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1016",
+   "title": "آشنایی با صنعت کامپیوتر (کاربینی)",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.771420"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1017",
+   "title": "اصول رباتیکز",
+   "parent_code": null,
+   "attrs": {
+    "section": "هوش",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "سیگنال ها و سیستم ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.062226"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1018",
+   "title": "طراحی کامپایلر",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "نظریه زبان ها و ماشین ها، معماری کامپیوتر",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.108397"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1019",
+   "title": "آمار و احتمال مهندسی",
+   "parent_code": null,
+   "attrs": {
+    "section": "پایه",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "ریاضی عمومی 1",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.806007"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1020",
+   "title": "آمار و احتمالات",
+   "parent_code": null,
+   "attrs": {
+    "section": "پایه",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.070969"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1021",
+   "title": "امنیت اطلاعات",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 2,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "مهندسی اینترنت",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.148053"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1022",
+   "title": "امنیت سیستم های کامپیوتری",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "شبکه های کامپیوتری",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.933352"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1024",
+   "title": "اینترنت اشیاء",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "شبکه های کامپیوتری",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.157065"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1025",
+   "title": "بازی سازی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 2,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.139093"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1026",
+   "title": "برنامه نویسی پیشرفته",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "مبانی کامپیوتر و برنامه سازی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.075825"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1027",
+   "title": "برنامه سازی موبایل",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "سیستم های عامل",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.892685"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1028",
+   "title": "برنامه نویسی سیستمی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 2,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "ریاضی گسسته",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.123711"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1029",
+   "title": "برنامه نویسی موبایل",
+   "parent_code": null,
+   "attrs": {
+    "section": "پیش‌نیاز",
+    "unit_theory": 2,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.067483"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1030",
+   "title": "پایگاه داده ها",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "داده ساختارها و الگوریتم ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.967696"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1032",
+   "title": "پروژه",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 3,
+    "unit_practice": 3,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.162832"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1033",
+   "title": "پروژه نرم‎افزار",
+   "parent_code": null,
+   "attrs": {
+    "section": "نرم‌افزار",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "پس از 100 واحد",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.015145"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1034",
+   "title": "تحلیل و طراحی سیستم ها",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "داده ساختارها و الگوریتم ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.958619"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1035",
+   "title": "تعامل انسان و کامپیوتر",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "تحلیل و طراحی نرم‎افزار",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.912770"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1036",
+   "title": "توسعه نرم افزار",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 2,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.090755"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1037",
+   "title": "جبر خطی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "ریاضی عمومی 2",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.885557"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1038",
+   "title": "داده کاوی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 3,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "داده ساختارها و الگوریتم ها، آمار و احتمال مهندسی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.097759"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1039",
+   "title": "رایانش ابری",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 2,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.094200"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1041",
+   "title": "رباتیک",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 2,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "هوش مصنوعی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.082885"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1042",
+   "title": "روش پژوهش و ارائه",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "زبان تخصصی کامپیوتر",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.915741"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1043",
+   "title": "روش های رسمی درمهندسی نرم‎افزار",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری نرم‌افزار",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "تحلیل و طراحی سیستم ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.947337"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1044",
+   "title": "ریاضی عمومی 1",
+   "parent_code": null,
+   "attrs": {
+    "section": "پایه",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.758159"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1045",
+   "title": "ریاضی عمومی 2",
+   "parent_code": null,
+   "attrs": {
+    "section": "پایه",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "ریاضی عمومی 1",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.775826"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1046",
+   "title": "ریاضی گسسته",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.086431"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1047",
+   "title": "ریاضیات مهندسی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "ریاضی عمومی 2، معادلات دیفرانسیل",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.028708"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1048",
+   "title": "ریزپردازنده و زبان اسمبلی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "معماری کامپیوتر",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.044469"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1049",
+   "title": "زبان تخصصی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 2,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "زبان انگلیسی، کارگاه کامپیوتر",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.021748"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1050",
+   "title": "ساختمان های داده",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "ریاضیات گسسته",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.993914"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1052",
+   "title": "سیستم های عامل",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "داده ساختارها و الگوریتم ها، معماری کامپیوتر",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.905828"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1053",
+   "title": "سیستم های نهفته و بی درنگ",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "معماری کامپیوتر",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.896188"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1055",
+   "title": "سیگنال ها و سیستم ها",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "مدار های الکتریکی و الکترونیکی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.782776"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1056",
+   "title": "شبکه های کامپیوتری",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.924631"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1057",
+   "title": "شبیه سازی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 3,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "آمار و احتمال مهندسی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.088552"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1058",
+   "title": "طراحی الگوریتم",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 3,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "داده ساختارها و الگوریتم ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.131047"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1059",
+   "title": "طراحی زبان های برنامه سازی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "برنامه سازی پیشرفته",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.815084"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1060",
+   "title": "طراحی کامپیوتری سیستم های دیجیتال",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.121225"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1061",
+   "title": "طراحی شی گرای سیستم ها",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری نرم‌افزار",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "برنامه سازی پیشرفته",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.949709"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1063",
+   "title": "فیزیک 1",
+   "parent_code": null,
+   "attrs": {
+    "section": "پایه",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.820771"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1064",
+   "title": "فیزیک 2",
+   "parent_code": null,
+   "attrs": {
+    "section": "پایه",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "فیزیک 1",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.829696"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1065",
+   "title": "کارآفرینی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "برنامه سازی پیشرفته",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.935105"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1066",
+   "title": "کارآموزی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 2,
+    "unit_practice": 2,
+    "capacity": 30,
+    "prerequisite": "روش پژوهش و ارائه",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.158858"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1067",
+   "title": "کارگاه برنامه نویسی مت لب",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "سیگنال ها و سیستم ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.023923"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1068",
+   "title": "کارگاه رباتیک",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "مقدمه ای بر رباتیک",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.940356"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1069",
+   "title": "کارگاه عمومی",
+   "parent_code": null,
+   "attrs": {
+    "section": "پایه",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.850491"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1070",
+   "title": "کارگاه کامپیوتر",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 1,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.781029"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1071",
+   "title": "گرافیک کامپیوتری",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "داده ساختارها و الگوریتم ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.872085"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1072",
+   "title": "مباحث ویژه",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.152186"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1073",
+   "title": "مباحث ویژه 2",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.979909"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1074",
+   "title": "مبانی بینایی کامپیوتر",
+   "parent_code": null,
+   "attrs": {
+    "section": "هوش",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "مبانی هوش محاسباتی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.969423"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1075",
+   "title": "مبانی پردازش زبان و گفتار",
+   "parent_code": null,
+   "attrs": {
+    "section": "هوش",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "آمار و احتمال مهندسی، سیگنال ها و سیستم ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.988686"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1076",
+   "title": "مبانی رایانش ابری",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "شبکه های کامپیوتری",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.900220"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1077",
+   "title": "مبانی رمزنگاری",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "ریاضیات گسسته",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.921324"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1078",
+   "title": "مبانی کامپیوتر و برنامه سازی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.765343"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1080",
+   "title": "مبانی هوش محاسباتی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "جبرخطی، هوش مصنوعی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.887987"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1081",
+   "title": "محاسبات عددی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "معادلات دیفرانسیل",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.846879"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1082",
+   "title": "مدارهای الکتریکی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "فیزیک 2، معادلات دیفرانسیل",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.965726"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1083",
+   "title": "مدارهای منطقی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.811593"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1084",
+   "title": "معادلات دیفرانسیل",
+   "parent_code": null,
+   "attrs": {
+    "section": "پایه",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.791498"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1085",
+   "title": "معماری کامپیوتر",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "مدارهای منطقی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.125646"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1087",
+   "title": "مقدمه ای بر رباتیک",
+   "parent_code": null,
+   "attrs": {
+    "section": "اختیاری",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "سیگنال ها و سیستم ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.926418"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1088",
+   "title": "مهارت های نرم شغلی",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 2,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "برنامه سازی پیشرفته",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.788004"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1089",
+   "title": "مهندسی اینترنت",
+   "parent_code": null,
+   "attrs": {
+    "section": "نرم‌افزار",
+    "unit_theory": 3,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "شبکه های کامپیوتری، پایگاه داده ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.141570"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1090",
+   "title": "مهندسی نرم افزار",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "تحلیل و طراحی نرم‎افزار",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.856493"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1091",
+   "title": "نصب و راه اندازی شبکه",
+   "parent_code": null,
+   "attrs": {
+    "section": "تخصصی",
+    "unit_theory": 2,
+    "unit_practice": 1,
+    "capacity": 30,
+    "prerequisite": "-",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.136115"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1092",
+   "title": "نظریه زبان ها و ماشین ها",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "داده ساختارها و الگوریتم ها",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:19.880783"
+  },
+  {
+   "set": "unique_courses",
+   "code": "1093",
+   "title": "هوش مصنوعی",
+   "parent_code": null,
+   "attrs": {
+    "section": "اصلی",
+    "unit_theory": 3,
+    "unit_practice": null,
+    "capacity": 30,
+    "prerequisite": "داده ساختارها و الگوریتم ها، آمار و احتمال مهندسی",
+    "source": "darsyar360"
+   },
+   "status": "active",
+   "updated_at": "2026-11-24T03:19:20.095970"
+  }
+ ]
+}
