@@ -795,3 +795,24 @@ export interface CoverageInfo {
   missing_concepts: string[]
   coverage_ratio: number | null
 }
+
+// ---------- دانلود فایل (خروجی‌های سرفصل — v3.5.0) ----------
+export async function downloadFile(path: string): Promise<{ blob: Blob; filename: string }> {
+  const token = getToken()
+  const res = await fetch(`/api/v1${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (res.status === 401) {
+    setToken(null)
+    setStoredUser(null)
+    window.dispatchEvent(new Event('s360:unauthorized'))
+  }
+  if (!res.ok) {
+    throw new ApiError(res.status, 'EXPORT_FAILED', `دریافت فایل ناموفق بود (${res.status})`)
+  }
+  const blob = await res.blob()
+  const cd = res.headers.get('Content-Disposition') || ''
+  const m = /filename\*=UTF-8''([^;]+)/i.exec(cd) || /filename="?([^";]+)"?/i.exec(cd)
+  const filename = m ? decodeURIComponent(m[1]) : 'download'
+  return { blob, filename }
+}

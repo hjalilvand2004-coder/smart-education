@@ -19,6 +19,7 @@ from app.models.journey import (ReferenceSyncLog, StuckMark, ErrorNotebookEntry,
                                 TeachBackSubmission, LearningSession, ExamPrepPlan,
                                 MasterdataSyncLog, PayehyarRecord, PayehyarEventInbox)
 from app.models.integrations import PayehyarConnection
+from app.models.points import ContributionPoint
 
 __all__ = [
     "User", "CourseRole",
@@ -39,4 +40,5 @@ __all__ = [
     "TeachBackSubmission", "LearningSession", "ExamPrepPlan", "MasterdataSyncLog",
     "PayehyarRecord", "PayehyarEventInbox",
     "PayehyarConnection",
+    "ContributionPoint",
 ]

@@ -15,6 +15,10 @@ import StudyPlan from './pages/StudyPlan'
 import Admin from './pages/Admin'
 import Programyar from './pages/Programyar'
 import Payehyar from './pages/Payehyar'
+import UniqueCourses from './pages/UniqueCourses'
+import SplitCourses from './pages/SplitCourses'
+import SyllabusTopics from './pages/SyllabusTopics'
+import ContributionPoints from './pages/ContributionPoints'
 import Reports from './pages/Reports'
 import SsoCallback from './pages/SsoCallback'
 import SmartHub from './pages/SmartHub'
@@ -160,6 +164,10 @@ export default function App() {
             <Route path="/studio/:courseId" element={<Studio />} />
             <Route path="/programyar" element={<Programyar />} />
             <Route path="/payehyar" element={<Payehyar />} />
+            <Route path="/masterdata/unique" element={<UniqueCourses />} />
+            <Route path="/masterdata/split" element={<SplitCourses />} />
+            <Route path="/masterdata/syllabus" element={<SyllabusTopics />} />
+            <Route path="/points" element={<ContributionPoints />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/quiz/:assessmentId" element={<Quiz />} />
             <Route path="/admin" element={<AdminRoute />} />

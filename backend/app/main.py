@@ -153,7 +153,9 @@ def create_app() -> FastAPI:
     app.include_router(collaboration.router, prefix=API_PREFIX)
     app.include_router(ops.router, prefix=API_PREFIX)
     from app.api.v1 import integration
+    from app.api.v1 import masterdata
     app.include_router(integration.router, prefix=API_PREFIX)
+    app.include_router(masterdata.router, prefix=API_PREFIX)
     from app.api.v1 import users_admin, reports, services_ext, ai_stats
     app.include_router(users_admin.router, prefix=API_PREFIX)
     app.include_router(reports.router, prefix=API_PREFIX)

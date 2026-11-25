@@ -97,6 +97,32 @@ function Icon({ name }: { name: string }) {
         <circle cx="12" cy="12" r="3" />
       </>
     ),
+    unique: (
+      <>
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        <path d="M9 7h7M9 11h7" />
+      </>
+    ),
+    split: (
+      <>
+        <circle cx="6" cy="6" r="2.5" />
+        <circle cx="6" cy="18" r="2.5" />
+        <circle cx="18" cy="12" r="2.5" />
+        <path d="M8.2 7.5 15.8 11M8.2 16.5 15.8 13" />
+      </>
+    ),
+    syllabus: (
+      <>
+        <path d="M4 4h16v16H4z" />
+        <path d="M8 8h8M8 12h8M8 16h5" />
+      </>
+    ),
+    points: (
+      <>
+        <path d="m12 3 2.7 5.5 6.3.9-4.5 4.4 1 6.2-5.5-3-5.5 3 1-6.2L3 9.4l6.3-.9L12 3z" />
+      </>
+    ),
     sync: (
       <>
         <path d="M21 12a9 9 0 0 1-15.5 6.2L3 16" />
@@ -202,6 +228,10 @@ export default function Layout() {
     if (user && user.role !== 'STUDENT') {
       items.push({ to: '/programyar', label: 'برنامه‌یار۳۶۰', icon: 'integration' })
       items.push({ to: '/payehyar', label: 'همگام‌سازی پایه‌یار', icon: 'sync' })
+      items.push({ to: '/masterdata/unique', label: 'دروس یکتا', icon: 'unique' })
+      items.push({ to: '/masterdata/split', label: 'دروس تفکیکی', icon: 'split' })
+      items.push({ to: '/masterdata/syllabus', label: 'سرفصل دروس', icon: 'syllabus' })
+      items.push({ to: '/points', label: 'امتیاز اساتید', icon: 'points' })
       items.push({ to: '/reports', label: 'گزارش‌ها', icon: 'reports' })
     }
     if (user && GLOBAL_ADMIN_ROLES.includes(user.role)) {
