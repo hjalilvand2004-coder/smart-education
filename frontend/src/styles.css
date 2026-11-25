@@ -4332,3 +4332,54 @@ body {
   background: linear-gradient(120deg, var(--accent-aurora, var(--brand-deep)) 10%, var(--accent-aurora-2, var(--brand)) 55%, var(--accent-3, var(--accent)) 95%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
+
+/* ============================================================
+   v3.7.1 — کنتراست صفحهٔ ورود در هر دو تم (بازخورد کاربر)
+   هیروی ورود قبلاً رنگ‌های ثابت «شب» داشت؛ اکنون توکن‌محور است:
+   روز → متن تیره/اشباع روی پس‌زمینهٔ روشن، شب → متن روشن روی تیره.
+   ============================================================ */
+
+.login-hero { color: var(--text); }
+
+.lp-brand-name {
+  background: linear-gradient(110deg, var(--text) 30%, var(--accent-aurora) 75%, var(--accent-aurora-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.login-hero .hero-badge {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  color: var(--text-2);
+}
+
+.login-hero .hero-lead { color: var(--text-2); }
+
+.lp-features li {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+}
+
+.lp-features strong { color: var(--text); }
+.lp-features small { color: var(--text-muted); }
+
+.lp-stats b {
+  background: linear-gradient(110deg, var(--accent-aurora), var(--accent-aurora-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.lp-stats small { color: var(--text-muted); }
+
+.login-footer { color: var(--text-muted); }
+
+/* عنوان هیرو: در روز سرمهٔ عمیق→بنفش عمیق→صورتی عمیق→آبی؛ شب همان Aurora روشن */
+.login-hero h1 {
+  background: linear-gradient(115deg,
+    var(--text) 4%,
+    var(--accent-aurora) 40%,
+    var(--accent-aurora-2) 72%,
+    var(--accent-3) 98%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}

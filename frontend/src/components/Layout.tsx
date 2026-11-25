@@ -419,7 +419,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۷.۰ — اساتید و مطلوبیات ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۷.۱ — کنتراست ورود ✨</div>
         </div>
       </aside>
 

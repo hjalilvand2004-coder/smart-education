@@ -315,7 +315,7 @@ export default function Login() {
             </div>
           )}
 
-          <div className="login-footer">نسخه ۳.۷.۰ ✨ اساتید و درج سریع محتوا — ورود مطمئن در نسخه پرتیبل</div>
+          <div className="login-footer">نسخه ۳.۷.۱ ✨ کنتراست دوتم — ورود مطمئن در نسخه پرتیبل</div>
         </div>
       </div>
     </div>
