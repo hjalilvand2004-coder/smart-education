@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api, downloadFile } from '../api'
+import { fmtJalali } from '../utils/jalali'
 
 interface MdRecord {
   id: string
@@ -43,7 +44,7 @@ interface GenerateResp {
 
 function faTime(v: string | null): string {
   if (!v) return '—'
-  return new Date(v).toLocaleString('fa-IR', { dateStyle: 'short', timeStyle: 'short' })
+  return fmtJalali(v, { withTime: true })
 }
 
 /** صفحهٔ «سرفصل دروس» — دامنهٔ course-syllabi پایه‌یار۳۶۰ (v3.5.0).

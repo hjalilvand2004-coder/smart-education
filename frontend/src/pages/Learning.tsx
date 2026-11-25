@@ -208,21 +208,25 @@ export default function Learning({ courseId }: { courseId: string }) {
   return (
     <div>
       <div className="page-header">
-        <h1>محیط یادگیری</h1>
-        <div className="focus-bar">
+        <div>
+          <h1>محیط یادگیری</h1>
+          <p className="page-sub">محتوا را بخوانید، هرجا گیر کردید علامت بدهید و از استاد هوشمند درس بپرسید — هر سه ستون با هم کار می‌کنند.</p>
+        </div>
+        <div className="fb-group">
+          <span className="fb-label">اندازهٔ متن</span>
           <button
             type="button"
             className={`fb-btn${fontScale > 1 ? ' on' : ''}`}
             onClick={() => setFontScale((f) => Math.min(1.3, f + 0.1))}
           >
-            متن بزرگ‌تر A+
+            A+
           </button>
           <button
             type="button"
             className={`fb-btn${fontScale < 1 ? ' on' : ''}`}
             onClick={() => setFontScale((f) => Math.max(0.9, f - 0.1))}
           >
-            متن کوچک‌تر A−
+            A−
           </button>
           <button type="button" className="fb-btn" onClick={() => setFontScale(1)}>
             بازنشانی
@@ -248,7 +252,13 @@ export default function Learning({ courseId }: { courseId: string }) {
       <div className="learning-grid">
         {/* پنل راست: مسیر و فهرست */}
         <aside className={`learning-pane${activeTab === 'contents' ? ' mobile-on' : ''}`} aria-label="مسیر و فهرست مفاهیم">
-          <h3>مسیر مفاهیم (ساده)</h3>
+          <div className="pane-head">
+            <span className="pane-ico" aria-hidden="true">🧭</span>
+            <div>
+              <h3>مسیر مفاهیم</h3>
+              <p className="pane-desc">ترتیب مفاهیم درس و وضعیت پیشرفت شما؛ نقطهٔ رنگی کنار هر مفهوم = وضعیت. با کلیک به مفهوم بروید.</p>
+            </div>
+          </div>
           <div className="concept-list">
             {conceptList.map((n) => (
               <Link
@@ -264,7 +274,13 @@ export default function Learning({ courseId }: { courseId: string }) {
             ))}
             {conceptList.length === 0 && <p className="muted">نقشه مفاهیم این درس هنوز ثبت نشده است.</p>}
           </div>
-          <h3 style={{ marginTop: 14 }}>محتواهای منتشرشده</h3>
+          <div className="pane-head" style={{ marginTop: 16 }}>
+            <span className="pane-ico" aria-hidden="true">📚</span>
+            <div>
+              <h3>محتواهای منتشرشده</h3>
+              <p className="pane-desc">جزوه‌های منتشرشدهٔ استاد؛ با کلیک، همان جزوه در ستون میانی باز می‌شود.</p>
+            </div>
+          </div>
           <div className="concept-list">
             {(contents ?? []).map((c) => (
               <button
@@ -289,7 +305,13 @@ export default function Learning({ courseId }: { courseId: string }) {
         <section className={`learning-pane${activeTab === 'content' ? ' mobile-on' : ''}`} aria-label="محتوای اصلی">
           {version ? (
             <>
-              <h2 style={{ fontSize: '1.1rem' }}>{version.document_title}</h2>
+              <div className="pane-head">
+                <span className="pane-ico" aria-hidden="true">📖</span>
+                <div>
+                  <h3>{version.document_title}</h3>
+                  <p className="pane-desc">زیر هر بخش دکمهٔ «📍 اینجا گیر کردم» هست؛ مشکل را علامت بزنید تا استاد هوشمند از همان نقطه وارد گفتگو شود.</p>
+                </div>
+              </div>
               <div style={{ fontSize: `${fontScale}em` }}>
                 <Blocks blocks={version.blocks ?? []} />
               </div>
@@ -298,6 +320,9 @@ export default function Learning({ courseId }: { courseId: string }) {
                   {stuckFor === i ? (
                     <div className="stuck-options">
                       <strong style={{ fontSize: '0.85rem' }}>مشکل شما دقیقاً چیست؟</strong>
+                      <span className="muted" style={{ fontSize: '0.72rem' }}>
+                        با انتخاب نوع مشکل، استاد هوشمند از همین نقطه وارد گفتگو می‌شود.
+                      </span>
                       {STUCK_KINDS.map((k) => (
                         <button key={k.kind} type="button" onClick={() => void submitStuck(i, k.kind)}>
                           {k.label}
@@ -318,9 +343,6 @@ export default function Learning({ courseId }: { courseId: string }) {
                       <button type="button" className="stuck-btn" onClick={() => setStuckFor(i)}>
                         📍 اینجا گیر کردم
                       </button>
-                      <span className="muted" style={{ fontSize: '0.75rem' }}>
-                        استاد هوشمند از همین نقطه وارد گفتگو می‌شود
-                      </span>
                     </div>
                   )}
                 </div>
@@ -335,7 +357,13 @@ export default function Learning({ courseId }: { courseId: string }) {
 
         {/* پنل چپ: استاد هوشمند با نردبان راهنمایی */}
         <section className={`learning-pane pane-tutor${activeTab === 'tutor' ? ' mobile-on' : ''}`} aria-label="استاد هوشمند">
-          <h3>استاد هوشمند — نردبان راهنمایی</h3>
+          <div className="pane-head">
+            <span className="pane-ico" aria-hidden="true">🤖</span>
+            <div>
+              <h3>استاد هوشمند</h3>
+              <p className="pane-desc">پاسخ فقط بر پایهٔ منابع مجاز درس؛ حالت نردبان را انتخاب کنید تا سطح کمک را کنترل کنید.</p>
+            </div>
+          </div>
           <div className="ladder-bar">
             {HELP_MODES.map((m) => (
               <button

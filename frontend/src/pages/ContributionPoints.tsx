@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api'
+import { fmtJalali } from '../utils/jalali'
 
 interface PointRow {
   id: string
@@ -30,7 +31,7 @@ const ACTION_FA: Record<string, string> = {
 
 function faTime(v: string | null): string {
   if (!v) return '—'
-  return new Date(v).toLocaleString('fa-IR', { dateStyle: 'short', timeStyle: 'short' })
+  return fmtJalali(v, { withTime: true })
 }
 
 /** صفحهٔ «امتیاز اساتید» — ثبت و نمایش مشارکت‌های تولید محتوا (v3.5.0) */

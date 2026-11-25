@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { useAuth } from '../auth'
+import { JDate } from '../components/JDate'
 
 // ---------- انواع سرویس‌های هوشمند ----------
 
@@ -115,12 +116,6 @@ const TABS: { key: TabKey; label: string; staffOnly?: boolean }[] = [
 function pct(v: number | null | undefined): string {
   if (v === null || v === undefined) return '—'
   return `${Math.round(v * 100)}٪`
-}
-function timeFa(iso: string | null | undefined): string {
-  if (!iso) return '—'
-  try {
-    return new Date(iso).toLocaleString('fa-IR', { dateStyle: 'short', timeStyle: 'short' })
-  } catch { return iso }
 }
 
 export default function SmartHub({ courseId }: { courseId: string }) {
@@ -469,7 +464,7 @@ export default function SmartHub({ courseId }: { courseId: string }) {
               </div>
               <span className="progress-value">ماندگاری {pct(c.retention_now)}</span>
               {c.overdue_for_review && <span className="badge badge-danger">مرور فوری</span>}
-              <span className="muted">مرور پیشنهادی: {timeFa(c.predicted_review_at)}</span>
+              <span className="muted">مرور پیشنهادی:</span> <JDate iso={c.predicted_review_at} withTime variant="text" />
             </div>
           ))}
         </div>

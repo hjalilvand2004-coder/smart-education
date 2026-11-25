@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api'
 import type { AIRunList, AggregateMastery, AuditLogEntry, Course } from '../api'
 import StatusBadge from '../components/StatusBadge'
+import { fmtJalali } from '../utils/jalali'
 
 const ROLE_FA: Record<string, string> = {
   STUDENT: 'دانشجو', PROFESSOR: 'استاد', ASSISTANT: 'دستیار آموزشی',
@@ -16,7 +17,7 @@ function pct(v: number | null | undefined): string {
 function fmtDate(iso?: string | null): string {
   if (!iso) return '—'
   try {
-    return new Date(iso).toLocaleString('fa-IR', { dateStyle: 'short', timeStyle: 'short' })
+    return fmtJalali(iso, { withTime: true })
   } catch {
     return iso
   }

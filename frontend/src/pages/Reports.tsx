@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getToken } from '../api'
 import { ApiError } from '../api'
+import { JDate } from '../components/JDate'
 
 interface ReportSummary {
   generated_at: string
@@ -117,7 +118,7 @@ export default function Reports() {
           <h1>گزارش جامع سامانه</h1>
           <div className="subtitle">
             آمار کاربران، درس‌ها، محتوا و هوش مصنوعی — با خروجی چهارفرمتی گرافیکی
-            {stats ? ` · تولید: ${new Date(stats.generated_at).toLocaleString('fa-IR')}` : ''}
+            {stats ? <> · تولید: <JDate iso={stats.generated_at} withTime /> </> : ''}
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../auth'
+import HelpButton from '../components/HelpButton'
 
 const FEATURES = [
   {
@@ -247,9 +248,10 @@ export default function Landing() {
           <span>دانشجو۳۶۰</span>
         </div>
         <div className="landing-footer-note">
-          سامانه یکپارچه یادگیری هوشمند — نسخه ۳.۲.۰ · ورود یکگانه با پرتال مرکزی (SSO)
+          سامانه یکپارچه یادگیری هوشمند — نسخه ۳.۸.۰ · ورود یکگانه با پرتال مرکزی (SSO)
         </div>
       </footer>
+      <HelpButton />
     </div>
   )
 }

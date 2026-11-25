@@ -5,6 +5,7 @@ import { api } from '../api'
 import type { ContentVersion, PublishedContent } from '../api'
 import Blocks from '../components/Blocks'
 import StatusBadge from '../components/StatusBadge'
+import { fmtJalali } from '../utils/jalali'
 
 /** ثبت رویداد مشاهده محتوا (خطاها نادیده گرفته می‌شوند؛ تحلیلی است). */
 function reportView(courseId: string, versionId: string): void {
@@ -20,7 +21,7 @@ function reportView(courseId: string, versionId: string): void {
 function fmtDate(iso?: string | null): string {
   if (!iso) return '—'
   try {
-    return new Date(iso).toLocaleString('fa-IR', { dateStyle: 'medium', timeStyle: 'short' })
+    return fmtJalali(iso, { withTime: true })
   } catch {
     return iso
   }

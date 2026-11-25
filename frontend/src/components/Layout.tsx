@@ -6,6 +6,7 @@ import type { Course } from '../api'
 import { GLOBAL_ADMIN_ROLES, STAFF_COURSE_ROLES, useAuth, hasAnyStaffCourse } from '../auth'
 import { roleLabel } from './StatusBadge'
 import ThemeToggle from './ThemeToggle'
+import HelpButton from './HelpButton'
 
 function Icon({ name }: { name: string }) {
   const paths: Record<string, ReactNode> = {
@@ -419,7 +420,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۷.۱ — کنتراست ورود ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۸.۰ — تاریخ شمسی و راهنما ✨</div>
         </div>
       </aside>
 
@@ -458,6 +459,7 @@ export default function Layout() {
         <main className="page">
           <Outlet />
         </main>
+        <HelpButton />
       </div>
     </div>
   )

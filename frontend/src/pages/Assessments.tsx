@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import type { Assessment } from '../api'
 import StatusBadge, { kindLabel } from '../components/StatusBadge'
+import { fmtJalali } from '../utils/jalali'
 
 function fmtDate(iso?: string): string {
   if (!iso) return '—'
   try {
-    return new Date(iso).toLocaleString('fa-IR', { dateStyle: 'medium', timeStyle: 'short' })
+    return fmtJalali(iso, { withTime: true })
   } catch {
     return iso
   }

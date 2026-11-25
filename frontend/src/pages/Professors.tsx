@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
+import { fmtJalali } from '../utils/jalali'
 
 /** صفحهٔ «اساتید» (v3.7.0) — واکشی اساتید از پایه‌یار۳۶۰ و مطلوبیات درسی/زمانی
  *  از درس‌یار۳۶۰ (darsyar360.ir) + درس‌های متناسب برای تولید محتوا در استودیو. */
@@ -62,7 +63,7 @@ const SLOT_RANGES = ['۸:۰۰–۱۰:۰۰', '۱۰:۰۰–۱۲:۰۰', '۱۳:۰۰�
 
 function faTime(v: string | null | undefined): string {
   if (!v) return '—'
-  return new Date(v).toLocaleString('fa-IR', { dateStyle: 'short', timeStyle: 'short' })
+  return fmtJalali(v, { withTime: true })
 }
 
 function initials(name: string): string {

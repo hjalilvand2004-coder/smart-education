@@ -4383,3 +4383,252 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
 }
+
+/* ============================================================
+   v3.8.0 — تاریخ شمسی، دکمهٔ راهنما، بازطراحی محیط یادگیری
+   ============================================================ */
+
+/* ---------- JDate: نشان تاریخ شمسی ---------- */
+.jdate-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-2);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.jdate-pill svg { width: 13px; height: 13px; color: var(--accent-aurora); flex: none; }
+.jdate-text { color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+.jdate-empty { opacity: 0.6; font-weight: 400; }
+
+/* ---------- HelpButton: دکمهٔ راهنمای شناور ---------- */
+.help-fab {
+  position: fixed;
+  bottom: 18px;
+  inset-inline-end: 18px;
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: linear-gradient(135deg, var(--accent-aurora), var(--accent-aurora-2));
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.86rem;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.35);
+  transition: transform var(--motion) var(--ease), box-shadow var(--motion) var(--ease);
+}
+.help-fab:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 16px 38px rgba(219, 39, 119, 0.4); }
+.help-fab .help-fab-q {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 0.95rem;
+}
+.help-fab .help-fab-label { display: none; }
+@media (min-width: 720px) {
+  .help-fab .help-fab-label { display: inline; }
+}
+.help-fab.on { outline: 2px solid var(--accent-aurora); outline-offset: 2px; }
+
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  background: rgba(8, 6, 24, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  animation: fade 0.2s ease both;
+}
+.help-modal {
+  width: min(620px, 100%);
+  max-height: min(82vh, 640px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+  background: var(--panel-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 34px 80px rgba(6, 5, 30, 0.45);
+  overflow: hidden;
+  animation: rise 0.25s ease both;
+}
+.help-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--glass-border);
+  background: linear-gradient(135deg, var(--accent-aurora), var(--accent-aurora-2));
+  color: #fff;
+}
+.help-head .help-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 1.25rem;
+}
+.help-head h3 { margin: 0; font-size: 1rem; }
+.help-head p { margin: 2px 0 0; font-size: 0.74rem; opacity: 0.85; }
+.help-close {
+  margin-inline-start: auto;
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  flex: none;
+}
+.help-close:hover { background: rgba(255, 255, 255, 0.3); }
+.help-body { padding: 14px 18px; overflow-y: auto; }
+.help-intro {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-2);
+  font-size: 0.86rem;
+  line-height: 1.9;
+}
+.help-section h4 {
+  margin: 12px 0 6px;
+  font-size: 0.84rem;
+  color: var(--accent-aurora);
+}
+.help-section ul { margin: 0; padding-inline-start: 18px; display: grid; gap: 5px; }
+.help-section li { color: var(--text-2); font-size: 0.82rem; line-height: 1.9; }
+.help-section li::marker { color: var(--accent-aurora-2); }
+.help-tip {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
+  font-size: 0.8rem;
+  line-height: 1.9;
+}
+.help-foot {
+  padding: 10px 18px;
+  border-top: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+@media (max-width: 640px) {
+  .help-fab { bottom: 14px; inset-inline-end: 14px; padding: 9px 12px 9px 14px; font-size: 0.8rem; }
+  .help-overlay { padding: 10px; }
+}
+
+/* ---------- بازطراحی محیط یادگیری ---------- */
+.pane-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--glass-border);
+}
+.pane-head .pane-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 11px;
+  font-size: 1.05rem;
+  background: linear-gradient(135deg, var(--accent-aurora), var(--accent-aurora-2));
+  box-shadow: 0 6px 14px rgba(124, 58, 237, 0.28);
+}
+.pane-head h3 { margin: 0; font-size: 0.95rem; }
+.pane-head .pane-desc {
+  margin: 3px 0 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.learning-pane h3 { color: var(--text); }
+
+/* نوار «اینجا گیر کردم» فشرده — بدون متن راهنمای تکراری */
+.stuck-bar { margin-top: 8px; padding-top: 8px; }
+.stuck-bar .stuck-hint { display: none; }
+.stuck-btn { font-size: 0.74rem; padding: 4px 11px; }
+
+/* گروه تنظیم اندازهٔ متن در سرصفحه */
+.fb-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 12px;
+  border-radius: 999px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+}
+.fb-group .fb-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
+.fb-group .fb-btn { border-radius: 999px; }
+
+/* نسخهٔ بلوک‌دار محتوا: فاصلهٔ منطقی بخش‌ها */
+.learning-pane section section { margin: 0; }
+
+.page-sub { margin: 4px 0 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+
+/* — v3.8.0-b: سطح‌های هاردکد روشن → تم‌آگاه در شب (بلوک‌های محتوا + مودال راهنما) — */
+:root[data-theme='dark'] .block,
+:root[data-theme='dark'] .block-worked_example,
+:root[data-theme='dark'] .block-exercise {
+  background: var(--glass-strong);
+  color: var(--text);
+}
+:root[data-theme='dark'] .block-definition { background: var(--glass-strong); }
+:root[data-theme='dark'] .block-summary { background: var(--glass-strong); }
+:root[data-theme='dark'] .block-self_check { background: var(--glass); }
+.help-modal {
+  background: var(--glass-strong);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+}
+:root[data-theme='dark'] .help-modal { background: rgba(17, 16, 48, 0.92); }
+
+/* — v3.8.0-c: سطح‌های سفید هاردکد → شب تم‌آگاه (تولید خودکار) — */
+:root[data-theme='dark'] .textarea { background: var(--glass-strong);; }
+:root[data-theme='dark'] .radio-option { background: var(--glass-strong);; }
+:root[data-theme='dark'] .chip { background: var(--glass-strong);; }
+:root[data-theme='dark'] .table-wrap { background: var(--glass-strong);; }
+:root[data-theme='dark'] .block { background: var(--glass-strong);; }
+:root[data-theme='dark'] .concept-map-wrap { background: var(--glass-strong);; }
+:root[data-theme='dark'] .result-banner { background: linear-gradient(135deg, rgba(109, 92, 255, 0.14), rgba(236, 72, 153, 0.10) 55%, rgba(34, 211, 238, 0.12)), var(--glass-strong);; }
+:root[data-theme='dark'] .chat-msg.assistant { background: var(--glass-strong);; }
+:root[data-theme='dark'] .activity-row { background: var(--glass-strong);; }
+:root[data-theme='dark'] .review-row { background: var(--glass-strong);; }
+:root[data-theme='dark'] .mastery-row { background: var(--glass-strong);; }
+:root[data-theme='dark'] .diag-card { background: var(--glass-strong);; }
+:root[data-theme='dark'] .version-chip { background: var(--glass-strong);; }
+:root[data-theme='dark'] .kv { background: var(--glass-strong);; }
+:root[data-theme='dark'] .hero { background: var(--grad-mesh), var(--glass-strong);; }
+:root[data-theme='dark'] .pyc-row { background: var(--glass-strong);; }

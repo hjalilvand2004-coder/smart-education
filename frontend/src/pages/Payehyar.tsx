@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api'
+import { fmtJalali } from '../utils/jalali'
 
 /** صفحه همگام‌سازی با پایه‌یار۳۶۰ — مرجع حقیقت دروس و سرفصل‌ها.
  *  وضعیت اتصال + آمار رونوشت + اجرای همگام‌سازی کامل/افزایشی + تاریخچه اجراها. */
@@ -129,7 +130,7 @@ const fa = (n: number | null | undefined) =>
   (n ?? 0).toLocaleString('fa-IR')
 
 const faTime = (iso?: string) =>
-  iso ? new Date(iso).toLocaleString('fa-IR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+  iso ? fmtJalali(iso, { withTime: true }) : '—'
 
 export default function Payehyar() {
   const [status, setStatus] = useState<PyStatusResp | null>(null)

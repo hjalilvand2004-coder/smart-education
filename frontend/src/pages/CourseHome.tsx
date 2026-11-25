@@ -9,6 +9,7 @@ import Assessments from './Assessments'
 import Mastery from './Mastery'
 import StudyPlan from './StudyPlan'
 import Tutor from './Tutor'
+import { fmtJalali } from '../utils/jalali'
 
 const TABS = [
   { key: 'content', label: 'محتوای منتشرشده' },
@@ -25,7 +26,7 @@ type TabKey = (typeof TABS)[number]['key']
 function fmtDate(iso?: string | null): string {
   if (!iso) return '—'
   try {
-    return new Date(iso).toLocaleString('fa-IR', { dateStyle: 'medium', timeStyle: 'short' })
+    return fmtJalali(iso, { withTime: true })
   } catch {
     return iso
   }

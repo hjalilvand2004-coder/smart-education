@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../api'
 import type { ClinicData, Course } from '../api'
+import { fmtJalali } from '../utils/jalali'
 
 const STATUS_LABEL: Record<string, string> = {
   OPEN: 'باز',
@@ -106,7 +107,7 @@ export default function ErrorClinic({ courseId }: { courseId: string }) {
               <div className="ce-meta">
                 مفهوم: {entry.concept_name ?? '—'} · شواهد: {entry.evidence_count} پاسخ ·
                 بازگشت خطا: {entry.recurrence_count} بار · وضعیت: {STATUS_LABEL[entry.status] ?? entry.status}
-                {entry.last_seen_at && ` · آخرین باره: ${new Date(entry.last_seen_at).toLocaleDateString('fa-IR')}`}
+                {entry.last_seen_at && ` · آخرین باره: ${fmtJalali(entry.last_seen_at)}`}
               </div>
               <div className="ce-explain">{entry.question}</div>
               {entry.student_explanation && (

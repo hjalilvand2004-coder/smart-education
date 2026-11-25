@@ -3,11 +3,12 @@ import type { FormEvent } from 'react'
 import { api } from '../api'
 import type { ReviewItem, StudyActivity, StudyPlan } from '../api'
 import StatusBadge, { kindLabel } from '../components/StatusBadge'
+import { fmtJalali } from '../utils/jalali'
 
 function fmtDate(iso?: string | null): string {
   if (!iso) return '—'
   try {
-    return new Date(iso).toLocaleString('fa-IR', { dateStyle: 'medium', timeStyle: 'short' })
+    return fmtJalali(iso, { withTime: true })
   } catch {
     return iso
   }

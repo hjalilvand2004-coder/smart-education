@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
+import { fmtJalali } from '../utils/jalali'
 
 interface MdOverview {
   domains: Record<string, { count: number; last_synced_at: string | null }>
@@ -27,7 +28,7 @@ interface SyncResp {
 
 function faTime(v: string | null | undefined): string {
   if (!v) return '—'
-  return new Date(v).toLocaleString('fa-IR', { dateStyle: 'short', timeStyle: 'short' })
+  return fmtJalali(v, { withTime: true })
 }
 
 /** صفحهٔ «دروس یکتا» — دامنهٔ MDM پایه‌یار۳۶۰ (v3.5.0) */

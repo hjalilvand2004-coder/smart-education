@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ApiError } from '../api'
 import { useAuth } from '../auth'
+import HelpButton from '../components/HelpButton'
 
 interface SsoConfig {
   enabled: boolean
@@ -315,9 +316,10 @@ export default function Login() {
             </div>
           )}
 
-          <div className="login-footer">نسخه ۳.۷.۱ ✨ کنتراست دوتم — ورود مطمئن در نسخه پرتیبل</div>
+          <div className="login-footer">نسخه ۳.۸.۰ ✨ تاریخ شمسی و راهنمای هر صفحه — در نسخه پرتیبل</div>
         </div>
       </div>
+      <HelpButton />
     </div>
   )
 }
