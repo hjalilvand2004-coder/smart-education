@@ -315,7 +315,7 @@ export default function Login() {
             </div>
           )}
 
-          <div className="login-footer">نسخه ۳.۲.۲ ✨ ورود مطمئن در نسخه پرتیبل + طراحی تازه</div>
+          <div className="login-footer">نسخه ۳.۶.۰ ✨ تم Aurora Premium — ورود مطمئن در نسخه پرتیبل</div>
         </div>
       </div>
     </div>

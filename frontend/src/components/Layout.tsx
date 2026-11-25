@@ -410,7 +410,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۵.۱ — سایدبار دسته‌بندی‌شده ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۶.۰ — تم Aurora Premium ✨</div>
         </div>
       </aside>
 
