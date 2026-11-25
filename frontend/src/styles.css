@@ -3916,3 +3916,43 @@ body {
   background: #8d7ffb;
   background-clip: content-box;
 }
+/* ---------- گروه‌های سایدبار — دسته‌بندی بازشدنی (v3.5.1) ---------- */
+.nav-group { margin: 2px 0; }
+.nav-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 13px;
+  border-radius: 13px;
+  border: none;
+  background: transparent;
+  color: #b9b0ee;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: right;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.nav-group-header:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.nav-group-header.active { color: #fff; }
+.nav-group-header svg { width: 17px; height: 17px; flex-shrink: 0; }
+.nav-group-header .chev {
+  margin-inline-start: auto;
+  width: 14px;
+  height: 14px;
+  opacity: 0.75;
+  transition: transform 0.25s;
+}
+.nav-group-header .chev.open { transform: rotate(-180deg); }
+.nav-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0 6px;
+  padding-inline-start: 10px;
+  margin-inline-start: 12px;
+  border-inline-start: 1px solid rgba(255, 255, 255, 0.14);
+}
+.nav-group-items .nav-link { padding: 8px 12px; font-size: 0.87rem; border-radius: 11px; }

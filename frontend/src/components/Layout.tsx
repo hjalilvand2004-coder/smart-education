@@ -151,6 +151,19 @@ interface NavItem {
   icon: string
 }
 
+/** گروه سایدبار (v3.5.1): با کلیک باز می‌شود و بخش فعال به‌طور خودکار باز می‌ماند */
+interface NavGroup {
+  key: string
+  label: string
+  icon: string
+  match: RegExp
+  items: NavItem[]
+}
+
+type NavEntry = NavItem | NavGroup
+
+const isGroup = (e: NavEntry): e is NavGroup => 'items' in e
+
 /** لایه بصری هر مسیر: کشف (رویایی) / تمرکز (آرام) / تحلیل (دقیق) */
 function layerFor(pathname: string): 'discovery' | 'focus' | 'analysis' {
   if (pathname.startsWith('/quiz/')) return 'focus'
@@ -168,6 +181,8 @@ export default function Layout() {
   const [focusMode, setFocusMode] = useState(false)
   // درس فعال از نشانی فعلی (فقط در حافظه، بدون localStorage اضافی)
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null)
+  // وضعیت باز/بسته گروه‌های سایدبار — گروه فعال خودکار باز می‌شود
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
 
   // فهرست درس‌ها برای تعیین درس پیش‌فرض لینک‌های درس‌محور
   useEffect(() => {
@@ -209,52 +224,157 @@ export default function Layout() {
     return staffCourse?.id ?? defaultCourseId
   }, [user, courses, defaultCourseId])
 
-  const navItems: NavItem[] = useMemo(() => {
-    const items: NavItem[] = [{ to: '/today', label: 'امروزِ من', icon: 'today' }]
-    items.push({ to: '/courses', label: 'درس‌ها', icon: 'courses' })
+  const itemActive = (to: string) => {
+    const base = to.split('?')[0]
+    const path = location.pathname
+    return path === base || path.startsWith(`${base}/`) || path.startsWith(`${base}?`)
+  }
+
+  /** ساختار دسته‌بندی‌شدهٔ ناوبری (v3.5.1) — آیتم مستقل یا گروه بازشدنی */
+  const navStructure: NavEntry[] = useMemo(() => {
+    const entries: NavEntry[] = [
+      { to: '/today', label: 'امروزِ من', icon: 'today' },
+      { to: '/courses', label: 'درس‌ها', icon: 'courses' },
+    ]
     if (defaultCourseId) {
-      items.push({ to: `/course/${defaultCourseId}/learn`, label: 'محیط یادگیری', icon: 'tutor' })
-      items.push({ to: `/course/${defaultCourseId}/map`, label: 'نقشه مفاهیم', icon: 'map' })
-      items.push({ to: `/me/error-clinic?course_id=${defaultCourseId}`, label: 'کلینیک خطا', icon: 'clinic' })
-      items.push({ to: `/course/${defaultCourseId}/teach-back`, label: 'به من یاد بده', icon: 'teach' })
-      items.push({ to: `/course/${defaultCourseId}/exam-prep`, label: 'آمادگی آزمون', icon: 'exam' })
-      items.push({ to: `/course/${defaultCourseId}/plan`, label: 'برنامه مطالعه', icon: 'plan' })
-      items.push({ to: `/course/${defaultCourseId}/smart`, label: 'ابزارهای هوشمند', icon: 'integration' })
+      entries.push({
+        key: 'learn',
+        label: 'یادگیری هوشمند',
+        icon: 'tutor',
+        match: /\/learn|\/map(\?|$)|error-clinic|teach-back|exam-prep|\/plan(\?|$)|\/smart/,
+        items: [
+          { to: `/course/${defaultCourseId}/learn`, label: 'محیط یادگیری', icon: 'tutor' },
+          { to: `/course/${defaultCourseId}/map`, label: 'نقشه مفاهیم', icon: 'map' },
+          { to: `/me/error-clinic?course_id=${defaultCourseId}`, label: 'کلینیک خطا', icon: 'clinic' },
+          { to: `/course/${defaultCourseId}/teach-back`, label: 'به من یاد بده', icon: 'teach' },
+          { to: `/course/${defaultCourseId}/exam-prep`, label: 'آمادگی آزمون', icon: 'exam' },
+          { to: `/course/${defaultCourseId}/plan`, label: 'برنامه مطالعه', icon: 'plan' },
+          { to: `/course/${defaultCourseId}/smart`, label: 'ابزارهای هوشمند', icon: 'integration' },
+        ],
+      })
+      entries.push({
+        key: 'quiz',
+        label: 'آزمون و سنجش هوشمند',
+        icon: 'quizzes',
+        match: /\/quizzes|\/mastery/,
+        items: [
+          { to: `/course/${defaultCourseId}/quizzes`, label: 'کوییز‌ها و آزمون‌ها', icon: 'quizzes' },
+          { to: `/course/${defaultCourseId}/mastery`, label: 'سنجش تسلط', icon: 'focus' },
+        ],
+      })
     }
     if (staffCourseId) {
-      items.push({ to: `/studio/${staffCourseId}`, label: 'استودیو', icon: 'studio' })
-      items.push({ to: `/course/${staffCourseId}/actions`, label: 'اقدام‌های استاد', icon: 'actions' })
+      entries.push({
+        key: 'content',
+        label: 'تولید محتوا و تدریس',
+        icon: 'studio',
+        match: /\/studio|\/actions|\/points/,
+        items: [
+          { to: `/studio/${staffCourseId}`, label: 'استودیو محتوا', icon: 'studio' },
+          { to: `/course/${staffCourseId}/actions`, label: 'اقدام‌های استاد', icon: 'actions' },
+          { to: '/points', label: 'امتیاز اساتید', icon: 'points' },
+        ],
+      })
     }
     if (user && user.role !== 'STUDENT') {
-      items.push({ to: '/programyar', label: 'برنامه‌یار۳۶۰', icon: 'integration' })
-      items.push({ to: '/payehyar', label: 'همگام‌سازی پایه‌یار', icon: 'sync' })
-      items.push({ to: '/masterdata/unique', label: 'دروس یکتا', icon: 'unique' })
-      items.push({ to: '/masterdata/split', label: 'دروس تفکیکی', icon: 'split' })
-      items.push({ to: '/masterdata/syllabus', label: 'سرفصل دروس', icon: 'syllabus' })
-      items.push({ to: '/points', label: 'امتیاز اساتید', icon: 'points' })
-      items.push({ to: '/reports', label: 'گزارش‌ها', icon: 'reports' })
+      entries.push({
+        key: 'mdm',
+        label: 'اطلاعات پایه (پایه‌یار۳۶۰)',
+        icon: 'unique',
+        match: /\/masterdata/,
+        items: [
+          { to: '/masterdata/unique', label: 'دروس یکتا', icon: 'unique' },
+          { to: '/masterdata/split', label: 'دروس تفکیکی', icon: 'split' },
+          { to: '/masterdata/syllabus', label: 'سرفصل دروس', icon: 'syllabus' },
+        ],
+      })
+      const adminItems: NavItem[] = GLOBAL_ADMIN_ROLES.includes(user.role)
+        ? [{ to: '/admin', label: 'پنل مدیریت', icon: 'admin' }]
+        : []
+      entries.push({
+        key: 'integration',
+        label: 'یکپارچه‌سازی و مدیریت',
+        icon: 'integration',
+        match: /\/programyar|\/payehyar|\/admin/,
+        items: [
+          { to: '/programyar', label: 'برنامه‌یار۳۶۰', icon: 'integration' },
+          { to: '/payehyar', label: 'همگام‌سازی پایه‌یار', icon: 'sync' },
+          ...adminItems,
+        ],
+      })
+      entries.push({ to: '/reports', label: 'گزارش‌ها', icon: 'reports' })
     }
-    if (user && GLOBAL_ADMIN_ROLES.includes(user.role)) {
-      items.push({ to: '/admin', label: 'پنل مدیریت', icon: 'admin' })
-    }
-    return items
+    return entries
   }, [user, staffCourseId, defaultCourseId])
+
+  // کلید گروه حاوی مسیر فعال — برای بازشدن خودکار
+  const activeGroupKey = useMemo(() => {
+    for (const e of navStructure) {
+      if (isGroup(e) && e.items.some((it) => itemActive(it.to))) return e.key
+    }
+    return null
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navStructure, location.pathname])
+
+  // گروه فعال همیشه باز می‌ماند
+  useEffect(() => {
+    if (activeGroupKey) {
+      setOpenGroups((prev) => (prev[activeGroupKey] ? prev : { ...prev, [activeGroupKey]: true }))
+    }
+  }, [activeGroupKey])
 
   const onLogout = () => {
     logout()
     navigate('/login', { replace: true })
   }
 
-  const navList = (
+  const renderLink = (item: NavItem) => (
+    <NavLink key={item.to} to={item.to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+      <Icon name={item.icon} />
+      <span>{item.label}</span>
+    </NavLink>
+  )
+
+  /** سایدبار دسکتاپ: آیتم‌های مستقل + گروه‌های بازشدنی */
+  const sidebarNav = (
     <>
-      {navItems.map((item) => (
-        <NavLink key={item.to} to={item.to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-          <Icon name={item.icon} />
-          <span>{item.label}</span>
-        </NavLink>
-      ))}
+      {navStructure.map((entry) =>
+        isGroup(entry) ? (
+          <div key={entry.key} className="nav-group">
+            <button
+              type="button"
+              className={`nav-group-header${activeGroupKey === entry.key ? ' active' : ''}`}
+              onClick={() => setOpenGroups((p) => ({ ...p, [entry.key]: !p[entry.key] }))}
+              aria-expanded={!!openGroups[entry.key]}
+            >
+              <Icon name={entry.icon} />
+              <span>{entry.label}</span>
+              <svg
+                className={`chev${openGroups[entry.key] ? ' open' : ''}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            {openGroups[entry.key] && (
+              <div className="nav-group-items">{entry.items.map(renderLink)}</div>
+            )}
+          </div>
+        ) : (
+          renderLink(entry)
+        ),
+      )}
     </>
   )
+
+  /** ناوبری موبایل: همهٔ آیتم‌ها به‌صورت تخت و اسکرول‌شونده (گروه‌ها باز می‌شوند) */
+  const flatItems: NavItem[] = navStructure.flatMap((e) => (isGroup(e) ? e.items : [e]))
 
   const userChip = user ? (
     <div className="user-chip">
@@ -283,14 +403,14 @@ export default function Layout() {
           </div>
           <ThemeToggle />
         </div>
-        <nav aria-label="ناوبری اصلی">{navList}</nav>
+        <nav aria-label="ناوبری اصلی">{sidebarNav}</nav>
         <div className="sidebar-footer">
           {userChip}
           <button type="button" className="btn btn-sm" onClick={onLogout}>
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۴.۰ — یکپارچگی کامل پایه‌یار۳۶۰ ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۵.۱ — سایدبار دسته‌بندی‌شده ✨</div>
         </div>
       </aside>
 
@@ -323,7 +443,7 @@ export default function Layout() {
             </div>
           </div>
           <nav className="topnav" aria-label="ناوبری موبایل">
-            {navList}
+            {flatItems.map(renderLink)}
           </nav>
         </header>
         <main className="page">
