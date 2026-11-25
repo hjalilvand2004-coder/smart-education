@@ -118,6 +118,14 @@ function Icon({ name }: { name: string }) {
         <path d="M8 8h8M8 12h8M8 16h5" />
       </>
     ),
+    professors: (
+      <>
+        <circle cx="9" cy="8" r="3" />
+        <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+        <circle cx="17.5" cy="9.5" r="2.3" />
+        <path d="M15.5 14.4c.6-.3 1.3-.4 2-.4 2.5 0 4.5 2 4.5 4.5" />
+      </>
+    ),
     points: (
       <>
         <path d="m12 3 2.7 5.5 6.3.9-4.5 4.4 1 6.2-5.5-3-5.5 3 1-6.2L3 9.4l6.3-.9L12 3z" />
@@ -281,8 +289,9 @@ export default function Layout() {
         key: 'mdm',
         label: 'اطلاعات پایه (پایه‌یار۳۶۰)',
         icon: 'unique',
-        match: /\/masterdata/,
+        match: /\/masterdata|\/professors/,
         items: [
+          { to: '/professors', label: 'اساتید و مطلوبیات', icon: 'professors' },
           { to: '/masterdata/unique', label: 'دروس یکتا', icon: 'unique' },
           { to: '/masterdata/split', label: 'دروس تفکیکی', icon: 'split' },
           { to: '/masterdata/syllabus', label: 'سرفصل دروس', icon: 'syllabus' },
@@ -410,7 +419,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۶.۰ — تم Aurora Premium ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۷.۰ — اساتید و مطلوبیات ✨</div>
         </div>
       </aside>
 

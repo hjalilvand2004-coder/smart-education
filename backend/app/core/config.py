@@ -70,6 +70,13 @@ class Settings(BaseSettings):
     payehyar_base_url: str = "http://188.212.96.235:8094"
     payehyar_api_key: str = ""
     payehyar_dev_user: str = ""
+
+    # یکپارچگی با درس‌یار۳۶۰ (darsyar360.ir) — مطلوبیات درسی/زمانی اساتید (v3.7.0).
+    # کلید/مسیر رسمی سرویس هنوز مستند نشده؛ چند مسیر مرسوم امتحان می‌شود و در
+    # نبود دسترسی، حالت نمونهٔ قطعی توسعه با source="demo" برمی‌گردد.
+    darsyar_base_url: str = "https://darsyar360.ir"
+    darsyar_api_key: str = ""
+    darsyar_timeout_seconds: int = 8
     payehyar_timeout_seconds: int = 8
 
     # سند فنی اتصال v3.4.0 — احراز OAuth2 client_credentials (جایگزین/مکمل کلید API).

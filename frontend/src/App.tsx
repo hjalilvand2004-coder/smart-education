@@ -15,6 +15,7 @@ import StudyPlan from './pages/StudyPlan'
 import Admin from './pages/Admin'
 import Programyar from './pages/Programyar'
 import Payehyar from './pages/Payehyar'
+import Professors from './pages/Professors'
 import UniqueCourses from './pages/UniqueCourses'
 import SplitCourses from './pages/SplitCourses'
 import SyllabusTopics from './pages/SyllabusTopics'
@@ -164,6 +165,7 @@ export default function App() {
             <Route path="/studio/:courseId" element={<Studio />} />
             <Route path="/programyar" element={<Programyar />} />
             <Route path="/payehyar" element={<Payehyar />} />
+            <Route path="/professors" element={<Professors />} />
             <Route path="/masterdata/unique" element={<UniqueCourses />} />
             <Route path="/masterdata/split" element={<SplitCourses />} />
             <Route path="/masterdata/syllabus" element={<SyllabusTopics />} />

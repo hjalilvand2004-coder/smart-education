@@ -4162,3 +4162,173 @@ body {
   background: linear-gradient(135deg, rgba(167, 139, 250, 0.46), rgba(168, 85, 247, 0.40) 60%, rgba(244, 114, 182, 0.34));
   box-shadow: inset 0 0 0 1px rgba(196, 181, 253, 0.4), 0 6px 18px rgba(167, 139, 250, 0.28);
 }
+
+/* ============================================================
+   v3.7.0 — اساتید و مطلوبیات · استودیو (درج سریع + گام‌نما)
+   · زیباسازی سایدبار · کنتراست لندینگ (Aurora)
+   ============================================================ */
+
+/* ---------- صفحهٔ اساتید ---------- */
+.prof-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.prof-card { margin-bottom: 0; padding: 0; overflow: hidden; }
+.prof-card-open { border-color: var(--accent-aurora, var(--brand)); box-shadow: var(--shadow-glow); }
+.prof-head {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 14px 16px; border: none; background: transparent; cursor: pointer;
+  font-family: inherit; text-align: right; color: var(--text);
+  transition: background var(--transition-aurora, .3s cubic-bezier(.4,0,.2,1));
+}
+.prof-head:hover { background: var(--glass-bg); }
+.prof-avatar {
+  width: 46px; height: 46px; flex-shrink: 0; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--accent-aurora, #7c3aed), var(--accent-aurora-2, #db2777));
+  color: #fff; font-weight: 800; font-size: 1.02rem;
+  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.35);
+}
+.prof-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.prof-name { font-weight: 800; font-size: 0.98rem; }
+.prof-sub { font-size: 0.78rem; color: var(--text-muted); }
+.prof-code { margin-top: 3px; align-self: flex-start; }
+.prof-chev { color: var(--text-muted); transition: transform .25s; font-size: 0.9rem; }
+.prof-chev.open { transform: rotate(-180deg); }
+.prof-detail { padding: 4px 16px 16px; border-top: 1px solid var(--glass-border, var(--border)); }
+.prof-source { font-size: 0.76rem; color: var(--text-muted); padding: 10px 0 2px; }
+.prof-note {
+  font-size: 0.82rem; color: var(--text-muted);
+  background: var(--neutral-bg); border: 1px solid var(--neutral-border);
+  border-radius: 10px; padding: 8px 12px; margin-top: 8px;
+}
+.prof-note-err { color: var(--danger-text); background: var(--danger-bg); border-color: var(--danger-border); }
+.prof-section-title { font-size: 0.92rem; font-weight: 800; margin: 14px 0 8px; }
+.prof-subjects { display: flex; flex-direction: column; gap: 8px; }
+.prof-subject {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+  background: var(--glass-bg); border: 1px solid var(--glass-border, var(--border));
+  border-radius: 12px; padding: 10px 12px;
+}
+.prof-subject-title { font-weight: 700; font-size: 0.9rem; }
+.prof-subject-meta { font-size: 0.78rem; color: var(--text-muted); }
+.prof-stat { margin-bottom: 0; text-align: center; padding: 14px 10px; }
+.prof-empty { text-align: center; padding: 42px 16px; color: var(--text-muted); }
+
+/* جدول زمانی هفتگی مطلوبیات */
+.prof-timetable { border: 1px solid var(--glass-border, var(--border)); border-radius: 14px; overflow: hidden; font-size: 0.76rem; }
+.prof-tt-row { display: grid; grid-template-columns: 88px repeat(6, 1fr); }
+.prof-tt-head { background: var(--glass-bg); font-weight: 700; color: var(--text-muted); }
+.prof-tt-row + .prof-tt-row { border-top: 1px solid var(--glass-border, var(--border)); }
+.prof-tt-head span, .prof-tt-cell, .prof-tt-range { padding: 7px 4px; text-align: center; white-space: nowrap; }
+.prof-tt-range { background: var(--glass-bg); color: var(--text-muted); font-weight: 600; font-size: 0.72rem; }
+.pref-preferred { background: var(--success-bg); color: var(--success-text); font-weight: 700; }
+.pref-acceptable { background: var(--warn-bg); color: var(--warn-text); font-weight: 600; }
+.pref-avoided { background: var(--danger-bg); color: var(--danger-text); opacity: 0.85; }
+.pref-none { color: var(--text-muted); opacity: 0.5; }
+.prof-legend { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.pref-chip {
+  font-size: 0.72rem; padding: 3px 10px; border-radius: 999px; font-weight: 700;
+}
+.pref-chip.pref-preferred { background: var(--success-bg); color: var(--success-text); }
+.pref-chip.pref-acceptable { background: var(--warn-bg); color: var(--warn-text); }
+.pref-chip.pref-avoided { background: var(--danger-bg); color: var(--danger-text); }
+
+.prof-constraints { margin: 0; padding-inline-start: 18px; color: var(--warn-text); font-size: 0.84rem; display: flex; flex-direction: column; gap: 4px; }
+.prof-matching { display: flex; flex-direction: column; gap: 10px; }
+.prof-match-card {
+  background: var(--glass-bg); border: 1px solid var(--glass-border, var(--border));
+  border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;
+}
+.prof-match-title { font-weight: 800; font-size: 0.95rem; }
+.prof-match-meta { font-size: 0.78rem; color: var(--text-muted); }
+.prof-match-btn { align-self: flex-start; padding: 8px 16px; }
+
+/* ---------- مودال درج سریع (استودیو) ---------- */
+.paste-overlay {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(5, 5, 20, 0.55);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.paste-modal {
+  width: min(720px, 100%); max-height: min(86vh, 720px); overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--glass-border, var(--border));
+  border-radius: 20px; padding: 20px 22px;
+  box-shadow: var(--shadow-glow), 0 24px 60px rgba(0, 0, 0, 0.35);
+  animation: rise .3s cubic-bezier(.4,0,.2,1) both;
+}
+.paste-hint { font-size: 0.8rem; line-height: 1.9; }
+.paste-hint code { background: var(--glass-bg); border: 1px solid var(--glass-border, var(--border)); border-radius: 6px; padding: 1px 6px; font-size: 0.78rem; }
+.paste-textarea { min-height: 220px; font-size: 0.88rem; line-height: 1.9; }
+.paste-meta {
+  margin-top: 10px; font-size: 0.82rem; color: var(--text-muted);
+  background: var(--info-bg); border: 1px solid var(--info-border);
+  border-radius: 10px; padding: 8px 12px;
+}
+
+/* ---------- گام‌نما و نوار ابزار استودیو ---------- */
+.studio-stepper {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px;
+  padding: 8px; background: var(--glass-bg);
+  border: 1px solid var(--glass-border, var(--border)); border-radius: 14px;
+}
+.stepper-step {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 999px; font-size: 0.78rem;
+  color: var(--text-muted); border: 1px solid transparent; font-weight: 600;
+}
+.stepper-step.active {
+  color: #fff; background: linear-gradient(135deg, var(--accent-aurora, #7c3aed), var(--accent-aurora-2, #db2777));
+  box-shadow: 0 4px 16px rgba(167, 139, 250, 0.35);
+}
+.stepper-num {
+  width: 20px; height: 20px; border-radius: 50%; display: inline-flex;
+  align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 800;
+  background: var(--glass-bg); border: 1px solid var(--glass-border, var(--border));
+}
+.stepper-step.active .stepper-num { background: rgba(255, 255, 255, 0.22); border-color: transparent; }
+.studio-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.studio-paste-btn {
+  background: var(--glass-strong); border: 1px solid var(--glass-border, var(--border));
+  color: var(--text); font-weight: 700;
+}
+.studio-paste-btn:hover { border-color: var(--accent-aurora, var(--brand)); color: var(--accent-aurora, var(--brand)); }
+.studio-toolbar-hint { font-size: 0.76rem; }
+
+/* ---------- زیباسازی سایدبار ---------- */
+.nav-link {
+  transition: background var(--transition-aurora, .3s cubic-bezier(.4,0,.2,1)),
+              color var(--transition-aurora, .3s cubic-bezier(.4,0,.2,1)),
+              box-shadow var(--transition-aurora, .3s cubic-bezier(.4,0,.2,1)),
+              transform 180ms ease;
+}
+.nav-link.active::before {
+  background: linear-gradient(180deg, var(--accent-aurora, #a78bfa), var(--accent-aurora-2, #f472b6));
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.8);
+  border-radius: 999px;
+}
+.nav-link.active { border-radius: 13px; }
+.nav-link:hover { border-radius: 13px; }
+.sidebar { scrollbar-width: thin; }
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--glass-border, rgba(255,255,255,.2)); border-radius: 999px; }
+.sidebar .brand { padding: 6px 8px; border-radius: 16px; transition: background var(--transition-aurora, .3s); }
+.sidebar .brand:hover { background: var(--glass-bg); }
+.brand-mark { border-radius: 15px; }
+.user-chip { transition: background var(--transition-aurora, .3s), border-color var(--transition-aurora, .3s); }
+.user-chip:hover { background: var(--glass-bg); }
+.theme-toggle { border-radius: 12px; }
+
+/* ---------- کنتراست لندینگ در هر دو تم ---------- */
+/* نوار بالا: شیشهٔ توکن‌محور — در شب تیره و در روز سفید، متن همیشه خوانا */
+.landing-nav {
+  background: var(--glass);
+  border-bottom-color: var(--glass-line);
+}
+.landing-links a { color: var(--text-2, var(--text-muted)); }
+.landing-links a:hover { color: var(--text); background: var(--glass-bg); }
+.landing-title { color: var(--text); }
+.landing-lead { color: var(--text-2, var(--text-muted)); }
+.landing-badge { color: var(--text-2, var(--text-muted)); background: var(--glass-bg); border-color: var(--glass-border, var(--glass-line)); }
+.grad-text {
+  background: linear-gradient(120deg, var(--accent-aurora, var(--brand-deep)) 10%, var(--accent-aurora-2, var(--brand)) 55%, var(--accent-3, var(--accent)) 95%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}

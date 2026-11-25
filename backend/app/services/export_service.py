@@ -14,7 +14,7 @@ from pathlib import Path
 from app.core.database import utcnow
 
 FONTS_DIR = Path(__file__).resolve().parent.parent / "assets" / "fonts"
-TEMPLATE_VERSION = "v1.0"
+TEMPLATE_VERSION = "v2.0-aurora"
 
 
 def latex_to_plain(expr: str | None) -> str:
@@ -57,17 +57,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
 <style>
-  :root { --ink:#1f2937; --brand:#2563eb; --soft:#f3f4f6; --line:#e5e7eb; }
+  :root { --ink:#0f172a; --brand:#7c3aed; --brand-2:#db2777; --sky:#0284c7; --soft:#f5f3ff; --line:#e9e5f5; --muted:#64748b; }
   * { box-sizing: border-box; }
   body { font-family: Vazirmatn, "Segoe UI", Tahoma, sans-serif; color:var(--ink);
-         margin:0; background:#f8fafc; line-height:1.9; }
-  .page { max-width: 860px; margin: 0 auto; padding: clamp(16px, 4vw, 48px); background:#fff; }
-  header.cover { border-bottom: 3px solid var(--brand); padding-bottom: 24px; margin-bottom: 28px; }
-  h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 8px; color: var(--brand); }
-  .meta { color:#6b7280; font-size: .9rem; }
-  .block { margin: 22px 0; padding: 14px 18px; border: 1px solid var(--line); border-radius: 12px; background:#fff; }
+         margin:0; background:linear-gradient(180deg,#f8fafc,#eef2f7 60%,#e9edf6); line-height:1.9; }
+  .page { max-width: 860px; margin: 0 auto; padding: clamp(16px, 4vw, 48px); background:#fff; border-radius: 22px; box-shadow: 0 8px 32px rgba(124,58,237,.10); }
+  header.cover { padding: 26px 24px; margin-bottom: 28px; border-radius: 18px; background: linear-gradient(135deg, rgba(124,58,237,.12), rgba(219,39,119,.09) 55%, rgba(2,132,199,.09)); border: 1px solid var(--line); border-right: 5px solid var(--brand); }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 8px; background: linear-gradient(135deg, var(--brand), var(--brand-2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .meta { color:var(--muted); font-size: .9rem; }
+  .block { margin: 22px 0; padding: 14px 18px; border: 1px solid var(--line); border-radius: 14px; background:#fff; box-shadow: 0 2px 10px rgba(15,23,42,.05); }
   .block.heading { background: var(--soft); border: 0; border-right: 4px solid var(--brand); }
-  .block.definition { background:#eff6ff; border-color:#bfdbfe; }
+  .block.definition { background:#f5f3ff; border-color:#ddd6fe; }
   .block.note { background:#fffbeb; border-color:#fde68a; }
   .block.worked_example { background:#f0fdf4; border-color:#bbf7d0; }
   .block.exercise { background:#fdf2f8; border-color:#fbcfe8; }
@@ -83,7 +83,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   code, pre { direction: ltr; font-family: monospace; background:#0f172a; color:#e2e8f0; padding: 2px 6px; border-radius: 6px; }
   pre { padding: 14px; overflow-x: auto; }
   .answer { color:#166534; }
-  .citations { font-size: .82rem; color:#6b7280; margin-top: 6px; }
+  .citations { font-size: .82rem; color:var(--muted); margin-top: 6px; }
   footer { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 12px;
            color:#9ca3af; font-size: .8rem; }
   @media print {
@@ -187,15 +187,15 @@ def render_pdf(blocks: list[dict], meta: dict, options: dict | None = None) -> b
     body_style = ParagraphStyle("body", fontName="Vazir", fontSize=11, leading=19,
                                 alignment=TA_RIGHT, wordWrap="RTL")
     h2 = ParagraphStyle("h2", parent=body_style, fontName="Vazir-Bold", fontSize=16, leading=24,
-                        textColor=colors.HexColor("#1d4ed8"), spaceBefore=10, spaceAfter=6)
+                        textColor=colors.HexColor("#6d28d9"), spaceBefore=10, spaceAfter=6)
     h3 = ParagraphStyle("h3", parent=body_style, fontName="Vazir-Bold", fontSize=13, leading=20,
                         spaceBefore=8, spaceAfter=4)
     cover_title = ParagraphStyle("cover", parent=body_style, fontName="Vazir-Bold",
                                  fontSize=24, leading=36, alignment=TA_CENTER)
     cover_meta = ParagraphStyle("cmeta", parent=body_style, fontSize=12, leading=22,
                                 alignment=TA_CENTER, textColor=colors.HexColor("#4b5563"))
-    box_style = ParagraphStyle("box", parent=body_style, backColor=colors.HexColor("#f3f4f6"),
-                               borderColor=colors.HexColor("#d1d5db"), borderWidth=0.7,
+    box_style = ParagraphStyle("box", parent=body_style, backColor=colors.HexColor("#f5f3ff"),
+                               borderColor=colors.HexColor("#ddd6fe"), borderWidth=0.7,
                                borderPadding=8, borderRadius=6, spaceAfter=8)
     note_style = ParagraphStyle("note", parent=body_style, textColor=colors.HexColor("#92400e"),
                                 backColor=colors.HexColor("#fffbeb"), borderColor=colors.HexColor("#fde68a"),
@@ -206,9 +206,25 @@ def render_pdf(blocks: list[dict], meta: dict, options: dict | None = None) -> b
 
     buf = io.BytesIO()
 
+    AURORA = colors.HexColor("#7c3aed")
+    AURORA_2 = colors.HexColor("#db2777")
+
     def on_page(canvas, doc_):
         page_num = canvas.getPageNumber()
-        if page_num == 1 and skip_first_page_number:
+        if page_num == 1:
+            # جلد: نوار گرادیانی Aurora بالای صفحه (بنفش→صورتی)
+            canvas.saveState()
+            steps = 24
+            for i in range(steps):
+                t = i / (steps - 1)
+                canvas.setFillColor(colors.Color(
+                    (0x7c + (0xdb - 0x7c) * t) / 255,
+                    (0x3a + (0x27 - 0x3a) * t) / 255,
+                    (0xed + (0x77 - 0xed) * t) / 255))
+                x = doc.leftMargin + (doc.width / steps) * i
+                canvas.rect(x, A4[1] - 10 * mm, doc.width / steps + 0.6, 3.2 * mm,
+                            stroke=0, fill=1)
+            canvas.restoreState()
             return
         canvas.saveState()
         canvas.setFont("Vazir", 9)
@@ -287,7 +303,7 @@ def render_pdf(blocks: list[dict], meta: dict, options: dict | None = None) -> b
                    [[Paragraph(fa(str(cell)), cell_style) for cell in reversed(r)] for r in rows]
             tbl = Table(data, colWidths=[doc.width / max(1, len(cols))] * max(1, len(cols)))
             tbl.setStyle(TableStyle([
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e5e7eb")),
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#ede9fe")),
                 ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#9ca3af")),
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ("FONTNAME", (0, 0), (-1, -1), "Vazir"),
@@ -334,6 +350,7 @@ def render_pptx(blocks: list[dict], meta: dict, options: dict | None = None) -> 
 
     from pptx import Presentation
     from pptx.dml.color import RGBColor
+    from pptx.enum.shapes import MSO_SHAPE
     from pptx.enum.text import PP_ALIGN
     from pptx.util import Inches, Pt
 
@@ -345,12 +362,25 @@ def render_pptx(blocks: list[dict], meta: dict, options: dict | None = None) -> 
     else:
         prs.slide_width, prs.slide_height = Inches(13.333), Inches(7.5)
 
-    BRAND = RGBColor(0x1D, 0x4E, 0xD8)
-    INK = RGBColor(0x1F, 0x29, 0x37)
-    MUTED = RGBColor(0x6B, 0x72, 0x80)
+    BRAND = RGBColor(0x7C, 0x3A, 0xED)
+    AURORA_2 = RGBColor(0xDB, 0x27, 0x77)
+    INK = RGBColor(0x0F, 0x17, 0x2A)
+    MUTED = RGBColor(0x64, 0x74, 0x8B)
 
     def blank_slide():
-        return prs.slides.add_slide(prs.slide_layouts[6])
+        s = prs.slides.add_slide(prs.slide_layouts[6])
+        # امضای Aurora: نوار بنفش بالای اسلاید + خط باریک صورتی
+        strip = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, prs.slide_width, Inches(0.14))
+        strip.fill.solid()
+        strip.fill.fore_color.rgb = BRAND
+        strip.line.fill.background()
+        strip.shadow.inherit = False
+        hair = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, Inches(0.14), prs.slide_width, Inches(0.045))
+        hair.fill.solid()
+        hair.fill.fore_color.rgb = AURORA_2
+        hair.line.fill.background()
+        hair.shadow.inherit = False
+        return s
 
     def add_text(slide, text, left, top, width, height, size=18, bold=False,
                  color=INK, align=PP_ALIGN.RIGHT):
@@ -425,7 +455,7 @@ def render_pptx(blocks: list[dict], meta: dict, options: dict | None = None) -> 
                     break
         elif t == "note":
             s = blank_slide()
-            add_text(s, "نکته: " + (b.get("title") or ""), margin, Inches(0.5), body_width, Inches(0.7), size=22, bold=True, color=RGBColor(0x92, 0x40, 0x0E))
+            add_text(s, "نکته: " + (b.get("title") or ""), margin, Inches(0.5), body_width, Inches(0.7), size=22, bold=True, color=AURORA_2)
             add_bullets_tf(s, _split_bullets(b.get("body") or ""), margin, Inches(1.3), body_width, H - Inches(2.5), size=16)
         elif t == "worked_example":
             s = blank_slide()
@@ -436,7 +466,7 @@ def render_pptx(blocks: list[dict], meta: dict, options: dict | None = None) -> 
             set_notes(s, "برای هر گام، بخش مربوط از تعریف را یادآوری کنید؛ زمان پیشنهادی: ۵ دقیقه.")
         elif t == "exercise":
             s = blank_slide()
-            add_text(s, "تمرین", margin, Inches(0.5), body_width, Inches(0.6), size=22, bold=True, color=RGBColor(0xBE, 0x18, 0x56))
+            add_text(s, "تمرین", margin, Inches(0.5), body_width, Inches(0.6), size=22, bold=True, color=AURORA_2)
             add_text(s, b.get("question") or "", margin, Inches(1.2), body_width, Inches(1.4), size=16)
             if b.get("items"):
                 add_bullets_tf(s, [str(i) for i in b["items"]], margin, Inches(2.8), body_width, Inches(2), size=14)

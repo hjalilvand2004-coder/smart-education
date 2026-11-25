@@ -78,6 +78,116 @@ function JobPanel({ job, title }: { job: Job; title: string }) {
   )
 }
 
+
+
+// ---------------- درج سریع محتوای خودم (چسباندن متن) ----------------
+
+type RawBlock = Record<string, unknown>
+
+/** تحلیل متن آزادِ چسبانده‌شده به بلوک‌های ساختاری سند (عنوان/متن/فهرست/نکته/کد/فرمول). */
+export function parsePastedText(text: string): RawBlock[] {
+  const blocks: RawBlock[] = []
+  const lines = text.replace(/\r/g, '').split('\n')
+  let para: string[] = []
+  let items: string[] = []
+  let code: string[] | null = null
+  const flushText = () => {
+    const body = para.join(' ').trim()
+    if (body) blocks.push({ type: 'text', body })
+    para = []
+  }
+  const flushItems = () => {
+    if (items.length) blocks.push({ type: 'text', items })
+    items = []
+  }
+  for (const raw of lines) {
+    const line = raw.trim()
+    if (code !== null) {
+      if (/^```\s*$/.test(line)) {
+        blocks.push({ type: 'code', body: code.join('\n') })
+        code = null
+      } else {
+        code.push(raw)
+      }
+      continue
+    }
+    if (!line) { flushText(); flushItems(); continue }
+    if (/^```/.test(line)) { flushText(); flushItems(); code = []; continue }
+    const heading = line.match(/^(#{1,4})\s+(.+)$/)
+    if (heading) { flushText(); flushItems(); blocks.push({ type: 'heading', title: heading[2].trim() }); continue }
+    const bullet = line.match(/^[-*•]\s+(.+)$/)
+    if (bullet) { flushText(); items.push(bullet[1].trim()); continue }
+    const formula = line.match(/^\$\$(.+)\$\$$/)
+    if (formula) { flushText(); flushItems(); blocks.push({ type: 'formula', formula: formula[1].trim() }); continue }
+    const note = line.match(/^(?:نکته|توجه)\s*[:：]\s*(.+)$/)
+    if (note) { flushText(); flushItems(); blocks.push({ type: 'note', title: 'نکته', body: note[1].trim() }); continue }
+    const ex = line.match(/^مثال\s*[:：]\s*(.+)$/)
+    if (ex) { flushText(); flushItems(); blocks.push({ type: 'worked_example', question: ex[1].trim() }); continue }
+    const drill = line.match(/^تمرین\s*[:：]\s*(.+)$/)
+    if (drill) { flushText(); flushItems(); blocks.push({ type: 'exercise', question: drill[1].trim() }); continue }
+    para.push(line)
+  }
+  if (code !== null && code.length) blocks.push({ type: 'code', body: code.join('\n') })
+  flushText()
+  flushItems()
+  return blocks
+}
+
+/** مودال درج سریع: چسباندن متن، شمارش بلوک‌های شناسایی‌شده و افزودن به نسخهٔ پیش‌نویس. */
+function PasteModal({
+  onClose,
+  onAdd,
+  busy,
+  error,
+}: {
+  onClose: () => void
+  onAdd: (blocks: RawBlock[]) => void
+  busy: boolean
+  error: string | null
+}) {
+  const [text, setText] = useState('')
+  const blocks = text.trim() ? parsePastedText(text) : []
+  return (
+    <div className="paste-overlay" onClick={onClose} role="presentation">
+      <div className="paste-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="درج سریع محتوا">
+        <div className="card-title">
+          <h3>📝 درج سریع محتوای من</h3>
+          <button type="button" className="btn btn-sm" onClick={onClose}>بستن</button>
+        </div>
+        <p className="muted paste-hint">
+          محتوای خودتان را از هر جا کپی و اینجا بچسبانید؛ سامانه متن را به بلوک‌های ساختاری
+          (عنوان با <code>#</code>، فهرست با <code>-</code>، کد با <code>```</code>، فرمول با
+          <code>$$...$$</code> و نکته/مثال/تمرین با پیشوند همان واژه) تبدیل می‌کند و به نسخهٔ
+          پیش‌نویسِ همین سند — در همان چارچوب سرفصل — اضافه می‌سازد.
+        </p>
+        <textarea
+          className="textarea paste-textarea"
+          placeholder={'مثال:\n## تعریف مشتق\nمشتق، نرخ تغییر لحظه‌ای تابع است.\n- دقیق و فرم‌پذیر\n- پایهٔ بهینه‌سازی\nنکته: اهمیت حد چپ و راست'}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <div className="paste-meta">
+          {blocks.length > 0
+            ? <>✅ <b>{blocks.length}</b> بلوک شناسایی شد — با «افزودن» به سند می‌روند</>
+            : 'متن را بچسبانید تا بلوک‌ها شناسایی شوند'}
+        </div>
+        {error && <div className="error-box">{error}</div>}
+        <div className="btn-row" style={{ marginTop: 10 }}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={busy || blocks.length === 0}
+            onClick={() => onAdd(blocks)}
+          >
+            {busy ? '⏳ در حال افزودن…' : `➕ افزودن ${blocks.length || ''} بلوک به سند`}
+          </button>
+          <button type="button" className="btn" onClick={() => setText('')} disabled={busy}>پاک‌کردن</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ---------------- فرم سند جدید ----------------
 
 const GOALS = ['INTRO', 'CONCEPT_TEACHING', 'PROBLEM_SOLVING', 'REVIEW', 'PRACTICE']
@@ -460,6 +570,9 @@ function VersionView({
   const [error, setError] = useState<string | null>(null)
   const [busyAction, setBusyAction] = useState<string | null>(null)
   const [exportStates, setExportStates] = useState<Record<string, ExportState>>({})
+  const [pasteOpen, setPasteOpen] = useState(false)
+  const [pasteBusy, setPasteBusy] = useState(false)
+  const [pasteError, setPasteError] = useState<string | null>(null)
   const pollCancelRef = useRef(false)
 
   useEffect(() => {
@@ -613,6 +726,24 @@ function VersionView({
     }
   }
 
+  const submitPaste = async (blocks: RawBlock[]) => {
+    setPasteBusy(true)
+    setPasteError(null)
+    try {
+      const updated = await api.post<ContentVersion>(
+        `/content-versions/${version.id}/blocks/bulk`,
+        { blocks },
+      )
+      onVersionUpdate(updated)
+      setPasteOpen(false)
+      setNotice('محتوای شما به‌صورت بلوک‌های ساختاری به سند اضافه شد.')
+    } catch (err) {
+      setPasteError(errText(err, 'افزودن بلوک‌ها ناموفق بود'))
+    } finally {
+      setPasteBusy(false)
+    }
+  }
+
   const qc = version.qc_report
   const coveredCount = qc?.coverage?.filter((c) => c.covered).length ?? 0
   const coverageTotal = qc?.coverage?.length ?? 0
@@ -638,6 +769,38 @@ function VersionView({
         </div>
         {notice && <div className="success-box">{notice}</div>}
         {error && <div className="error-box">{error}</div>}
+        {/* گام‌نمای جریان کار استودیو */}
+        <div className="studio-stepper" aria-label="مراحل جریان کار محتوا">
+          {[
+            { n: '۱', label: 'سند و دامنه', active: true },
+            { n: '۲', label: 'تولید / درج محتوا', active: ['DRAFT', 'GENERATED', 'NEEDS_REVISION'].includes(version.status) },
+            { n: '۳', label: 'بازبینی', active: version.status === 'UNDER_REVIEW' },
+            { n: '۴', label: 'تأیید و انتشار', active: ['APPROVED', 'PUBLISHED'].includes(version.status) },
+          ].map((s) => (
+            <span key={s.n} className={`stepper-step${s.active ? ' active' : ''}`}>
+              <span className="stepper-num">{s.n}</span>
+              <span className="stepper-label">{s.label}</span>
+            </span>
+          ))}
+        </div>
+
+        {staffUser && ['DRAFT', 'GENERATED', 'NEEDS_REVISION'].includes(version.status) && (
+          <div className="studio-toolbar" style={{ marginTop: 10 }}>
+            <button type="button" className="btn studio-paste-btn" onClick={() => { setPasteError(null); setPasteOpen(true) }}>
+              📝 درج سریع محتوای من (کپی/چسباندن)
+            </button>
+            <span className="muted studio-toolbar-hint">متن آزاد ← بلوک ساختاری، در چارچوب سرفصل همان سند</span>
+          </div>
+        )}
+
+        {pasteOpen && (
+          <PasteModal
+            onClose={() => setPasteOpen(false)}
+            onAdd={(blocks) => void submitPaste(blocks)}
+            busy={pasteBusy}
+            error={pasteError}
+          />
+        )}
 
         {staffUser && (
           <div className="edit-form" style={{ marginTop: 10 }}>

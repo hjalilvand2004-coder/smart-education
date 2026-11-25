@@ -1,4 +1,7 @@
 """استودیوی محتوا: سند، تولید، ویرایش بلوک، بررسی، انتشار (بخش ۴)."""
+from uuid import uuid4
+
+from app.core.database import utcnow
 from fastapi import APIRouter, BackgroundTasks, Depends, Header
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -269,6 +272,55 @@ def edit_block(version_id: str, block_id: str, body: BlockPatchIn,
 
 class RegenIn(BaseModel):
     instruction: str | None = None
+
+
+class BulkBlocksIn(BaseModel):
+    blocks: list[dict]
+    after_block_id: str | None = None  # None = افزودن به پایان سند
+
+
+@router.post("/content-versions/{version_id}/blocks/bulk")
+def bulk_add_blocks(version_id: str, body: BulkBlocksIn,
+                    db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """درج سریع چند بلوک از متن چسبانده‌شدهٔ استاد (تحلیل سمت کلاینت، درج اینجا).
+
+    چارچوب: بلوک‌ها به نسخهٔ پیش‌نویس در وضعیت DRAFT اضافه می‌شوند و ساختار
+    سرفصل محفوظ می‌ماند؛ revision برای تشخیص تداخل +۱ می‌شود.
+    """
+    version = db.get(ContentVersion, version_id)
+    if version is None:
+        raise not_found("نسخه محتوا یافت نشد")
+    doc = db.get(ContentDocument, version.document_id)
+    ensure_course_role(db, user, doc.course_id, {Role.PROFESSOR, Role.ASSISTANT})
+    if version.status in ("GENERATING", "PUBLISHED"):
+        raise validation_error(
+            "درج بلوک در نسخهٔ در حال تولید/منتشرشده مجاز نیست — ابتدا نسخهٔ پیش‌نویس بسازید")
+    if not body.blocks or len(body.blocks) > 120:
+        raise validation_error("تعداد بلوک‌ها باید بین ۱ تا ۱۲۰ باشد")
+    allowed = {"text", "heading", "note", "definition", "summary", "reference",
+               "worked_example", "exercise", "self_check", "code", "formula", "table"}
+    clean = []
+    for b in body.blocks:
+        if not isinstance(b, dict) or b.get("type") not in allowed:
+            raise validation_error(f"نوع بلوک مجاز نیست: {b.get('type') if isinstance(b, dict) else 'نامعتبر'}")
+        nb = {k: v for k, v in b.items() if k in (
+            "type", "title", "body", "items", "steps", "question", "answer",
+            "explanation", "formula", "columns", "rows")}
+        clean.append(nb)
+    sc = dict(version.structured_content or {})
+    blocks = list(sc.get("blocks") or [])
+    new_rev = (version.revision or 0) + 1
+    for nb in clean:
+        nb["id"] = f"blk-{uuid4().hex[:12]}"
+        nb["origin"] = "human"
+        nb.setdefault("title", "")
+        blocks.append(nb)
+    sc["blocks"] = blocks
+    version.structured_content = sc
+    version.revision = new_rev
+    version.updated_at = utcnow()
+    db.commit()
+    return content_service.build_version_payload(db, version)
 
 
 @router.post("/content-versions/{version_id}/blocks/{block_id}/regenerate", status_code=202)

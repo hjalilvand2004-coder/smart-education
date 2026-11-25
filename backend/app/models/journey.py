@@ -222,3 +222,22 @@ class PayehyarEventInbox(TimestampMixin, Base):
     status: Mapped[str] = mapped_column(String(16), default="PENDING", index=True)  # PENDING/PROCESSED/FAILED
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class DarsyarPreference(TimestampMixin, Base):
+    """کش مطلوبیات درسی/زمانی استاد واکشی‌شده از درس‌یار۳۶۰ (darsyar360.ir).
+
+    منبع داده درس‌یار است؛ این جدول فقط «رونوشت همگام‌شده» را برای نمایش سریع
+    و کار در حالت آفلاین نگه می‌دارد (الگوی مشابه PayehyarRecord). source مشخص
+    می‌کند داده زنده است یا نمونهٔ توسعه وقتی سرویس در دسترس نیست.
+    """
+
+    __tablename__ = "darsyar_preferences"
+
+    id: Mapped[str] = mapped_column(GUID, primary_key=True, default=uid_col)
+    professor_ext_id: Mapped[str] = mapped_column(String(120), index=True)
+    professor_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    payload: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    source: Mapped[str] = mapped_column(String(16), default="demo")  # live / demo
+    content_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    fetched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

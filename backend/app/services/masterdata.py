@@ -33,6 +33,7 @@ DOMAIN_LABELS = {
     "unique-courses": "دروس یکتا",
     "split-courses": "دروس تفکیکی",
     "course-syllabi": "سرفصل دروس",
+    "professors": "اساتید",
 }
 POINTS = {"CONTENT_GENERATE": 25, "CONTENT_EXPORT": 5}
 EXPORT_EXT = {"PDF": "pdf", "PPTX": "pptx", "HTML": "html", "DOCX": "docx"}
@@ -96,7 +97,10 @@ def sync_domain(db: Session, user: User, domain: str) -> dict:
         raise validation_error(
             f"دامنهٔ پشتیبانی‌شده: {', '.join(DOMAIN_LABELS)}")
     client = payehyar_connection.client_for(db)
-    body = client.fetch_domain(domain)
+    # اساتید از دامنه‌های گسترش‌یافتهٔ سند فنی است: مسیر مصرف‌کننده، در نبود آن
+    # مسیر مدیریتی /api/v1/masterdata/instructors امتحان می‌شود.
+    body = (client.fetch_extended_domain(domain) if domain == "professors"
+            else client.fetch_domain(domain))
     if body.get("_not_modified"):
         return {"ok": True, "domain": domain, "label": DOMAIN_LABELS[domain],
                 "not_modified": True, "message": "بدون تغییر از آخرین همگام‌سازی (کش ETag)"}

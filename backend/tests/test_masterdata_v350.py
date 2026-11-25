@@ -186,9 +186,10 @@ def test_sync_remote_error_shows_hint(client, prof_headers, monkeypatch):
 
 
 def test_invalid_domain_rejected(client, prof_headers):
-    assert client.post(SYNC_PATH.format(d="professors"),
+    # از v3.7.0 «professors» دامنهٔ معتبر است؛ نمونهٔ نامعتبر واقعی استفاده می‌شود
+    assert client.post(SYNC_PATH.format(d="not-a-domain"),
                        headers=prof_headers).status_code == 422
-    assert client.get("/api/v1/integration/payehyar/mdm/professors",
+    assert client.get("/api/v1/integration/payehyar/mdm/not-a-domain",
                       headers=prof_headers).status_code == 422
 
 
