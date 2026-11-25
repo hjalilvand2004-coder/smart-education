@@ -609,6 +609,7 @@ export const api = {
   post: <T>(path: string, body?: unknown, idempotencyKey?: string) =>
     request<T>(path, { method: 'POST', body, idempotencyKey }),
   patch: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PATCH', body }),
+  put: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PUT', body }),
 
   /** دریافت فایل باینری با هدر Authorization (برای دانلود خروجی‌ها). */
   async getBlob(path: string): Promise<Blob> {

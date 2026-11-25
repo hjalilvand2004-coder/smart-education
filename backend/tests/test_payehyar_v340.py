@@ -263,7 +263,8 @@ def test_sync_extended_endpoint(tech_headers, client, monkeypatch):
             return {"items": [{"code": f"X-{domain}", "name": "نمونه"}],
                     "source": "services", "warnings": []}
 
-    monkeypatch.setattr(pr, "PayehyarClient", StubClient)
+    from app.services import payehyar_connection
+    monkeypatch.setattr(payehyar_connection, "PayehyarClient", StubClient)
     r = client.post("/api/v1/integration/payehyar/sync-extended",
                     headers=tech_headers, json={"domains": ["professors"]})
     assert r.status_code == 200, r.text

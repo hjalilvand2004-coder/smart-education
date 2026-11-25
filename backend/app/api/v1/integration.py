@@ -268,3 +268,59 @@ def payehyar_system_status(db: Session = Depends(get_db),
         "records_counts": payehyar_records.domain_counts(db),
         "extended_domains": payehyar_records.extended_domains(),
     }
+
+# ---------- پایه‌یار۳۶۰: تنظیمات و تست اتصال (v3.4.2 — بدون نیاز به .env) ----------
+
+class PayehyarConnectionIn(BaseModel):
+    base_url: str | None = None  # None=بدون تغییر، ""=بازگشت به پیش‌فرض کد
+    api_key: str | None = None   # None=بدون تغییر، ""=پاک کردن کلید
+
+
+class PayehyarTestIn(BaseModel):
+    base_url: str | None = None  # override فقط برای «تست پیش از ذخیره»
+    api_key: str | None = None
+
+
+@router.get("/integration/payehyar/connection")
+def payehyar_connection_view(db: Session = Depends(get_db),
+                             user: User = Depends(get_current_user)):
+    """تنظیمات مؤثر اتصال — کلید فقط ماسک‌شده (pyk_XXXX…XXXX) برگردانده می‌شود."""
+    _ensure_staff_user(user)
+    from app.services import payehyar_connection
+
+    return payehyar_connection.connection_view(db)
+
+
+@router.put("/integration/payehyar/connection")
+def payehyar_connection_save(body: PayehyarConnectionIn,
+                             db: Session = Depends(get_db),
+                             user: User = Depends(get_current_user)):
+    """ذخیرهٔ آدرس/کلید اتصال در دیتابیس محلی — بلافاصله در همگام‌سازی بعدی اعمال می‌شود.
+
+    کلید در دیتابیس همین دستگاه نگه داشته می‌شود؛ جایگزین تنظیم S360_PAYEHYAR_API_KEY
+    در .env است (متغیر محیطی همچنان کار می‌کند و دیتابیس بر آن اولویت دارد)."""
+    _ensure_staff_user(user)
+    from app.core.errors import validation_error
+    from app.services import payehyar_connection
+
+    try:
+        return payehyar_connection.save_connection(db, base_url=body.base_url,
+                                                   api_key=body.api_key)
+    except ValueError as exc:
+        raise validation_error(str(exc)) from exc
+
+
+@router.post("/integration/payehyar/test-connection")
+def payehyar_test_connection(body: PayehyarTestIn | None = None,
+                             db: Session = Depends(get_db),
+                             user: User = Depends(get_current_user)):
+    """تست گام‌به‌گام اتصال: دسترسی شبکه → احراز هویت کلید → پیش‌نمایش داده.
+
+    اگر body داده شود (تست پیش از ذخیره) با همان مقادیر تست می‌گیرد؛ در غیر این
+    صورت با تنظیمات مؤثر فعلی (دیتابیس/متغیر محیطی)."""
+    _ensure_staff_user(user)
+    from app.services import payehyar_connection
+
+    b = body or PayehyarTestIn()
+    return payehyar_connection.test_connection(db, base_url=b.base_url,
+                                               api_key=b.api_key)

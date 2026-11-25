@@ -23,6 +23,7 @@ from app.models.concepts import TopicConcept
 from app.models.courses import Course
 from app.models.journey import MasterdataSyncLog
 from app.models.syllabus import SyllabusTopic, SyllabusVersion
+from app.services import payehyar_connection
 from app.services.payehyar_client import PayehyarClient, PayehyarError
 
 REFERENCE_SYSTEM = "baseyar360"
@@ -408,7 +409,7 @@ def sync_catalog(db: Session, user, mode: str = "FULL") -> dict:
     db.flush()
     stats: dict = {"courses_created": 0, "courses_updated": 0, "up_to_date": 0,
                    "syllabus_drafts_created": 0, "review_required": 0}
-    client = PayehyarClient()
+    client = payehyar_connection.client_for(db)
     probe: dict = {}
     try:
         probe = client.probe()
@@ -464,7 +465,7 @@ def sync_catalog(db: Session, user, mode: str = "FULL") -> dict:
 def catalog_status(db: Session) -> dict:
     """وضعیت اتصال + آمار رونوشت مرجع + آخرین اجرا — برای صفحه همگام‌سازی."""
     s = get_settings()
-    client = PayehyarClient()
+    client = payehyar_connection.client_for(db)
     probe = client.probe()
     ref_courses = db.query(Course).filter(Course.reference_system == REFERENCE_SYSTEM).count()
     linked = db.query(Course).filter(Course.reference_id.isnot(None)).count()

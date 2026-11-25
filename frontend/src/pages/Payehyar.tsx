@@ -81,6 +81,28 @@ interface PySystemStatus {
   extended_domains: string[]
 }
 
+interface PyConnView {
+  base_url: string
+  api_key_masked: string | null
+  has_key: boolean
+  key_source: 'DB' | 'ENV' | 'NONE'
+  base_url_source: 'DB' | 'DEFAULT'
+  updated_at: string | null
+}
+
+interface PyTestStep {
+  name: string
+  ok: boolean
+  detail: string
+  hint: string | null
+}
+
+interface PyTestResp {
+  ok: boolean
+  steps: PyTestStep[]
+  summary: string
+}
+
 const EXT_DOMAIN_FA: Record<string, string> = {
   professors: 'اساتید',
   classrooms: 'کلاس‌ها',
@@ -119,6 +141,13 @@ export default function Payehyar() {
   const [extRunning, setExtRunning] = useState(false)
   const [extMsg, setExtMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [conn, setConn] = useState<PyConnView | null>(null)
+  const [urlInput, setUrlInput] = useState('')
+  const [keyInput, setKeyInput] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [testing, setTesting] = useState(false)
+  const [testRes, setTestRes] = useState<PyTestResp | null>(null)
+  const [connMsg, setConnMsg] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -134,6 +163,13 @@ export default function Payehyar() {
         setSys(await api.get<PySystemStatus>('/integration/payehyar/system-status'))
       } catch {
         setSys(null) // نسخه‌های قدیمی‌تر بدون این endpoint
+      }
+      try {
+        const cv = await api.get<PyConnView>('/integration/payehyar/connection')
+        setConn(cv)
+        setUrlInput((prev) => prev || cv.base_url)
+      } catch {
+        setConn(null) // نسخه‌های قدیمی‌تر بدون endpoint تنظیمات
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'دریافت وضعیت همگام‌سازی ناموفق بود')
@@ -172,6 +208,45 @@ export default function Payehyar() {
       setExtMsg(e instanceof Error ? `خطا: ${e.message}` : 'اجرای همگام‌سازی ناموفق بود')
     } finally {
       setExtRunning(false)
+    }
+  }
+
+  const saveConnection = async () => {
+    setSaving(true)
+    setConnMsg(null)
+    try {
+      await api.put<PyConnView>('/integration/payehyar/connection', {
+        base_url: urlInput,
+        api_key: keyInput === '' ? undefined : keyInput,
+      })
+      setKeyInput('')
+      setConnMsg('تنظیمات ذخیره شد ✓ — از این پس همهٔ همگام‌سازی‌ها با همین کلید انجام می‌شود.')
+      await load()
+    } catch (e) {
+      setConnMsg(e instanceof Error ? `خطا: ${e.message}` : 'ذخیرهٔ تنظیمات ناموفق بود')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const testConnection = async () => {
+    setTesting(true)
+    setTestRes(null)
+    try {
+      const res = await api.post<PyTestResp>('/integration/payehyar/test-connection', {
+        base_url: urlInput || undefined,
+        api_key: keyInput === '' ? undefined : keyInput,
+      })
+      setTestRes(res)
+      await load()
+    } catch (e) {
+      setTestRes({
+        ok: false,
+        steps: [],
+        summary: e instanceof Error ? `خطا: ${e.message}` : 'اجرای تست اتصال ناموفق بود',
+      })
+    } finally {
+      setTesting(false)
     }
   }
 
@@ -235,6 +310,84 @@ export default function Payehyar() {
                 {status.probe.required_roles?.length ? (
                   <div style={{ marginTop: 4 }}>نقش‌های لازم: {status.probe.required_roles.join('، ')}</div>
                 ) : null}
+              </div>
+            )}
+          </div>
+
+          {/* ---------- تنظیمات و تست اتصال (v3.4.2) ---------- */}
+          <div className="card">
+            <strong>تنظیمات و تست اتصال</strong>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '6px 0 12px' }}>
+              کلید API را یک‌بار همین‌جا ذخیره کنید — نیازی به فایل .env نیست؛ کلید در
+              دیتابیس محلی همین دستگاه نگه داشته می‌شود و بلافاصله اعمال می‌شود.
+              {conn?.has_key ? ` کلید فعلی: ${conn.api_key_masked}` : ' کلید فعلی: تنظیم نشده'}
+              {conn?.updated_at ? ` — آخرین ذخیره: ${faTime(conn.updated_at)}` : ''}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 560 }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                آدرس سرویس پایه‌یار
+                <input
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  placeholder="http://188.212.96.235:8094"
+                  dir="ltr"
+                  style={{ padding: '8px 10px', borderRadius: 10, border: '1px solid var(--border, #ccc)', background: 'transparent', color: 'inherit' }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                کلید API (X-API-Key)
+                <input
+                  value={keyInput}
+                  onChange={(e) => setKeyInput(e.target.value)}
+                  type="password"
+                  placeholder={conn?.has_key ? 'برای تغییر کلید، مقدار جدید را وارد کنید' : 'pyk_…'}
+                  dir="ltr"
+                  style={{ padding: '8px 10px', borderRadius: 10, border: '1px solid var(--border, #ccc)', background: 'transparent', color: 'inherit' }}
+                />
+              </label>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                <button type="button" className="btn btn-primary" disabled={saving} onClick={() => void saveConnection()}>
+                  {saving ? '⏳ در حال ذخیره…' : '💾 ذخیره تنظیمات'}
+                </button>
+                <button type="button" className="btn" disabled={testing} onClick={() => void testConnection()}>
+                  {testing ? '⏳ در حال تست…' : '🔍 تست اتصال'}
+                </button>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  تست با مقادیر همین فیلدها انجام می‌شود؛ اگر خالی باشند با تنظیمات ذخیره‌شده.
+                </span>
+              </div>
+            </div>
+            {connMsg && (
+              <div style={{ marginTop: 10, fontSize: '0.85rem', color: connMsg.includes('خطا') ? 'var(--danger-text)' : 'var(--success-text)' }}>
+                {connMsg}
+              </div>
+            )}
+            {testRes && (
+              <div style={{
+                marginTop: 12, padding: '10px 12px', borderRadius: 12,
+                background: testRes.ok ? 'var(--success-bg)' : 'var(--danger-bg)',
+                border: `1px solid ${testRes.ok ? 'var(--success-border)' : 'var(--danger-border)'}`,
+                fontSize: '0.86rem', lineHeight: 1.9,
+              }}>
+                <strong style={{ color: testRes.ok ? 'var(--success-text)' : 'var(--danger-text)' }}>
+                  {testRes.ok ? '✓ نتیجهٔ تست: ' : '✗ نتیجهٔ تست: '}
+                </strong>
+                <span style={{ color: testRes.ok ? 'var(--success-text)' : 'var(--danger-text)' }}>{testRes.summary}</span>
+                {testRes.steps.length > 0 && (
+                  <div style={{ marginTop: 8 }}>
+                    {testRes.steps.map((s, i) => (
+                      <div key={i} style={{ padding: '6px 8px', borderTop: i ? '1px dashed var(--border, #ccc)' : 'none' }}>
+                        <strong>{s.ok ? '✓' : '✗'} {s.name}: </strong>
+                        <span style={{ color: 'var(--text-muted)' }}>{s.detail}</span>
+                        {s.hint && (
+                          <div style={{ color: 'var(--warn-text)', fontSize: '0.8rem', marginTop: 2 }}>
+                            راهنما: {s.hint}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -15,7 +15,7 @@ import pytest
 from app.core.database import SessionLocal
 from app.models.courses import Course
 from app.models.identity import User
-from app.services import payehyar_catalog
+from app.services import payehyar_catalog, payehyar_connection
 from app.services.payehyar_client import _HINTS, PayehyarClient, PayehyarError
 
 PROBE_OK = {"openapi": "3.1.0", "info": {"title": "PayehYar360 — Shared Core & Master Data",
@@ -107,9 +107,13 @@ def _client(**kw) -> PayehyarClient:
 
 @pytest.fixture()
 def mock_client(monkeypatch):
-    """کلاینت واقعی در ماژول کاتالوگ با transport mock و کلید معتبر جایگزین می‌شود."""
-    monkeypatch.setattr(payehyar_catalog, "PayehyarClient",
-                        lambda **kw: _client(api_key="good-key", **kw))
+    """ساخت کلاینت در payehyar_connection با transport mock و کلید معتبر جایگزین می‌شود.
+
+    از v3.4.2 همهٔ مسیرهای همگام‌سازی کلاینت را از payehyar_connection.client_for
+    می‌گیرند (تنظیمات اتصال دیتابیس‌محور)؛ پس نقطهٔ patch همین‌جاست."""
+    from app.services import payehyar_connection
+    monkeypatch.setattr(payehyar_connection, "client_for",
+                        lambda db, **kw: _client(api_key="good-key", **kw))
 
 
 # ---------- نرمال‌سازی شکل مستند ----------
@@ -284,7 +288,7 @@ def test_sync_links_existing_local_course(client, ctx, prof_headers, monkeypatch
             super().__init__(base_url="http://mock", timeout=2, api_key="link-key",
                              transport=httpx.MockTransport(_handler3), **kw)
 
-    monkeypatch.setattr(payehyar_catalog, "PayehyarClient", CLink)
+    monkeypatch.setattr(payehyar_connection, "PayehyarClient", CLink)
 
     db = SessionLocal()
     try:
@@ -310,7 +314,7 @@ def test_sync_links_existing_local_course(client, ctx, prof_headers, monkeypatch
         db.close()
 
 
-def test_sync_version_change_needs_review(client, prof_headers, mock_client, monkeypatch):
+def test_sync_version_change_needs_review(client, prof_headers, monkeypatch):
     """تغییر نسخه مرجع → پیش‌نویس جدید + REVIEW_REQUIRED؛ نسخه قبلی دست‌نخورده."""
     client.post("/api/v1/integration/payehyar/sync", headers=prof_headers, json={"mode": "FULL"})
     db = SessionLocal()
@@ -349,7 +353,7 @@ def test_sync_version_change_needs_review(client, prof_headers, mock_client, mon
             super().__init__(base_url="http://mock", timeout=2, api_key="good-key",
                              transport=httpx.MockTransport(_handler2), **kw)
 
-    monkeypatch.setattr(payehyar_catalog, "PayehyarClient", C2)
+    monkeypatch.setattr(payehyar_connection, "client_for", lambda db, **kw: C2())
     r = client.post("/api/v1/integration/payehyar/sync", headers=prof_headers,
                     json={"mode": "FULL"})
     data = r.json()
@@ -374,7 +378,7 @@ def test_sync_version_change_needs_review(client, prof_headers, mock_client, mon
         db.close()
 
 
-def test_sync_auth_failure_logged_with_hint(client, prof_headers, mock_client, monkeypatch):
+def test_sync_auth_failure_logged_with_hint(client, prof_headers, monkeypatch):
     """بدون کلید: اجرا FAILED با کد و راهنمای دقیق — نه کرش، نه داده ساختگی."""
 
     class CNoKey(PayehyarClient):
@@ -388,7 +392,7 @@ def test_sync_auth_failure_logged_with_hint(client, prof_headers, mock_client, m
                 "hint": _HINTS["NEEDS_API_KEY"], "required_roles": []}
 
     monkeypatch.setattr(CNoKey, "probe", _probe_fail)
-    monkeypatch.setattr(payehyar_catalog, "PayehyarClient", CNoKey)
+    monkeypatch.setattr(payehyar_connection, "client_for", lambda db, **kw: CNoKey())
     r = client.post("/api/v1/integration/payehyar/sync", headers=prof_headers,
                     json={"mode": "FULL"})
     data = r.json()

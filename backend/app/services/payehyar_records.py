@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.core.database import utcnow
 from app.models.journey import MasterdataSyncLog, PayehyarRecord
+from app.services import payehyar_connection
 from app.services.payehyar_client import PayehyarClient, PayehyarError
 
 EXTENDED_DOMAIN_LABELS = {
@@ -162,7 +163,7 @@ def sync_extended_domains(db: Session, user, domains: list[str] | None = None,
     stats = {"courses_created": 0, "courses_updated": 0, "up_to_date": 0}
     details: list[dict] = []
     warnings: list[str] = []
-    client = PayehyarClient()
+    client = payehyar_connection.client_for(db)
     for domain in targets:
         label = EXTENDED_DOMAIN_LABELS.get(domain, domain)
         try:

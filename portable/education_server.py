@@ -11,7 +11,7 @@
  - تنظیمات اپ فقط با پیشوند S360_ خوانده می‌شوند (اصلاح ۳.۲.۱)
 =====================================================================
 """
-VERSION = "3.4.1"  # نسخهٔ بستهٔ قابل حمل — همگام با تگ ریلیز به‌روزرسانی شود
+VERSION = "3.4.2"  # نسخهٔ بستهٔ قابل حمل — همگام با تگ ریلیز به‌روزرسانی شود
 import os
 import sys
 import time
@@ -52,11 +52,45 @@ def find_free_port(preferred: int = PREFERRED_PORT, tries: int = 12) -> int:
     return preferred
 
 
+def _load_env_file() -> None:
+    """خواندن .env (یا .env.txt) کنار فایل اجرایی — اصلاح v3.4.2.
+
+    پیش‌تر مستند شده بود که «فایل .env را کنار exe بگذارید» اما اجراکننده
+    هرگز آن را نمی‌خواند و کلید پایه‌یار نادیده گرفته می‌شد. حالا متغیرهای
+    فایل با قاعدهٔ setdefault اعمال می‌شوند (متغیر محیطی واقعی اولویت دارد)
+    و مسیرهای مدیریتی خود اجراکننده (DATABASE_URL/STORAGE_DIR) بعداً بازنویسی
+    می‌شوند. فرمت: سطرهای KEY=VALUE؛ # توضیح؛ کوتیشن حذف می‌شود؛ UTF-8 با BOM."""
+    base = app_base()
+    for name in (".env", ".env.txt"):  # Notepad ویندوز گاهی پسوند .txt می‌گذارد
+        path = os.path.join(base, name)
+        if not os.path.isfile(path):
+            continue
+        loaded = 0
+        try:
+            with open(path, encoding="utf-8-sig", errors="replace") as fh:
+                for raw in fh:
+                    line = raw.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    k, _, v = line.partition("=")
+                    k, v = k.strip(), v.strip().strip('"').strip("'")
+                    if k and k not in os.environ:
+                        os.environ[k] = v
+                        loaded += 1
+            print(f"[i] تنظیمات از فایل {name} بارگذاری شد ({loaded} متغیر).")
+        except OSError as exc:
+            print(f"[!] خواندن {name} ناموفق بود: {exc}")
+        return
+    print("[i] فایل .env کنار برنامه یافت نشد — کلید اتصال پایه‌یار را می‌توانید "
+          "از داخل اپ (صفحهٔ همگام‌سازی پایه‌یار۳۶۰ ← تنظیمات و تست اتصال) ذخیره کنید.")
+
+
 def prepare_environment() -> None:
     """
     پوشه‌های داده (data و exports) را کنار exe آماده می‌کند و
     متغیرهای محیطی برنامه را تنظیم می‌کند.
     """
+    _load_env_file()
     base = app_base()
     data_dir = os.path.join(base, "data")
     exports_dir = os.path.join(base, "exports")
@@ -147,5 +181,76 @@ def main() -> None:
         raise
 
 
+def _s360_guard() -> None:
+    """راه‌اندازی محافظت‌شده (v3.4.2) — هیچ خروج بی‌صدایی.
+
+    گزارش کاربر v3.4.1: بعد از بنر، برنامه بی‌صدا بسته می‌شد. اکنون هر استثنا
+    چاپ و در crash.log کنار برنامه ثبت می‌شود و پنجره تا Enter باز می‌ماند؛
+    اشغال بودن پورت 8084 هم پیش از راه‌اندازی با پیام واضح گزارش می‌شود."""
+    import faulthandler
+    import socket
+    import time as _time
+    import traceback as _tb
+
+    try:
+        faulthandler.enable()
+    except Exception:
+        pass
+    os.environ.setdefault("PYTHONUNBUFFERED", "1")
+
+    def _app_dir() -> str:
+        try:
+            return app_base()
+        except Exception:
+            return os.path.dirname(os.path.abspath(
+                sys.executable if getattr(sys, "frozen", False) else __file__))
+
+    def _dump(kind: str, exc: BaseException | None = None) -> None:
+        log_path = os.path.join(_app_dir(), "crash.log")
+        text = (_tb.format_exception(type(exc), exc, exc.__traceback__)
+                if exc is not None else _tb.format_exc())
+        try:
+            with open(log_path, "a", encoding="utf-8") as fh:
+                fh.write(f"\n===== {_time.strftime('%Y-%m-%d %H:%M:%S')} — {kind} =====\n")
+                fh.write("".join(text))
+        except Exception:
+            pass
+        print(f"\n[!] خطای جدی ({kind}) رخ داد — جزئیات در {log_path}", flush=True)
+        print("".join(text), flush=True)
+        try:
+            input("\n[?] برای بستن این پنجره Enter را بزنید… ")
+        except Exception:
+            pass
+
+    sys.excepthook = lambda t, v, b: _dump("خطای پردازش", v)
+
+    def _thread_hook(args) -> None:
+        if args.exc_type in (SystemExit, KeyboardInterrupt):
+            return
+        _dump("خطای رشتهٔ پس‌زمینه", args.exc_value)
+    threading.excepthook = _thread_hook
+
+    # هشدار پورت اشغال — پیش از راه‌اندازی سرور (مظنون اصلی «بعد از بنر می‌میرد»)
+    try:
+        _probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        _probe.bind(("127.0.0.1", 8084))
+        _probe.close()
+    except OSError:
+        print("\n[!] هشدار: پورت 8084 اشغال است — به احتمال زیاد نمونهٔ دیگری از برنامه همین حالا در حال اجراست.", flush=True)
+        print("    همهٔ پنجره‌های SmartEducation را ببندید و در Task Manager نیز SmartEducation.exe را End Task کنید،", flush=True)
+        print("    سپس برنامه را دوباره اجرا کنید. اگر باز هم اجرا نشد، فایل crash.log کنار برنامه را گزارش دهید.", flush=True)
+
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n[i] برنامه با Ctrl+C بسته شد.", flush=True)
+    except SystemExit:
+        raise
+    except BaseException as exc:
+        _dump("راه‌اندازی", exc)
+    else:
+        print("\n[i] سرور متوقف شد — برای اجرای دوباره، همین برنامه را باز کنید.", flush=True)
+
+
 if __name__ == "__main__":
-    main()
+    _s360_guard()
