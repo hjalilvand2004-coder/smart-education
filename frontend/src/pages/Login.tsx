@@ -316,7 +316,7 @@ export default function Login() {
             </div>
           )}
 
-          <div className="login-footer">نسخه ۳.۱۲.۰ ✨ مقاطع تحصیلی (کاردانی تا دکترا) + دستیار هوشمند در سمت چپ — در نسخه پرتیبل</div>
+          <div className="login-footer">نسخه ۳.۱۳.۰ ✨ درس‌های واقعی داده‌کاوی، IoT، توسعه و آزمون نرم‌افزار + ویجت بالای راهنما — در نسخه پرتیبل</div>
         </div>
       </div>
       <HelpButton />

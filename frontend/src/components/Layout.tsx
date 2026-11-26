@@ -438,7 +438,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۱۲.۰ — مقطع‌محور + دستیار در سمت چپ ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۱۳.۰ — درس‌های واقعی طرح‌های درس مصوب + ویجت بدون تداخل ✨</div>
         </div>
       </aside>
 

@@ -53,11 +53,31 @@ export function notifyMsuAgentChanged(): void {
 /** حذف کامل DOM و استایل ویجت پیش از بارگذاری مجدد */
 function cleanupWidget(): void {
   document.getElementById(SCRIPT_ID)?.remove()
+  document.getElementById(FIX_STYLE_ID)?.remove()
   document.querySelectorAll('.msu-fab, .msu-panel').forEach((n) => n.remove())
   document.querySelectorAll('style').forEach((st) => {
     if ((st.textContent || '').includes('.msu-fab')) st.remove()
   })
   try { delete (window as { MSUAgent?: unknown }).MSUAgent } catch { /* noop */ }
+}
+
+const FIX_STYLE_ID = 'msu-agent-position-fix'
+
+/**
+ * استایل مکمل جانمایی — v3.13.0: ویجت کمی بالاتر از دکمهٔ راهنمای صفحه می‌نشیند
+ * تا با آن هم‌پوشانی نکند (راهنما پایین-چپ ۱۸px است؛ FAB به ۷۶px و پنل به ۱۴۶px
+ * می‌رود و فقط در حالت پایین‌چپ اعمال می‌شود). با !important بر CSS وندرشدهٔ
+ * widget.js غلبه می‌کند و در cleanupWidget پاک می‌شود.
+ */
+function appendPositionFix(): void {
+  if (document.getElementById(FIX_STYLE_ID)) return
+  const st = document.createElement('style')
+  st.id = FIX_STYLE_ID
+  st.textContent = [
+    '.msu-fab.msu-bl{bottom:76px!important}',
+    '.msu-panel.msu-bl{bottom:146px!important}',
+  ].join('\n')
+  document.head.appendChild(st)
 }
 
 /**
@@ -72,6 +92,7 @@ export async function injectMsuWidget(): Promise<void> {
     if (cfg.token) {
       try { localStorage.setItem(cfg.token_key || 'msu_agent_token', cfg.token) } catch { /* noop */ }
     }
+    appendPositionFix() // v3.13.0: بالاتر از دکمهٔ راهنمای صفحه
     const s = document.createElement('script')
     s.id = SCRIPT_ID
     s.src = '/msu-agent-widget.js' // وندرشده — هم‌مبدأ با خود سامانه
