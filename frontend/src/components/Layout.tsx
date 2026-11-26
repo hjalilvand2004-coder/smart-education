@@ -305,10 +305,11 @@ export default function Layout() {
         key: 'integration',
         label: 'یکپارچه‌سازی و مدیریت',
         icon: 'integration',
-        match: /\/programyar|\/payehyar|\/admin/,
+        match: /\/programyar|\/payehyar|\/darsyar|\/admin/,
         items: [
-          { to: '/programyar', label: 'برنامه‌یار۳۶۰', icon: 'integration' },
-          { to: '/payehyar', label: 'همگام‌سازی پایه‌یار', icon: 'sync' },
+          { to: '/programyar', label: 'برنامه ترم جاری (برنامه‌یار)', icon: 'plan' },
+          { to: '/darsyar', label: 'درس‌یار۳۶۰ (نظرسنجی)', icon: 'sync' },
+          { to: '/payehyar', label: 'همگام‌سازی پایه‌یار', icon: 'integration' },
           ...adminItems,
         ],
       })
@@ -420,7 +421,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۸.۰ — تاریخ شمسی و راهنما ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۹.۰ — جستجوی درس‌ها و یکپارچگی ۳۶۰ ✨</div>
         </div>
       </aside>
 

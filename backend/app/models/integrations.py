@@ -18,3 +18,18 @@ class PayehyarConnection(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
     base_url: Mapped[str] = mapped_column(String(255), default="")
     api_key: Mapped[str] = mapped_column(String(255), default="")
+
+
+class DarsyarConnection(TimestampMixin, Base):
+    """اتصال به درس‌یار۳۶۰ (darsyar360.ir — مطلوبیات درسی/زمانی اساتید).
+
+    الگوی PayehyarConnection: ردیف یکتا (id=1) از صفحهٔ تنظیمات درس‌یار ذخیره
+    می‌شود؛ اولویت دیتابیس > متغیر محیطی S360_DARSYAR_* > پیش‌فرض کد.
+    """
+
+    __tablename__ = "darsyar_connection"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    base_url: Mapped[str] = mapped_column(String(255), default="")
+    api_key: Mapped[str] = mapped_column(String(255), default="")
+    timeout_seconds: Mapped[int] = mapped_column(Integer, default=0)  # 0 = بدون مقدار DB

@@ -68,11 +68,24 @@ function emblemText(title: string): string {
   return word.slice(0, 2)
 }
 
+/** نرمال‌سازی متن فارسی برای جستجو — ZWNJ، ی/ك عربی، ارقام و فاصله‌ها */
+function faNorm(text: string): string {
+  return (text || '')
+    .replace(/\u200c/g, ' ')
+    .replace(/[يى]/g, 'ی')
+    .replace(/[ك]/g, 'ک')
+    .replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
 export default function Courses() {
   const { user } = useAuth()
   const [courses, setCourses] = useState<Course[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [view, setView] = useState<ViewMode>(loadView)
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     document.title = 'درس‌های من | دانشجو۳۶۰'
@@ -117,6 +130,16 @@ export default function Courses() {
     [courses],
   )
 
+  /** جستجوی درس‌ها — بر اساس عنوان، کد، گروه/دانشکده و ترم (فارسی‌آگاه) */
+  const filtered = useMemo(() => {
+    const q = faNorm(query)
+    if (!q) return courses || []
+    return (courses || []).filter((c) =>
+      [c.title, c.code, c.department, c.term, c.my_role]
+        .some((field) => field && faNorm(String(field)).includes(q)),
+    )
+  }, [courses, query])
+
   if (error) return <div className="error-box">{error}</div>
   if (courses === null) {
     return (
@@ -160,9 +183,52 @@ export default function Courses() {
         </div>
       </div>
 
-      {view === 'cards' && (
+      {/* جستجوی درس‌ها (v3.9.0) — فیلتر زنده روی عنوان/کد/گروه/ترم */}
+      <div className="courses-search-row">
+        <div className="courses-search">
+          <svg className="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <input
+            className="input search-input"
+            type="search"
+            placeholder="جستجوی درس: عنوان، کد، گروه یا ترم…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="جستجوی درس"
+          />
+          {query && (
+            <button type="button" className="search-clear" aria-label="پاک‌کردن جستجو"
+                    onClick={() => setQuery('')}>✕</button>
+          )}
+        </div>
+        {query && (
+          <div className="search-count muted">
+            {filtered.length > 0
+              ? `${filtered.length.toLocaleString('fa-IR')} درس از ${courses.length.toLocaleString('fa-IR')} یافت شد`
+              : 'درسی با این عبارت یافت نشد'}
+          </div>
+        )}
+      </div>
+
+      {query && filtered.length === 0 && (
+        <div className="empty-box">
+          <strong>نتیجه‌ای برای «{query}» یافت نشد</strong>
+          عبارت کوتاه‌تری امتحان کنید یا جستجو را پاک کنید — همهٔ{' '}
+          {courses.length.toLocaleString('fa-IR')} درس شما سر جایشان هستند.
+          <div className="btn-row" style={{ marginTop: 10 }}>
+            <button type="button" className="btn btn-sm" onClick={() => setQuery('')}>
+              نمایش همهٔ درس‌ها
+            </button>
+          </div>
+        </div>
+      )}
+
+      {view === 'cards' && filtered.length > 0 && (
         <div className="grid-cards cards-v2">
-          {courses.map((c, i) => (
+          {filtered.map((c, i) => (
             <Link key={c.id} className="course-card course-card-v2" to={`/course/${c.id}`}>
               <div className="card-v2-head">
                 <span className={`emblem ${EMBLEM_VARIANTS[i % 4]}`}>{emblemText(c.title)}</span>
@@ -187,7 +253,7 @@ export default function Courses() {
         </div>
       )}
 
-      {view === 'table' && (
+      {view === 'table' && filtered.length > 0 && (
         <div className="table-wrap">
           <table className="table courses-table">
             <thead>
@@ -203,7 +269,7 @@ export default function Courses() {
               </tr>
             </thead>
             <tbody>
-              {courses.map((c) => (
+              {filtered.map((c) => (
                 <tr key={c.id}>
                   <td>
                     <Link className="table-course-link" to={`/course/${c.id}`}>{c.title}</Link>
@@ -227,7 +293,7 @@ export default function Courses() {
         </div>
       )}
 
-      {view === 'infographic' && (
+      {view === 'infographic' && filtered.length > 0 && (
         <div className="infographic">
           <div className="info-summary">
             <div className="summary-tile">
@@ -249,7 +315,7 @@ export default function Courses() {
           </div>
 
           <div className="info-list">
-            {courses.map((c, i) => (
+            {filtered.map((c, i) => (
               <Link key={c.id} className="info-banner" to={`/course/${c.id}`}>
                 <span className={`emblem ${EMBLEM_VARIANTS[i % 4]}`}>{emblemText(c.title)}</span>
                 <div className="info-main">

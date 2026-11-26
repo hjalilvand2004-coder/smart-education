@@ -155,19 +155,25 @@ def _course_pool(db: Session, limit: int = 24) -> list[dict]:
     return list(pool.values())[: limit * 2]
 
 
-def _fetch_live(professor: dict) -> dict | None:
-    """واکشی زنده از درس‌یار۳۶۰؛ در هر خطا None (تماس‌کننده به نمونه برمی‌گردد)."""
+def _fetch_live(professor: dict, base_url: str | None = None,
+                api_key: str | None = None, timeout: int | None = None) -> dict | None:
+    """واکشی زنده از درس‌یار۳۶۰؛ در هر خطا None (تماس‌کننده به نمونه برمی‌گردد).
+
+    آرگومان‌های override برای تست/مسیرهای خاص؛ پیش‌فرض از تنظیمات مؤثر
+    (دیتابیس > متغیر محیطی > پیش‌فرض کد) خوانده می‌شود."""
     s = get_settings()
-    base = (s.darsyar_base_url or "").rstrip("/")
+    base = (base_url or s.darsyar_base_url or "").rstrip("/")
     if not base:
         return None
     headers = {"Accept": "application/json"}
-    if s.darsyar_api_key:
-        headers["X-API-Key"] = s.darsyar_api_key
+    key = api_key or s.darsyar_api_key
+    if key:
+        headers["X-API-Key"] = key
+    seconds = float(timeout or s.darsyar_timeout_seconds)
     for path in _candidate_paths(professor.get("ext_id") or ""):
         try:
             resp = httpx.get(base + path, headers=headers,
-                             timeout=s.darsyar_timeout_seconds, follow_redirects=True)
+                             timeout=seconds, follow_redirects=True)
             if resp.status_code != 200:
                 continue
             body = resp.json()
@@ -177,6 +183,20 @@ def _fetch_live(professor: dict) -> dict | None:
         except Exception:  # noqa: BLE001 — شبکه/JSON هر خطا → fallback نمونه
             continue
     return None
+
+
+def _effective_fetch_kwargs(db: Session) -> dict:
+    """override های دیتابیس تنظیمات اتصال درس‌یار (فقط مقادیر صریح ذخیره‌شده)."""
+    from app.services import darsyar_connection
+    eff = darsyar_connection.effective_connection(db)
+    kw: dict = {}
+    if eff["base_url_source"] == "DB":
+        kw["base_url"] = eff["base_url"]
+    if eff["key_source"] == "DB":
+        kw["api_key"] = eff["api_key"]
+    if eff["timeout_source"] == "DB":
+        kw["timeout"] = eff["timeout_seconds"]
+    return kw
 
 
 def get_preferences(db: Session, professor: dict, refresh: bool = False) -> dict:
@@ -197,7 +217,7 @@ def get_preferences(db: Session, professor: dict, refresh: bool = False) -> dict
                 "instructor": {"ext_id": ext_id, "name": professor.get("name")},
                 **(cached.payload or {})}
 
-    live = _fetch_live(professor)
+    live = _fetch_live(professor, **_effective_fetch_kwargs(db))
     source = "live" if live else "demo"
     data = live or _demo_preferences(professor, _course_pool(db))
     now = utcnow()
@@ -299,3 +319,75 @@ def professor_summary(db: Session, rec: PayehyarRecord) -> dict:
         "payload": p,
         "last_synced_at": rec.last_synced_at.isoformat() if rec.last_synced_at else None,
     }
+
+
+def professors_from_db(db: Session, limit: int = 200) -> list[dict]:
+    """فهرست اساتید همگام‌شده از پایه‌یار برای واکشی گروهی مطلوبیات."""
+    rows = (db.query(PayehyarRecord)
+            .filter(PayehyarRecord.domain == "professors",
+                    PayehyarRecord.is_deleted == False)  # noqa: E712
+            .order_by(PayehyarRecord.title.is_(None), PayehyarRecord.title)
+            .limit(min(500, max(1, limit))).all())
+    return [professor_summary(db, r) for r in rows]
+
+
+def sync_all_preferences(db: Session, refresh: bool = True, limit: int = 100) -> dict:
+    """همگام‌سازی گروهی مطلوبیات همهٔ اساتید از درس‌یار۳۶۰.
+
+    هر استاد مستقل واکشی می‌شود؛ شکست هر مورد فقط هشدار است و بقیه ادامه
+    می‌یابند. منبع هر رکورد (live/demo) در پاسخ شفاف گزارش می‌شود — مالک داده
+    درس‌یار است و اینجا فقط رونوشت همگام‌شده نگه داشته می‌شود."""
+    profs = professors_from_db(db, limit=limit)
+    if not profs:
+        return {"ok": False, "message": "هیچ استادی از پایه‌یار۳۶۰ همگام‌سازی نشده است؛ "
+                                        "ابتدا از صفحهٔ «اساتید و مطلوبیات» اساتید را همگام کنید.",
+                "total": 0, "live": 0, "demo": 0, "items": []}
+    kw = _effective_fetch_kwargs(db)
+    items, live_count, demo_count = [], 0, 0
+    for prof in profs:
+        try:
+            payload = get_preferences(db, prof, refresh=refresh)
+            source = payload.get("source") or "demo"
+            if source == "live":
+                live_count += 1
+            else:
+                demo_count += 1
+            items.append({
+                "ext_id": prof["ext_id"], "name": prof["name"],
+                "department": prof.get("department") or "",
+                "source": source,
+                "subjects_count": len(payload.get("subjects") or []),
+                "time_slots_count": len(payload.get("time_slots") or []),
+                "constraints_count": len(payload.get("constraints") or []),
+                "fetched_at": payload.get("fetched_at"),
+            })
+        except Exception as exc:  # noqa: BLE001 — یک استاد نباید همه را بیندازد
+            items.append({"ext_id": prof["ext_id"], "name": prof.get("name"),
+                          "department": prof.get("department") or "",
+                          "source": "error", "error": str(exc)[:160],
+                          "subjects_count": 0, "time_slots_count": 0,
+                          "constraints_count": 0, "fetched_at": None})
+    return {"ok": True,
+            "message": f"همگام‌سازی انجام شد: {live_count} استاد زنده از درس‌یار۳۶۰، "
+                       f"{demo_count} مورد نمونهٔ قطعی (سرویس در دسترس/پیکربندی نیست).",
+            "total": len(items), "live": live_count, "demo": demo_count,
+            "items": items}
+
+
+def preferences_overview(db: Session) -> dict:
+    """رونوشت‌های ذخیره‌شدهٔ مطلوبیات برای جدول صفحهٔ درس‌یار۳۶۰."""
+    rows = (db.query(DarsyarPreference).order_by(DarsyarPreference.professor_name).all())
+    items = []
+    for r in rows:
+        p = r.payload or {}
+        items.append({
+            "ext_id": r.professor_ext_id,
+            "name": r.professor_name or "استاد",
+            "source": r.source,
+            "fetched_at": r.fetched_at.isoformat() if r.fetched_at else None,
+            "subjects": p.get("subjects") or [],
+            "time_slots_count": len(p.get("time_slots") or []),
+            "constraints_count": len(p.get("constraints") or []),
+            "constraints": p.get("constraints") or [],
+        })
+    return {"ok": True, "total": len(items), "items": items}

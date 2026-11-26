@@ -1,110 +1,148 @@
-"""تست‌های یکپارچه‌سازی با برنامه‌یار۳۶۰ (با سرور mock، بدون شبکه واقعی)."""
+"""تست‌های «برنامهٔ ترم جاری» از برنامه‌یار۳۶۰ (با سرور mock، بدون شبکه واقعی) — v3.9.0.
+
+تصمیم محصول: از برنامه‌یار۳۶۰ فقط برنامهٔ ترم جاری متناسب با استاد مصرف می‌شود؛
+دروس یکتا/سرفصل‌ها از پایه‌یار۳۶۰ می‌آیند — endpointهای قدیمی واردات حذف شده‌اند.
+"""
 import httpx
 import pytest
 
-from app.services.programyar import ProgramyarClient, parse_unique_course
+from app.services.programyar import (ProgramyarClient, current_term_label,
+                                     demo_schedule, extract_schedule_rows,
+                                     parse_schedule_row)
 
 
 def _mock_app_handler(request: httpx.Request) -> httpx.Response:
     if request.url.path == "/api/auth/login":
-        body = request.read()
-        assert b"username" in body
         return httpx.Response(200, json={"access_token": "tok123"})
-    if request.url.path == "/api/courses/unique":
+    if request.url.path == "/api/schedules":
         if request.headers.get("authorization") == "Bearer tok123":
-            return httpx.Response(200, json=[
-                {"course_code": "CS101", "course_name": "برنامه‌سازی پایه",
-                 "units": "3", "department": "مهندسی کامپیوتر", "term": "نیم‌سال اول"},
-                {"code": "MA201", "name": "ریاضی گسسته", "credits": 2},
+            return httpx.Response(200, json={"items": [
+                {"course_title": "برنامه‌سازی پایه", "course_code": "CS101",
+                 "day": "شنبه", "start": "۸:۰۰", "end": "۹:۳۰",
+                 "group": "گروه ۱", "place": "کلاس ۱۰۱"},
+                {"title": "ریاضی گسسته", "weekday": "دوشنبه",
+                 "start_time": "۱۰:۰۰", "end_time": "۱۱:۳۰", "room": "کلاس ۲۰۳"},
                 {"bad": "record"},
-            ])
-        return httpx.Response(401, json={"detail": "برای دسترسی به سامانه باید وارد شوید."})
+            ]})
+        return httpx.Response(401, json={"detail": "برای دسترسی باید وارد شوید."})
     return httpx.Response(404)
 
 
 def _mock_client() -> ProgramyarClient:
-    return ProgramyarClient(base_url="http://mock", transport=httpx.MockTransport(_mock_app_handler))
+    return ProgramyarClient(base_url="http://mock",
+                            transport=httpx.MockTransport(_mock_app_handler))
 
 
-def test_parse_unique_course_defensive():
-    parsed = parse_unique_course({"course_code": "CS101", "course_name": "برنامه‌سازی پایه", "units": "3"})
-    assert parsed["code"] == "CS101"
-    assert parsed["title"] == "برنامه‌سازی پایه"
-    assert parsed["units"] == 3
-    parsed2 = parse_unique_course({"code": "X1", "name": "عنوان"})
-    assert parsed2["code"] == "X1" and parsed2["title"] == "عنوان"
+def test_parse_schedule_row_defensive():
+    row = parse_schedule_row({"course_name": "شبکه", "weekday": "دوشنبه",
+                              "start_time": "۸:۰۰", "end_time": "۹:۳۰", "room": "کلاس ۲"})
+    assert row["course_title"] == "شبکه" and row["day"] == "دوشنبه"
+    assert row["start"] == "۸:۰۰" and row["place"] == "کلاس ۲"
+    assert parse_schedule_row({"day": "شنبه"}) is None  # بدون عنوان درس
+    assert parse_schedule_row("not-dict") is None
 
 
-def test_fetch_requires_credentials(client, st_headers):
-    """واکشی برای دانشجو ممنوع است."""
-    r = client.post("/api/v1/integration/programyar/courses", headers=st_headers, json={})
+def test_extract_schedule_rows_shapes():
+    rows = extract_schedule_rows([{"course_title": "الف", "day": "شنبه"}])
+    assert len(rows) == 1
+    rows2 = extract_schedule_rows({"days": {"دوشنبه": [{"course_title": "ب"}]}})
+    assert rows2 and rows2[0]["day"] == "دوشنبه"
+    assert extract_schedule_rows(None) == []
+
+
+def test_current_term_label_seasons():
+    from datetime import datetime
+    assert "نیم‌سال اول" in current_term_label(datetime(2026, 11, 26))
+    assert "نیم‌سال اول" in current_term_label(datetime(2026, 3, 15))   # اسفند
+    assert "نیم‌سال دوم" in current_term_label(datetime(2026, 5, 1))    # اردیبهشت
+    assert "تابستان" in current_term_label(datetime(2026, 7, 10))       # تیر
+    # ارقام فارسی
+    assert "۱۴۰۵" in current_term_label(datetime(2026, 11, 26))
+
+
+def test_demo_schedule_deterministic():
+    prof = {"ext_id": "P-1", "name": "دکتر تست"}
+    pool = [{"title": "ریاضیات گسسته", "code": "MA201"}]
+    d1 = demo_schedule(prof, pool)
+    d2 = demo_schedule(prof, pool)
+    assert d1["entries"] == d2["entries"]  # قطعی/تکرارپذیر
+    assert d1["term"] == current_term_label()
+    for e in d1["entries"]:
+        assert e["day"] in ("شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه")
+        assert e["course_title"]
+
+
+def test_client_live_schedule_with_login():
+    """واکشی زندهٔ برنامهٔ ترم جاری با جریان لاگین به برنامه‌یار mock."""
+    res = _mock_client().fetch_schedule("P-1", username="u", password="p")
+    assert res is not None
+    titles = {e["course_title"] for e in res["entries"]}
+    assert "برنامه‌سازی پایه" in titles and "ریاضی گسسته" in titles
+    assert res["entries"][0]["group"] == "گروه ۱"  # نگاشت defensive
+
+
+def test_client_without_credentials_falls_back():
+    """سرویس احراز هویت خواست اما اعتباری پیکربندی نشده → None (نمونه در UI)."""
+    res = _mock_client().fetch_schedule("P-1")
+    assert res is None
+
+
+def test_client_unreachable_returns_none():
+    res = ProgramyarClient(base_url="http://127.0.0.1:1", timeout=1.0).fetch_schedule("P-1")
+    assert res is None
+
+
+def test_schedule_requires_staff(client, st_headers):
+    """برنامهٔ ترم برای دانشجو ممنوع است."""
+    r = client.get("/api/v1/integration/programyar/schedule", headers=st_headers)
     assert r.status_code == 403
+
+
+def test_schedule_endpoint_demo_fallback(client, prof_headers, ctx):
+    """سرویس در دسترس نیست → نمونهٔ قطعی با برچسب شفاف + ترم جاری."""
+    r = client.get("/api/v1/integration/programyar/schedule", headers=prof_headers)
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["ok"] is True
+    assert data["source"] == "demo"
+    assert "نمونهٔ قطعی" in data["message"]
+    assert data["term"] == current_term_label()
+    assert data["professor"]["ext_id"]  # خودِ استاد یا جانشین
+    assert isinstance(data["entries"], list)
+    assert data["days"][0] == "شنبه"
 
 
 @pytest.fixture()
 def mock_programyar(monkeypatch):
-    """کلاینت API برنامه‌یار در مسیر endpoint با transport mock جایگزین می‌شود."""
+    """کلاینت API برنامه‌یار در مسیر endpoint با transport mock جایگزین می‌شود
+    و اعتبارنامهٔ سامانهٔ مقصد در تنظیمات تزریق می‌گردد."""
     import app.api.v1.integration as integ
+    from app.core.config import get_settings
 
     class MockClient(ProgramyarClient):
         def __init__(self, base_url=None, **kw):
-            super().__init__(base_url=base_url, transport=httpx.MockTransport(_mock_app_handler))
+            super().__init__(base_url=base_url,
+                             transport=httpx.MockTransport(_mock_app_handler))
 
     monkeypatch.setattr(integ, "ProgramyarClient", MockClient)
+    s = get_settings()
+    monkeypatch.setattr(s, "programyar_username", "u", raising=False)
+    monkeypatch.setattr(s, "programyar_password", "p", raising=False)
 
 
-def test_fetch_courses_with_login_flow(client, prof_headers, mock_programyar):
-    """لاگین به برنامه‌یار mock و نگاشت درس‌های یکتا."""
-    r = client.post("/api/v1/integration/programyar/courses", headers=prof_headers,
-                    json={"username": "u", "password": "p"})
+def test_schedule_endpoint_live(client, prof_headers, ctx, mock_programyar):
+    """مسیر زندهٔ endpoint با کلاینت mock."""
+    r = client.get("/api/v1/integration/programyar/schedule?refresh=true",
+                   headers=prof_headers)
     assert r.status_code == 200, r.text
     data = r.json()
-    assert data["reachable"] is True, r.text
-    assert data["auth_used"] is True, f"message={data.get('message')} items={data.get('total')}"
-    assert data["total"] == 2
-    codes = [i["code"] for i in data["items"]]
-    assert codes == ["CS101", "MA201"]
-    assert data["items"][0]["units"] == 3
+    assert data["source"] == "live"
+    assert data["total_weekly_hours"] >= 3  # ۲ جلسه × ۱٫۵ ساعت
+    assert any(e["course_title"] == "برنامه‌سازی پایه" for e in data["entries"])
 
 
-def test_import_course_with_topics(client, prof_headers, ctx):
-    """ثبت درس + فرم اطلاعات + سرفصل‌ها و اتصال به نسخه سرفصل."""
-    payload = {
-        "code": "IMP550", "title": "ساختمان داده‌های یکتا",
-        "department": "مهندسی کامپیوتر", "credits": 3, "term": "ترم ۱",
-        "degree_level": "کارشناسی", "description": "درس واکشی‌شده از برنامه‌یار",
-        "prerequisites_note": "پیش‌نیاز: برنامه‌سازی پایه",
-        "source_ref": "CS101",
-        "topics": [
-            {"title": "آرایه‌ها و لیست‌ها", "description": "انواع آرایه و پیاده‌سازی", "suggested_hours": 4},
-            {"title": "درخت‌ها", "suggested_hours": 6},
-            {"title": "گراف", "description": "پیمایش و الگوریتم‌ها"},
-        ],
-    }
-    r = client.post("/api/v1/integration/programyar/import", headers=prof_headers, json=payload)
-    assert r.status_code == 200, r.text
+def test_status_endpoint(client, prof_headers):
+    r = client.get("/api/v1/integration/programyar/status", headers=prof_headers)
+    assert r.status_code == 200
     data = r.json()
-    assert data["topics_count"] == 3
-    # درس برای استاد واردکننده قابل مشاهده است و سرفصل آن موجود است
-    lst = client.get("/api/v1/courses", headers=prof_headers).json()
-    assert any(c["code"] == "IMP550" for c in lst)
-    sv = client.get(f"/api/v1/syllabus-versions/{data['syllabus_version_id']}", headers=prof_headers).json()
-    chapter_titles = [ch["title"] for ch in sv["chapters"]]
-    assert "درخت‌ها" in chapter_titles
-    # کد تکراری → 409
-    r2 = client.post("/api/v1/integration/programyar/import", headers=prof_headers, json=payload)
-    assert r2.status_code == 409
-
-
-def test_import_requires_staff(client, st_headers):
-    r = client.post("/api/v1/integration/programyar/import", headers=st_headers,
-                    json={"code": "S1", "title": "درس دانشجویی"})
-    assert r.status_code == 403
-
-
-def test_unreachable_service(client, prof_headers):
-    """پیام شفاف وقتی مقصد در دسترس نیست."""
-    client_bad = ProgramyarClient(base_url="http://127.0.0.1:1", timeout=1.0)
-    res = client_bad.get_unique_courses("u", "p")
-    assert res["reachable"] is False and res["items"] == []
-    assert "دستی" in res["message"]
+    assert "base_url" in data and "scope" in data

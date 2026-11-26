@@ -316,7 +316,7 @@ export default function Login() {
             </div>
           )}
 
-          <div className="login-footer">نسخه ۳.۸.۰ ✨ تاریخ شمسی و راهنمای هر صفحه — در نسخه پرتیبل</div>
+          <div className="login-footer">نسخه ۳.۹.۰ ✨ جستجوی درس‌ها و سامانه‌های ۳۶۰ — در نسخه پرتیبل</div>
         </div>
       </div>
       <HelpButton />

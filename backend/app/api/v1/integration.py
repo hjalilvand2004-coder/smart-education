@@ -1,19 +1,21 @@
-"""یکپارچه‌سازی با سامانه «برنامه‌یار۳۶۰»: واکشی درس‌های یکتا و ورود به دانشجو۳۶۰.
+"""یکپارچه‌سازی با سامانه‌های ۳۶۰ (v3.9.0):
 
-جریان: واکشی → فرم اطلاعات درس → ثبت سرفصل‌ها (موضوع‌ها) → ساخت درس + نسخه سرفصل
-تا استودیوی محتوا بتواند برای هر سرفصل به‌صورت جداگانه محتوا تولید کند.
+  • برنامه‌یار۳۶۰ — فقط «برنامهٔ ترم جاری متناسب با استاد»؛ دروس یکتا و سرفصل‌ها
+    از پایه‌یار۳۶۰ می‌آیند (نه از برنامه‌یار).
+  • درس‌یار۳۶۰ (darsyar360.ir) — مطلوبیات درسی/زمانی اساتید: تنظیمات اتصال،
+    تست گام‌به‌گام، همگام‌سازی گروهی و رونوشت محلی.
+  • پایه‌یار۳۶۰ — مرجع حقیقت درس/سرفصل/اساتید (همگام‌سازی کاتالوگ و دامنه‌ها).
 """
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.database import get_db
-from app.core.errors import conflict, forbidden
+from app.core.errors import forbidden
 from app.core.security import get_current_user
-from app.models.courses import Course
-from app.models.identity import CourseRole, User
-from app.models.syllabus import SyllabusTopic, SyllabusVersion
+from app.models.identity import User
+from app.models.journey import PayehyarRecord
 from app.core.audit import audit
 from app.services.programyar import DEFAULT_BASE_URL, ProgramyarClient
 
@@ -30,7 +32,7 @@ def _ensure_staff_user(user: User) -> None:
 
 @router.get("/integration/programyar/status")
 def programyar_status(user: User = Depends(get_current_user)):
-    """وضعیت اتصال به برنامه‌یار۳۶۰ (بدون لاگین به مقصد)."""
+    """وضعیت اتصال به برنامه‌یار۳۶۰ — سرویس «برنامهٔ ترم جاری»."""
     import httpx
 
     s = get_settings()
@@ -38,8 +40,10 @@ def programyar_status(user: User = Depends(get_current_user)):
     reachable, auth_required = False, False
     try:
         with httpx.Client(base_url=base, timeout=8.0) as client:
-            resp = client.get("/api/courses/unique")
-            reachable = True
+            resp = client.get("/api/auth/me")
+            if resp.status_code == 404:
+                resp = client.get("/")
+            reachable = resp.status_code < 500
             auth_required = resp.status_code in (401, 403) or "وارد شوید" in resp.text
     except httpx.HTTPError:
         reachable = False
@@ -48,95 +52,84 @@ def programyar_status(user: User = Depends(get_current_user)):
         "reachable": reachable,
         "auth_required": auth_required,
         "credentials_configured": bool(s.programyar_username and s.programyar_password),
+        "scope": "فقط برنامهٔ ترم جاری متناسب با استاد — دروس یکتا و سرفصل‌ها از پایه‌یار۳۶۰ می‌آیند.",
         "message": ("برنامه‌یار۳۶۰ در دسترس است" if reachable
-                    else "اتصال به برنامه‌یار۳۶۰ برقرار نشد؛ آدرس/شبکه را بررسی کنید."),
+                    else "اتصال به برنامه‌یار۳۶۰ برقرار نشد؛ برنامه در «نمونهٔ قطعی» نمایش داده می‌شود."),
     }
 
 
-class FetchIn(BaseModel):
-    username: str | None = None
-    password: str | None = None
-    base_url: str | None = None
+@router.get("/integration/programyar/schedule")
+def programyar_schedule(professor_ext_id: str | None = None, refresh: bool = False,
+                        db: Session = Depends(get_db),
+                        user: User = Depends(get_current_user)):
+    """برنامهٔ ترم جاری متناسب با استاد — از برنامه‌یار۳۶۰ با نمونهٔ قطعی در نبود سرویس.
 
-
-@router.post("/integration/programyar/courses")
-def fetch_programyar_courses(body: FetchIn | None = None, user: User = Depends(get_current_user),
-                             db: Session = Depends(get_db)):
-    """واکشی «درس‌های یکتا» از برنامه‌یار۳۶۰ برای انتخاب و ورود به دانشجو۳۶۰."""
+    استادِ واردشده به‌طور پیش‌فرض برنامهٔ خودش را می‌بیند (تطبیق ایمیل/نام با
+    رونوشت اساتید پایه‌یار)؛ کارکنان آموزشی می‌توانند ext_id استاد دلخواه را
+    بدهند تا برنامهٔ او نمایش داده شود."""
     _ensure_staff_user(user)
-    b = body or FetchIn()
-    client = ProgramyarClient(base_url=b.base_url)
-    result = client.get_unique_courses(b.username, b.password)
-    existing = {c.code for c in db.query(Course).all()}
-    for item in result.get("items", []):
-        item["already_imported"] = bool(item.get("code")) and item["code"] in existing
-    return result
+    from app.services import programyar as py
 
-
-class TopicIn(BaseModel):
-    title: str = Field(min_length=2, max_length=300)
-    description: str | None = None
-    suggested_hours: float | None = None
-    needs_review: bool = False
-
-
-class ImportCourseIn(BaseModel):
-    code: str = Field(min_length=1, max_length=32)
-    title: str = Field(min_length=2, max_length=200)
-    department: str | None = None
-    degree_level: str | None = None
-    field_of_study: str | None = None
-    credits: int | None = None
-    term: str | None = None
-    description: str | None = None
-    prerequisites_note: str | None = None
-    source_ref: str | None = None  # شناسه رکورد در برنامه‌یار۳۶۰
-    topics: list[TopicIn] = []
-
-
-@router.post("/integration/programyar/import")
-def import_course_from_programyar(body: ImportCourseIn, db: Session = Depends(get_db),
-                                  user: User = Depends(get_current_user)):
-    """ثبت درس واکشی‌شده + فرم اطلاعات + سرفصل‌ها در دانشجو۳۶۰."""
-    _ensure_staff_user(user)
-    if db.query(Course).filter(Course.code == body.code).first() is not None:
-        raise conflict("درسی با همین کد از قبل در دانشجو۳۶۰ ثبت شده است")
-
-    course = Course(
-        code=body.code, title=body.title, department=body.department,
-        degree_level=body.degree_level, field_of_study=body.field_of_study,
-        credits=body.credits, term=body.term, created_by=user.id,
-        description=(body.description or None),
-    )
-    db.add(course)
-    db.flush()
-
-    src_note = f"منبع: برنامه‌یار۳۶۰ ({body.source_ref})" if body.source_ref else "منبع: برنامه‌یار۳۶۰"
-    sv = SyllabusVersion(
-        course_id=course.id, version_number=1, title=f"سرفصل درس {body.title}",
-        status="DRAFT", source_kind="MANUAL", prerequisites_note=body.prerequisites_note,
-        notes=src_note, created_by=user.id,
-    )
-    db.add(sv)
-    db.flush()
-    for idx, t in enumerate(body.topics):
-        db.add(SyllabusTopic(
-            syllabus_version_id=sv.id, kind="CHAPTER", title=t.title,
-            description=t.description, order_index=idx,
-            suggested_hours=t.suggested_hours, needs_review=t.needs_review,
-        ))
-    # استادِ واردکننده، استاد درس می‌شود تا بلافاصله در استودیو محتوا تولید کند
-    if user.role == "PROFESSOR":
-        db.add(CourseRole(course_id=course.id, user_id=user.id, role="PROFESSOR"))
-    audit(db, user.id, "COURSE_IMPORT_PROGRAMYAR", "course", course.id,
-          after={"code": course.code, "topics": len(body.topics), "source_ref": body.source_ref})
+    prof, matched = _resolve_professor(db, user, professor_ext_id)
+    entries, source = None, "demo"
+    if prof.get("ext_id"):
+        client = ProgramyarClient()
+        live = client.fetch_schedule(str(prof["ext_id"]))
+        if live:
+            entries, source = live["entries"], "live"
+    if entries is None:
+        demo = py.demo_schedule(prof, py.course_pool_for(db))
+        entries = demo["entries"]
+    audit(db, user.id, "PROGRAMYAR_SCHEDULE_VIEW", "professor", prof.get("ext_id") or "-",
+          after={"source": source, "entries": len(entries), "refresh": bool(refresh)})
     db.commit()
     return {
-        "course_id": str(course.id),
-        "syllabus_version_id": str(sv.id),
-        "topics_count": len(body.topics),
-        "message": f"درس «{body.title}» با {len(body.topics)} سرفصل در دانشجو۳۶۰ ثبت شد.",
+        "ok": True, "source": source,
+        "term": py.current_term_label(),
+        "professor": prof,
+        "matched_profile": matched,
+        "entries": entries,
+        "days": list(py.DAYS),
+        "slots": [{"start": s, "end": e} for s, e in py.SLOTS],
+        "total_weekly_hours": round(len(entries) * 1.5),
+        "message": ("برنامه به‌صورت زنده از برنامه‌یار۳۶۰ واکشی شد." if source == "live" else
+                    "سرویس برنامهٔ ترم برنامه‌یار۳۶۰ در دسترس/پیکربندی نیست؛ نمونهٔ قطعی "
+                    "بر پایهٔ درس‌های همین سامانه نمایش داده می‌شود."),
     }
+
+
+def _resolve_professor(db: Session, user: User,
+                       ext_id: str | None) -> tuple[dict, bool]:
+    """انتخاب استادِ هدف برنامه: درخواست صریح کارکنان > تطبیق خود استاد > جانشین."""
+    def _rec_summary(rec: PayehyarRecord) -> dict:
+        from app.services import darsyar_service
+        return darsyar_service.professor_summary(db, rec)
+
+    if ext_id:
+        rec = (db.query(PayehyarRecord)
+               .filter(PayehyarRecord.domain == "professors",
+                       PayehyarRecord.external_id == ext_id,
+                       PayehyarRecord.is_deleted == False)  # noqa: E712
+               .first())
+        if rec is not None:
+            return _rec_summary(rec), True
+        return {"ext_id": ext_id, "name": "استاد", "department": ""}, False
+
+    # تطبیق خود کاربر با رونوشت اساتید (ایمیل دقیق > نام)
+    query = (db.query(PayehyarRecord)
+             .filter(PayehyarRecord.domain == "professors",
+                     PayehyarRecord.is_deleted == False))  # noqa: E712
+    for rec in query.all():
+        p = rec.payload or {}
+        if user.email and p.get("email") and str(p["email"]).lower() == user.email.lower():
+            return _rec_summary(rec), True
+    for rec in query.all():
+        p = rec.payload or {}
+        name = (p.get("full_name") or p.get("name") or rec.title or "")
+        if name and user.full_name and str(name).strip() == user.full_name.strip():
+            return _rec_summary(rec), True
+    # بدون رونوشتِ هم‌نام: استاد با شناسهٔ کاربری خودش برنامه می‌بیند (نمونهٔ قطعی)
+    return {"ext_id": user.username, "name": user.full_name, "department": ""}, False
 
 
 # ---------- پایه‌یار۳۶۰: مرجع حقیقت درس/سرفصل (بازخورد ۳.۱) ----------
@@ -324,3 +317,92 @@ def payehyar_test_connection(body: PayehyarTestIn | None = None,
     b = body or PayehyarTestIn()
     return payehyar_connection.test_connection(db, base_url=b.base_url,
                                                api_key=b.api_key)
+
+
+# ---------- درس‌یار۳۶۰ (darsyar360.ir): تنظیمات + تست + همگام‌سازی مطلوبیات (v3.9.0) ----------
+
+class DarsyarConnectionIn(BaseModel):
+    base_url: str | None = None        # None=بدون تغییر، ""=بازگشت به پیش‌فرض کد
+    api_key: str | None = None         # None=بدون تغییر، ""=پاک کردن کلید
+    timeout_seconds: int | None = None
+
+
+class DarsyarTestIn(BaseModel):
+    base_url: str | None = None  # override فقط برای «تست پیش از ذخیره»
+    api_key: str | None = None
+
+
+class DarsyarSyncIn(BaseModel):
+    refresh: bool = True       # با کش ۱۲ساعته مخالفت و واکشی تازه
+    limit: int = 100
+
+
+@router.get("/integration/darsyar/connection")
+def darsyar_connection_view(db: Session = Depends(get_db),
+                            user: User = Depends(get_current_user)):
+    """تنظیمات مؤثر اتصال به درس‌یار۳۶۰ — کلید فقط ماسک‌شده برمی‌گردد."""
+    _ensure_staff_user(user)
+    from app.services import darsyar_connection
+
+    return darsyar_connection.connection_view(db)
+
+
+@router.put("/integration/darsyar/connection")
+def darsyar_connection_save(body: DarsyarConnectionIn,
+                            db: Session = Depends(get_db),
+                            user: User = Depends(get_current_user)):
+    """ذخیرهٔ آدرس/کلید/تایم‌اوت درس‌یار۳۶۰ در دیتابیس محلی — بی‌نیاز از .env."""
+    _ensure_staff_user(user)
+    from app.core.errors import validation_error
+    from app.services import darsyar_connection
+
+    try:
+        return darsyar_connection.save_connection(db, base_url=body.base_url,
+                                                  api_key=body.api_key,
+                                                  timeout_seconds=body.timeout_seconds)
+    except ValueError as exc:
+        raise validation_error(str(exc)) from exc
+
+
+@router.post("/integration/darsyar/test-connection")
+def darsyar_test_connection(body: DarsyarTestIn | None = None,
+                            db: Session = Depends(get_db),
+                            user: User = Depends(get_current_user)):
+    """تست گام‌به‌گام اتصال به درس‌یار۳۶۰: دسترسی شبکه → احراز هویت کلید."""
+    _ensure_staff_user(user)
+    from app.services import darsyar_connection
+
+    b = body or DarsyarTestIn()
+    return darsyar_connection.test_connection(db, base_url=b.base_url,
+                                              api_key=b.api_key)
+
+
+@router.post("/integration/darsyar/sync")
+def darsyar_sync(body: DarsyarSyncIn | None = None,
+                 db: Session = Depends(get_db),
+                 user: User = Depends(get_current_user)):
+    """همگام‌سازی گروهی مطلوبیات درسی/زمانی همهٔ اساتید از درس‌یار۳۶۰.
+
+    مالک داده سامانهٔ درس‌یار است؛ این مسیر فقط «رونوشت همگام‌شده» را به‌روز
+    می‌کند. اساتید باید ابتدا از پایه‌یار۳۶۰ همگام شده باشند."""
+    _ensure_staff_user(user)
+    from app.services import darsyar_service
+
+    b = body or DarsyarSyncIn()
+    result = darsyar_service.sync_all_preferences(db, refresh=b.refresh, limit=b.limit)
+    if result.get("ok"):
+        audit(db, user.id, "DARSYAR_PREFERENCES_SYNC", "integration", "darsyar360",
+              after={"total": result.get("total"), "live": result.get("live"),
+                     "demo": result.get("demo")})
+        db.commit()
+    return result
+
+
+@router.get("/integration/darsyar/preferences")
+def darsyar_preferences_overview(db: Session = Depends(get_db),
+                                 user: User = Depends(get_current_user)):
+    """رونوشت‌های ذخیره‌شدهٔ مطلوبیات برای جدول صفحهٔ درس‌یار۳۶۰."""
+    _ensure_staff_user(user)
+    from app.services import darsyar_service
+
+    return darsyar_service.preferences_overview(db)

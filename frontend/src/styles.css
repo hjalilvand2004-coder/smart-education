@@ -4632,3 +4632,109 @@ body {
 :root[data-theme='dark'] .kv { background: var(--glass-strong);; }
 :root[data-theme='dark'] .hero { background: var(--grad-mesh), var(--glass-strong);; }
 :root[data-theme='dark'] .pyc-row { background: var(--glass-strong);; }
+
+/* ---------- جستجوی درس‌ها (v3.9.0) — فیلتر زندهٔ فارسی‌آگاه ---------- */
+.courses-search-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 4px 0 18px;
+}
+.courses-search {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+  max-width: 460px;
+  display: flex;
+  align-items: center;
+}
+.courses-search .search-ico {
+  position: absolute;
+  inset-inline-start: 12px;
+  width: 16px;
+  height: 16px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.courses-search .search-input { width: 100%; padding-inline-start: 36px; padding-inline-end: 34px; }
+.courses-search .search-clear {
+  position: absolute;
+  inset-inline-end: 8px;
+  border: none;
+  background: var(--glass, rgba(127,127,127,0.15));
+  color: inherit;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.72rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.courses-search .search-clear:hover { opacity: 0.8; }
+.search-count { font-size: 0.8rem; }
+
+/* ---------- برنامهٔ هفتگی ترم جاری (برنامه‌یار۳۶۰) ---------- */
+.schedule-grid { width: 100%; border-collapse: collapse; min-width: 640px; }
+.schedule-grid th, .schedule-grid td {
+  border: 1px solid var(--border, rgba(127,127,127,0.3));
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 0.82rem;
+}
+.schedule-grid thead th { background: var(--glass, rgba(127,127,127,0.12)); font-weight: 700; }
+.schedule-grid td.slot-head { background: var(--glass, rgba(127,127,127,0.08)); font-size: 0.78rem; white-space: nowrap; }
+.sched-chip {
+  display: inline-block;
+  border-radius: 10px;
+  padding: 6px 8px;
+  background: var(--glass, rgba(127,127,127,0.12));
+  font-size: 0.78rem;
+  line-height: 1.5;
+  min-width: 120px;
+}
+.sched-chip .sched-title { font-weight: 700; }
+.sched-chip .sched-meta { color: var(--text-muted, inherit); font-size: 0.72rem; }
+.term-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 12px;
+  background: var(--glass, rgba(127,127,127,0.15));
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ---------- صفحهٔ درس‌یار۳۶۰ (مطلوبیات اساتید) ---------- */
+.pref-subjects { display: flex; flex-wrap: wrap; gap: 6px; }
+.pref-subject-chip {
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.76rem;
+  background: var(--glass, rgba(127,127,127,0.14));
+  border: 1px solid var(--border, rgba(127,127,127,0.25));
+}
+.pref-slots { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.pref-slot {
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  border: 1px solid var(--border, rgba(127,127,127,0.25));
+}
+.pref-slot.preferred { background: rgba(46, 160, 67, 0.14); border-color: rgba(46,160,67,0.4); }
+.pref-slot.acceptable { background: rgba(210, 153, 34, 0.14); border-color: rgba(210,153,34,0.4); }
+.pref-slot.avoided { background: rgba(218, 54, 51, 0.12); border-color: rgba(218,54,51,0.35); text-decoration: line-through; }
+.sync-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: var(--glass, rgba(127,127,127,0.08));
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+}
