@@ -475,7 +475,12 @@ def msu_agent_widget_config(db: Session = Depends(get_db),
     """پیکربندی تزریق ویجت شناور — برای همهٔ کاربران واردشده (همهٔ صفحات).
 
     توکن کامل برمی‌گردد چون ویجت باید آن را در هدر Authorization بفرستد
-    (طراحی رسمی widget.js)؛ دامنهٔ توکن در هستهٔ عامل تعیین می‌شود."""
+    (طراحی رسمی widget.js)؛ دامنهٔ توکن در هستهٔ عامل تعیین می‌شود.
+    مقطع دانشجو هم می‌رود تا سلام و پرزنت دستیار متناسب با مقطع باشد (v3.12.0)."""
+    from app.models.identity import degree_level_fa
     from app.services import msu_agent_connection
 
-    return msu_agent_connection.widget_config(db)
+    cfg = msu_agent_connection.widget_config(db)
+    cfg["degree_level"] = user.degree_level
+    cfg["degree_level_fa"] = degree_level_fa(user.degree_level)
+    return cfg

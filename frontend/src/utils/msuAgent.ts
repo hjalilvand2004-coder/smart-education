@@ -1,9 +1,10 @@
-/* تزریق ویجت دستیار هوشمند «دانشگاه هوشمند من» (v3.11.0)
+/* تزریق ویجت دستیار هوشمند «دانشگاه هوشمند من» (v3.11.0 — پرزنت مقطع v3.12.0)
  * ویجت وندرشده در public/msu-agent-widget.js (widget.js نسخهٔ 1.2.0 رسمی).
  * پیکربندی از مسیر /integration/msu-agent/widget-config می‌آید (دیتابیس > env >
  * پیش‌فرض) و یک‌بار در Layout فراخوانی می‌شود تا در همهٔ صفحات در دسترس باشد.
  * پس از ذخیرهٔ تنظیمات در پنل مدیریت، رخداد msu-agent-config-changed تزریق را
  * تازه می‌کند (حذف DOM قدیمی + بارگذاری مجدد اسکریپت).
+ * مقطع تحصیلی دانشجو (v3.12.0) سلام اول و زیرعنوان ویجت را متناسب می‌سازد.
  */
 import { api } from '../api'
 
@@ -16,10 +17,26 @@ export interface MsuWidgetConfig {
   position: 'br' | 'bl'
   token_key: string
   token: string
+  degree_level?: string
+  degree_level_fa?: string
 }
 
 const SCRIPT_ID = 'msu-agent-widget-script'
 const CHANGE_EVENT = 'msu-agent-config-changed'
+
+/** سلام اول ویجت متناسب با مقطع تحصیلی دانشجو (v3.12.0) */
+function greetingForDegree(fa: string | undefined): string {
+  switch (fa) {
+    case 'کاردانی':
+      return 'سلام! دستیار هوشمند «دانشگاه هوشمند من» هستم؛ برای دورهٔ کاردانی همراه شما هستم — از درس‌ها، مهارت‌های کاربردی، کارآموزی صناعی و وضعیت مالی می‌پرسید و در هماهنگی با دانشجو۳۶۰ اقدام می‌کنم.'
+    case 'کارشناسی ارشد':
+      return 'سلام! دستیار هوشمند «دانشگاه هوشمند من» هستم؛ برای دورهٔ کارشناسی ارشد همراه شما هستم — از وضعیت درسی، دروس تخصصی، پروپوزال و پایان‌نامه، مقالات و کارآموزی می‌پرسید و در هماهنگی با دانشجو۳۶۰ اقدام می‌کنم.'
+    case 'دکترا':
+      return 'سلام! دستیار هوشمند «دانشگاه هوشمند من» هستم؛ برای دورهٔ دکترا همراه شما هستم — از وضعیت درسی، رساله، مقالات و داوری، آزمون جامع و کنفرانس‌ها می‌پرسید و در هماهنگی با دانشجو۳۶۰ اقدام می‌کنم.'
+    default: // کارشناسی و پیش‌فرض
+      return 'سلام! دستیار هوشمند «دانشگاه هوشمند من» هستم؛ آخرین وضعیت شما (درس‌ها، مهارت‌ها، کارآموزی، درخواست‌ها و مالی) را از هستهٔ عامل می‌پرسم و در هماهنگی با دانشجو۳۶۰ اقدام می‌کنم.'
+  }
+}
 
 /** گوش‌دادن به تغییر تنظیمات — unsubscribe برمی‌گرداند */
 export function onMsuAgentChange(cb: () => void): () => void {
@@ -63,12 +80,13 @@ export async function injectMsuWidget(): Promise<void> {
     s.setAttribute('data-origin', cfg.origin || 'student360')
     s.setAttribute('data-accent', cfg.accent || '#7c3aed')
     s.setAttribute('data-accent2', cfg.accent2 || '#5b21b6')
-    s.setAttribute('data-position', cfg.position || 'br')
+    s.setAttribute('data-position', cfg.position || 'bl') // v3.12.0: پایین‌چپ
     s.setAttribute('data-token-key', cfg.token_key || 'msu_agent_token')
     s.setAttribute('data-title', 'دانشگاه هوشمند من')
-    s.setAttribute('data-subtitle', 'دستیار هوشمند دانشجو — متصل به هستهٔ عامل')
-    s.setAttribute('data-greeting',
-      'سلام! دستیار هوشمند «دانشگاه هوشمند من» هستم؛ آخرین وضعیت شما (درس‌ها، مهارت‌ها، کارآموزی، درخواست‌ها و مالی) را از هستهٔ عامل می‌پرسم و در هماهنگی با دانشجو۳۶۰ اقدام می‌کنم.')
+    s.setAttribute('data-subtitle', cfg.degree_level_fa
+      ? `دستیار هوشمند دانشجو — مقطع ${cfg.degree_level_fa}`
+      : 'دستیار هوشمند دانشجو — متصل به هستهٔ عامل')
+    s.setAttribute('data-greeting', greetingForDegree(cfg.degree_level_fa))
     document.body.appendChild(s)
   } catch {
     /* پیکربندی در دسترس نیست — ویجت این نشست نمایش داده نمی‌شود */

@@ -33,10 +33,35 @@ def ensure_schema_and_demo(eng=None) -> None:
     if "users" in inspector.get_table_names():
         # schema موجود است؛ اما ارتقای افزودنی نسخه‌ها: جداول جدید (مثل
         # msu_agent_connection در v3.11.0) با checkfirst فقط «اگر غایب بودند»
-        # ساخته می‌شوند — هیچ ستون یا دادهٔ موجودی دست نمی‌خورد.
+        # ساخته می‌شوند و ستون‌های جدید (مثل users.degree_level در v3.12.0)
+        # با ALTER TABLE افزودنی اضافه می‌شوند — هیچ داده‌ای دست نمی‌خورد.
         Base.metadata.create_all(eng)
+        _ensure_columns(eng, inspector)
         return
     Base.metadata.create_all(eng)
     if get_settings().bootstrap_demo_seed:
         from app.services.demo_seed import seed_demo_data
         seed_demo_data()
+
+
+# ستون‌های افزوده‌شده پس از انتشار اولین نسخه — {جدول: {ستون: تعریف SQL}}
+# فقط «اگر غایب بودند» با ALTER TABLE افزودنی ساخته می‌شوند (SQLite).
+_ADDED_COLUMNS: dict[str, dict[str, str]] = {
+    "users": {
+        "degree_level": "VARCHAR(16) NOT NULL DEFAULT 'KARSHENASI'",
+    },
+}
+
+
+def _ensure_columns(eng, inspector) -> None:
+    """مهاجرت ستونی افزودنی برای دیتابیس‌های SQLite موجود (idempotent)."""
+    from sqlalchemy import text
+
+    for table, cols in _ADDED_COLUMNS.items():
+        if table not in inspector.get_table_names():
+            continue  # جدول تازه با create_all کامل ساخته شده
+        existing = {c["name"] for c in inspector.get_columns(table)}
+        for col, ddl in cols.items():
+            if col not in existing:
+                with eng.begin() as conn:
+                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}"))

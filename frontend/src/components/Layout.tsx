@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import type { Course } from '../api'
+import { DEGREE_LEVEL_FA } from '../api'
 import { GLOBAL_ADMIN_ROLES, STAFF_COURSE_ROLES, useAuth, hasAnyStaffCourse } from '../auth'
 import { injectMsuWidget, onMsuAgentChange } from '../utils/msuAgent'
 import { roleLabel } from './StatusBadge'
@@ -398,7 +399,15 @@ export default function Layout() {
   const userChip = user ? (
     <div className="user-chip">
       <div className="user-name">{user.full_name}</div>
-      <div className="user-role">{roleLabel(user.role)}</div>
+      <div className="user-role">
+        {roleLabel(user.role)}
+        {/* مقطع تحصیلی دانشجو — پرزنت متناسب با مقطع (v3.12.0) */}
+        {user.role === 'STUDENT' && (user.degree_level_fa || DEGREE_LEVEL_FA[user.degree_level || '']) && (
+          <span className="degree-badge" title="مقطع تحصیلی">
+            {user.degree_level_fa || DEGREE_LEVEL_FA[user.degree_level || '']}
+          </span>
+        )}
+      </div>
     </div>
   ) : null
 
@@ -429,7 +438,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۱۱.۰ — دستیار هوشمند «دانشگاه هوشمند من» ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۱۲.۰ — مقطع‌محور + دستیار در سمت چپ ✨</div>
         </div>
       </aside>
 

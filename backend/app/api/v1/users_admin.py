@@ -7,7 +7,7 @@ from app.core.audit import audit
 from app.core.database import get_db
 from app.core.errors import forbidden, not_found, validation_error
 from app.core.security import get_current_user, hash_password
-from app.models.identity import CourseRole, User
+from app.models.identity import DEGREE_LEVELS, CourseRole, User, degree_level_fa
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -39,6 +39,7 @@ def list_users(role: str | None = None, approval: str | None = None,
     return {"total": total, "page": page, "page_size": page_size, "items": [
         {"id": str(u.id), "username": u.username, "full_name": u.full_name,
          "email": u.email, "role": u.role, "is_active": u.is_active,
+         "degree_level": u.degree_level, "degree_level_fa": degree_level_fa(u.degree_level),
          "approval_status": u.approval_status, "sso_linked": bool(u.sso_subject)}
         for u in rows
     ]}
@@ -123,6 +124,31 @@ def change_role(user_id: str, body: RoleIn, db: Session = Depends(get_db),
           before={"role": old}, after={"role": body.role})
     db.commit()
     return {"id": str(target.id), "role": body.role}
+
+
+class DegreeLevelIn(BaseModel):
+    degree_level: str
+
+
+@router.put("/{user_id}/degree-level")
+def change_degree_level(user_id: str, body: DegreeLevelIn, db: Session = Depends(get_db),
+                        user: User = Depends(get_current_user)):
+    """تعیین مقطع تحصیلی دانشجو (v3.12.0) — پرزنت سامانه متناسب با مقطع تنظیم می‌شود."""
+    _ensure_admin(user)
+    if body.degree_level not in DEGREE_LEVELS:
+        raise validation_error("مقطع تحصیلی نامعتبر است؛ مقادیر مجاز: کاردانی، کارشناسی، کارشناسی ارشد، دکترا")
+    target = db.get(User, user_id)
+    if target is None:
+        raise not_found("کاربر یافت نشد")
+    if target.role != "STUDENT":
+        raise validation_error("مقطع تحصیلی فقط برای دانشجو تعریف می‌شود")
+    old = target.degree_level
+    target.degree_level = body.degree_level
+    audit(db, user.id, "USER_DEGREE_LEVEL_CHANGE", "user", target.id,
+          before={"degree_level": old}, after={"degree_level": body.degree_level})
+    db.commit()
+    return {"id": str(target.id), "degree_level": body.degree_level,
+            "degree_level_fa": degree_level_fa(body.degree_level)}
 
 
 class PasswordIn(BaseModel):

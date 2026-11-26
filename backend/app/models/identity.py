@@ -8,6 +8,22 @@ from app.core.database import GUID, Base, TimestampMixin, uid_col
 # وضعیت حساب: ثبت‌نام استاد/مدیرگروه نیازمند تایید مدیر سامانه است
 APPROVAL_STATUSES = ("ACTIVE", "PENDING", "REJECTED")
 
+# مقطع تحصیلی دانشجو (v3.12.0) — نحوهٔ پرزنت و بخش‌ها متناسب با مقطع تنظیم می‌شود
+DEGREE_LEVELS = ("KARDANI", "KARSHENASI", "ARASTD", "PHD")
+DEGREE_LEVEL_FA = {
+    "KARDANI": "کاردانی",
+    "KARSHENASI": "کارشناسی",
+    "ARASTD": "کارشناسی ارشد",
+    "PHD": "دکترا",
+}
+
+
+def degree_level_fa(code: str | None) -> str:
+    """برچسب فارسی مقطع — کد ناشناخته یا خالی به کارشناسی برمی‌گردد."""
+    if code in DEGREE_LEVEL_FA:
+        return DEGREE_LEVEL_FA[code]
+    return DEGREE_LEVEL_FA["KARSHENASI"]
+
 
 class User(TimestampMixin, Base):
     __tablename__ = "users"
@@ -18,6 +34,8 @@ class User(TimestampMixin, Base):
     email: Mapped[str | None] = mapped_column(String(200), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(256))
     role: Mapped[str] = mapped_column(String(32), index=True)  # Role enum value
+    # مقطع تحصیلی — فقط برای STUDENT معنا دارد؛ پیش‌فرض کارشناسی (v3.12.0)
+    degree_level: Mapped[str] = mapped_column(String(16), default="KARSHENASI", index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     approval_status: Mapped[str] = mapped_column(String(16), default="ACTIVE", index=True)
     sso_subject: Mapped[str | None] = mapped_column(String(128), nullable=True, unique=True)
@@ -30,6 +48,7 @@ class User(TimestampMixin, Base):
             "username": self.username,
             "full_name": self.full_name,
             "role": self.role,
+            "degree_level": self.degree_level,
             "approval_status": self.approval_status,
         }
 

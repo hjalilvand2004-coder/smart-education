@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api'
 import type { AIRunList, AggregateMastery, AuditLogEntry, Course } from '../api'
+import { DEGREE_LEVELS, DEGREE_LEVEL_FA } from '../api'
 import StatusBadge from '../components/StatusBadge'
 import MsuAgentSettings from '../components/MsuAgentSettings'
 import { fmtJalali } from '../utils/jalali'
@@ -31,6 +32,8 @@ interface AdminUser {
   email?: string | null
   role: string
   is_active: boolean
+  degree_level?: string
+  degree_level_fa?: string
   approval_status: string
   sso_linked: boolean
 }
@@ -120,6 +123,19 @@ export default function Admin() {
     }
   }
 
+  /** تعیین مقطع تحصیلی دانشجو (v3.12.0) — پرزنت سامانه و دستیار متناسب می‌شود */
+  const setDegree = async (id: string, degree: string) => {
+    try {
+      await api.put(`/users/${id}/degree-level`, { degree_level: degree })
+      setUsers((prev) => prev && prev.map((u) => (u.id === id
+        ? { ...u, degree_level: degree, degree_level_fa: DEGREE_LEVEL_FA[degree] } : u)))
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'ثبت مقطع ناموفق بود')
+      await loadUsers() // برگرداندن مقدار قبلی در صورت خطا
+    }
+  }
+
   const resetPassword = async (id: string) => {
     const pwd = window.prompt('رمز عبور جدید را وارد کنید (حداقل ۸ نویسه):')
     if (!pwd || pwd.length < 8) return
@@ -167,6 +183,7 @@ export default function Admin() {
                 <tr>
                   <th>کاربر</th>
                   <th>نقش</th>
+                  <th>مقطع</th>
                   <th>وضعیت</th>
                   <th>SSO</th>
                   <th>عملیات</th>
@@ -180,6 +197,21 @@ export default function Admin() {
                       <div dir="ltr" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{u.username}</div>
                     </td>
                     <td><span className="badge badge-info">{ROLE_FA[u.role] || u.role}</span></td>
+                    <td>
+                      {/* مقطع تحصیلی — فقط دانشجو (v3.12.0) */}
+                      {u.role === 'STUDENT' ? (
+                        <select className="select" value={u.degree_level || 'KARSHENASI'}
+                                aria-label={`مقطع ${u.full_name}`}
+                                style={{ maxWidth: 150 }}
+                                onChange={(e) => setDegree(u.id, e.target.value)}>
+                          {DEGREE_LEVELS.map((d) => (
+                            <option key={d} value={d}>{DEGREE_LEVEL_FA[d]}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
+                    </td>
                     <td>
                       <span className={`badge ${APPROVAL_BADGE[u.approval_status] || 'badge-neutral'}`}>
                         {APPROVAL_LABEL[u.approval_status] || u.approval_status}

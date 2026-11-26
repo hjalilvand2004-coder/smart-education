@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="S360_", extra="ignore")
 
     app_name: str = "دانشجو۳۶۰ — سرویس‌های یادگیری هوشمند"
-    app_version: str = "3.11.0"
+    app_version: str = "3.12.0"
 
     # پایگاه داده؛ در محیط توسعه SQLite و در استقرار PostgreSQL:
     # postgresql+psycopg://user:pass@db:5432/student360
@@ -85,7 +85,7 @@ class Settings(BaseSettings):
     msu_agent_origin: str = "student360"
     msu_agent_accent: str = "#7c3aed"
     msu_agent_accent2: str = "#5b21b6"
-    msu_agent_position: str = "br"
+    msu_agent_position: str = "bl"  # v3.12.0: پیش‌فرض پایین‌چپ به درخواست کاربر
     msu_agent_token: str = ""
     msu_agent_enabled: bool = True
 

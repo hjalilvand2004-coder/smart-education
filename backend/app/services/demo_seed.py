@@ -125,6 +125,9 @@ def seed_demo_data() -> None:
         ta = mk_user("ta.karimi", "علی کریمی", Role.STUDENT.value)
         st1 = mk_user("student.sara", "سارا احمدی", Role.STUDENT.value)
         st2 = mk_user("student.amir", "امیر محمدی", Role.STUDENT.value)
+        # مقاطع متنوع برای نمایش پرزنت متناسب با مقطع (v3.12.0)
+        st1.degree_level = "KARSHENASI"
+        st2.degree_level = "ARASTD"
         edu = mk_user("edu.admin", "مدیر آموزشی گروه", Role.EDUCATION_ADMIN.value)
         quality = mk_user("quality.expert", "کارشناس کیفیت محتوا", Role.QUALITY_REVIEWER.value)
         tech = mk_user("tech.admin", "مدیر فنی", Role.TECH_ADMIN.value)

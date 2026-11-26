@@ -49,11 +49,28 @@ export interface CourseRoleInfo {
   role: string
 }
 
+/** مقطع تحصیلی دانشجو (v3.12.0) */
+export type DegreeLevel = 'KARDANI' | 'KARSHENASI' | 'ARASTD' | 'PHD'
+
+export const DEGREE_LEVELS: DegreeLevel[] = ['KARDANI', 'KARSHENASI', 'ARASTD', 'PHD']
+
+export const DEGREE_LEVEL_FA: Record<string, string> = {
+  KARDANI: 'کاردانی',
+  KARSHENASI: 'کارشناسی',
+  ARASTD: 'کارشناسی ارشد',
+  PHD: 'دکترا',
+}
+
 export interface User {
   id: string
   username: string
   full_name: string
   role: Role
+  degree_level?: DegreeLevel
+  degree_level_fa?: string
+  email?: string | null
+  approval_status?: string
+  sso_linked?: boolean
   course_roles: CourseRoleInfo[]
 }
 

@@ -14,7 +14,7 @@ from app.core.ratelimit import rate_limit
 from app.core.security import (create_access_token, get_current_user,
                                hash_password, verify_password)
 from app.models.courses import Course
-from app.models.identity import APPROVAL_STATUSES, CourseRole, User
+from app.models.identity import APPROVAL_STATUSES, CourseRole, User, degree_level_fa
 from app.services import sso_client
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -227,6 +227,8 @@ def _user_payload(db: Session, user: User) -> dict:
         "full_name": user.full_name,
         "role": user.role,
         "email": user.email,
+        "degree_level": user.degree_level,
+        "degree_level_fa": degree_level_fa(user.degree_level),
         "approval_status": user.approval_status,
         "sso_linked": bool(user.sso_subject),
         "course_roles": roles,

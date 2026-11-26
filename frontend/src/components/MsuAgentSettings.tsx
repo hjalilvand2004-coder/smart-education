@@ -15,7 +15,7 @@ export default function MsuAgentSettings() {
   const [origin, setOrigin] = useState('student360')
   const [accent, setAccent] = useState('#7c3aed')
   const [accent2, setAccent2] = useState('#5b21b6')
-  const [position, setPosition] = useState<'br' | 'bl'>('br')
+  const [position, setPosition] = useState<'br' | 'bl'>('bl') // v3.12.0: پایین‌چپ
   const [enabled, setEnabled] = useState(true)
   const [token, setToken] = useState('')
   const [test, setTest] = useState<MsuAgentTestResult | null>(null)

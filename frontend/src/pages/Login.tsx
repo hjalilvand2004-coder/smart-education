@@ -316,7 +316,7 @@ export default function Login() {
             </div>
           )}
 
-          <div className="login-footer">نسخه ۳.۱۱.۰ ✨ دستیار هوشمند دانشگاه هوشمند من در همهٔ صفحات — در نسخه پرتیبل</div>
+          <div className="login-footer">نسخه ۳.۱۲.۰ ✨ مقاطع تحصیلی (کاردانی تا دکترا) + دستیار هوشمند در سمت چپ — در نسخه پرتیبل</div>
         </div>
       </div>
       <HelpButton />

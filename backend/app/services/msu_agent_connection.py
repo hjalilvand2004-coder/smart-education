@@ -59,7 +59,8 @@ def effective_connection(db: Session) -> dict:
     if row and row.position.strip() in _POSITIONS:
         position, position_src = row.position.strip(), "DB"
     else:
-        position, position_src = s.msu_agent_position or "br", "DEFAULT"
+        # v3.12.0: پیش‌فرض پایین‌چپ (bl) به درخواست کاربر
+        position, position_src = s.msu_agent_position or "bl", "DEFAULT"
     if row and row.token.strip():
         token, token_src = row.token.strip()[:1024], "DB"
     elif s.msu_agent_token:
