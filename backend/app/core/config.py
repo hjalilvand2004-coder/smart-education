@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="S360_", extra="ignore")
 
     app_name: str = "دانشجو۳۶۰ — سرویس‌های یادگیری هوشمند"
-    app_version: str = "3.10.0"
+    app_version: str = "3.11.0"
 
     # پایگاه داده؛ در محیط توسعه SQLite و در استقرار PostgreSQL:
     # postgresql+psycopg://user:pass@db:5432/student360
@@ -78,6 +78,16 @@ class Settings(BaseSettings):
     darsyar_api_key: str = ""
     darsyar_timeout_seconds: int = 8
     payehyar_timeout_seconds: int = 8
+
+    # دستیار هوشمند «دانشگاه هوشمند من» (v3.11.0) — هستهٔ عامل + ویجت شناور.
+    # تنظیمات مؤثر: دیتابیس (پنل مدیریت) > متغیر محیطی S360_MSU_AGENT_* > پیش‌فرض.
+    msu_agent_base_url: str = "http://localhost:8000"
+    msu_agent_origin: str = "student360"
+    msu_agent_accent: str = "#7c3aed"
+    msu_agent_accent2: str = "#5b21b6"
+    msu_agent_position: str = "br"
+    msu_agent_token: str = ""
+    msu_agent_enabled: bool = True
 
     # سند فنی اتصال v3.4.0 — احراز OAuth2 client_credentials (جایگزین/مکمل کلید API).
     # secret فقط از env می‌آید (S360_PAYEHYAR_CLIENT_SECRET یا PAYEHYAR_CLIENT_SECRET

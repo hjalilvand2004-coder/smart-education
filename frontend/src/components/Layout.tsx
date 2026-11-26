@@ -4,6 +4,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import type { Course } from '../api'
 import { GLOBAL_ADMIN_ROLES, STAFF_COURSE_ROLES, useAuth, hasAnyStaffCourse } from '../auth'
+import { injectMsuWidget, onMsuAgentChange } from '../utils/msuAgent'
 import { roleLabel } from './StatusBadge'
 import ThemeToggle from './ThemeToggle'
 import HelpButton from './HelpButton'
@@ -222,6 +223,13 @@ export default function Layout() {
     }
   }, [location.pathname, focusMode])
 
+  // دستیار هوشمند «دانشگاه هوشمند من» — ویجت شناور در همهٔ صفحات (v3.11.0)؛
+  // پس از ذخیرهٔ تنظیمات در پنل مدیریت، رخداد تزریق را تازه می‌کند
+  useEffect(() => {
+    void injectMsuWidget()
+    return onMsuAgentChange(() => { void injectMsuWidget() })
+  }, [])
+
   const defaultCourseId = activeCourseId && courses.some((c) => c.id === activeCourseId)
     ? activeCourseId
     : courses[0]?.id ?? null
@@ -421,7 +429,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۱۰.۰ — تقویم شمسی فرم‌ها ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۱۱.۰ — دستیار هوشمند «دانشگاه هوشمند من» ✨</div>
         </div>
       </aside>
 

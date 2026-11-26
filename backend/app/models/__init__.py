@@ -18,7 +18,7 @@ from app.models.ops import AIRun, JobRun, AuditLog, OutboxEvent
 from app.models.journey import (ReferenceSyncLog, StuckMark, ErrorNotebookEntry,
                                 TeachBackSubmission, LearningSession, ExamPrepPlan,
                                 MasterdataSyncLog, PayehyarRecord, PayehyarEventInbox)
-from app.models.integrations import PayehyarConnection
+from app.models.integrations import PayehyarConnection, MsuAgentConnection
 from app.models.points import ContributionPoint
 
 __all__ = [
@@ -40,5 +40,6 @@ __all__ = [
     "TeachBackSubmission", "LearningSession", "ExamPrepPlan", "MasterdataSyncLog",
     "PayehyarRecord", "PayehyarEventInbox",
     "PayehyarConnection",
+    "MsuAgentConnection",
     "ContributionPoint",
 ]

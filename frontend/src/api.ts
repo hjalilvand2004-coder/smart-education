@@ -482,6 +482,33 @@ export interface AIRunList {
   total_tokens_out: number
 }
 
+// ---------- دستیار هوشمند «دانشگاه هوشمند من» (v3.11.0) ----------
+
+/** نمای ماسک‌شدهٔ تنظیمات هستهٔ عامل — برای کارت پنل مدیریت */
+export interface MsuAgentConnectionView {
+  base_url: string
+  origin: string
+  accent: string
+  accent2: string
+  position: 'br' | 'bl'
+  token_masked: string | null
+  has_token: boolean
+  token_source: string
+  enabled: boolean
+  enabled_source: string
+  base_url_source: string
+  updated_at: string | null
+  data_owner: string
+}
+
+/** نتیجهٔ تست گام‌به‌گام اتصال به هستهٔ عامل */
+export interface MsuAgentTestResult {
+  ok: boolean
+  steps: { step: string; ok: boolean; detail: string }[]
+  base_url?: string
+  engine?: string
+}
+
 // ---------- خطا ----------
 
 export class ApiError extends Error {

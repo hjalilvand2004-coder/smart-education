@@ -31,7 +31,11 @@ def ensure_schema_and_demo(eng=None) -> None:
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     inspector = inspect(eng)
     if "users" in inspector.get_table_names():
-        return  # schema موجود است — هیچ دخالتی نمی‌کنیم
+        # schema موجود است؛ اما ارتقای افزودنی نسخه‌ها: جداول جدید (مثل
+        # msu_agent_connection در v3.11.0) با checkfirst فقط «اگر غایب بودند»
+        # ساخته می‌شوند — هیچ ستون یا دادهٔ موجودی دست نمی‌خورد.
+        Base.metadata.create_all(eng)
+        return
     Base.metadata.create_all(eng)
     if get_settings().bootstrap_demo_seed:
         from app.services.demo_seed import seed_demo_data

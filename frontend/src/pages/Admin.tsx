@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api'
 import type { AIRunList, AggregateMastery, AuditLogEntry, Course } from '../api'
 import StatusBadge from '../components/StatusBadge'
+import MsuAgentSettings from '../components/MsuAgentSettings'
 import { fmtJalali } from '../utils/jalali'
 
 const ROLE_FA: Record<string, string> = {
@@ -355,6 +356,8 @@ export default function Admin() {
           </div>
         )}
       </div>
+
+      <MsuAgentSettings />
     </>
   )
 }

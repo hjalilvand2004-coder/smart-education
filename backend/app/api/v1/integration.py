@@ -406,3 +406,76 @@ def darsyar_preferences_overview(db: Session = Depends(get_db),
     from app.services import darsyar_service
 
     return darsyar_service.preferences_overview(db)
+
+
+# ── دستیار هوشمند «دانشگاه هوشمند من» (v3.11.0) ─────────────────────────────
+
+
+class MsuAgentConnectionIn(BaseModel):
+    base_url: str | None = None
+    origin: str | None = None
+    accent: str | None = None
+    accent2: str | None = None
+    position: str | None = None
+    token: str | None = None
+    enabled: bool | None = None
+
+
+class MsuAgentTestIn(BaseModel):
+    base_url: str | None = None  # override فقط برای «تست پیش از ذخیره»
+
+
+@router.get("/integration/msu-agent/connection")
+def msu_agent_connection_view(db: Session = Depends(get_db),
+                              user: User = Depends(get_current_user)):
+    """تنظیمات مؤثر دستیار هوشمند — توکن فقط ماسک‌شده برمی‌گردد."""
+    _ensure_staff_user(user)
+    from app.services import msu_agent_connection
+
+    return msu_agent_connection.connection_view(db)
+
+
+@router.put("/integration/msu-agent/connection")
+def msu_agent_connection_save(body: MsuAgentConnectionIn,
+                              db: Session = Depends(get_db),
+                              user: User = Depends(get_current_user)):
+    """ذخیرهٔ تنظیمات هستهٔ عامل در دیتابیس محلی — بی‌نیاز از .env."""
+    _ensure_staff_user(user)
+    from app.core.errors import validation_error
+    from app.services import msu_agent_connection
+
+    try:
+        view = msu_agent_connection.save_connection(
+            db, base_url=body.base_url, origin=body.origin, accent=body.accent,
+            accent2=body.accent2, position=body.position, token=body.token,
+            enabled=body.enabled)
+    except ValueError as exc:
+        raise validation_error(str(exc)) from exc
+    audit(db, user.id, "MSU_AGENT_CONNECTION_SAVE", "integration", "msu-agent",
+          after={"enabled": view.get("enabled"), "base_url": view.get("base_url")})
+    db.commit()
+    return view
+
+
+@router.post("/integration/msu-agent/test-connection")
+def msu_agent_test_connection(body: MsuAgentTestIn | None = None,
+                              db: Session = Depends(get_db),
+                              user: User = Depends(get_current_user)):
+    """تست گام‌به‌گام هستهٔ عامل: سلامت (‎/api/health) → پیکربندی ویجت."""
+    _ensure_staff_user(user)
+    from app.services import msu_agent_connection
+
+    b = body or MsuAgentTestIn()
+    return msu_agent_connection.test_connection(db, base_url=b.base_url)
+
+
+@router.get("/integration/msu-agent/widget-config")
+def msu_agent_widget_config(db: Session = Depends(get_db),
+                            user: User = Depends(get_current_user)):
+    """پیکربندی تزریق ویجت شناور — برای همهٔ کاربران واردشده (همهٔ صفحات).
+
+    توکن کامل برمی‌گردد چون ویجت باید آن را در هدر Authorization بفرستد
+    (طراحی رسمی widget.js)؛ دامنهٔ توکن در هستهٔ عامل تعیین می‌شود."""
+    from app.services import msu_agent_connection
+
+    return msu_agent_connection.widget_config(db)
