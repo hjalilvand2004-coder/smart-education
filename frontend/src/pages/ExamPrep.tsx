@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
 import type { Course, ExamPrepPlan } from '../api'
+import JDatePicker from '../components/JDatePicker'
 
 /** آمادگی آزمون با اولویت‌بندی صادقانه — پوشش و عدم‌قطعیت؛ بدون وعده نمره. */
 export default function ExamPrep({ courseId }: { courseId: string }) {
@@ -77,7 +78,9 @@ export default function ExamPrep({ courseId }: { courseId: string }) {
         <div className="form-grid">
           <div className="form-item">
             <label className="label" htmlFor="ep-date">تاریخ آزمون (اختیاری)</label>
-            <input id="ep-date" className="input" type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} />
+            <JDatePicker id="ep-date" value={examDate} onChange={setExamDate}
+                         ariaLabel="انتخاب تاریخ آزمون (تقویم شمسی)" />
+            <div className="hint">تقویم شمسی — تاریخ ذخیره‌شده به‌صورت استاندارد درج می‌شود.</div>
           </div>
           <div className="form-item">
             <label className="label" htmlFor="ep-mins">زمان در دسترس تا آزمون (دقیقه)</label>

@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { api } from '../api'
 import type { ReviewItem, StudyActivity, StudyPlan } from '../api'
 import StatusBadge, { kindLabel } from '../components/StatusBadge'
+import JDatePicker from '../components/JDatePicker'
 import { fmtJalali } from '../utils/jalali'
 
 function fmtDate(iso?: string | null): string {
@@ -130,7 +131,9 @@ export default function StudyPlan({ courseId }: { courseId: string }) {
             </div>
             <div className="form-item">
               <label className="label" htmlFor="exam-date">تاریخ آزمون (اختیاری)</label>
-              <input id="exam-date" className="input" type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} />
+              <JDatePicker id="exam-date" value={examDate} onChange={setExamDate}
+                           ariaLabel="انتخاب تاریخ آزمون (تقویم شمسی)" />
+              <div className="hint">تقویم شمسی — تاریخ ذخیره‌شده به‌صورت استاندارد درج می‌شود.</div>
             </div>
             <div className="form-item form-item-full">
               <label className="label" htmlFor="goals">اهداف شما از این درس (اختیاری)</label>

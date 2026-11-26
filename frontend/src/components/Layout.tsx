@@ -421,7 +421,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۹.۰ — جستجوی درس‌ها و یکپارچگی ۳۶۰ ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۱۰.۰ — تقویم شمسی فرم‌ها ✨</div>
         </div>
       </aside>
 
