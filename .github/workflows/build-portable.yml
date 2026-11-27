@@ -100,24 +100,24 @@ jobs:
           for ($i = 0; $i -lt 30; $i++) {
             Start-Sleep -Seconds 2
             try {
-              $r = Invoke-WebRequest -Uri "http://127.0.0.1:8084/healthz" -UseBasicParsing -TimeoutSec 3
+              $r = Invoke-WebRequest -Uri "http://127.0.0.1:8093/healthz" -UseBasicParsing -TimeoutSec 3
               if ($r.StatusCode -eq 200 -and $r.Content -match '"status":"ok"') { $okHealth = $true; break }
             } catch { }
           }
           # ریشه باید رابط کاربری (index.html) را سرو کند — نه پیام JSON
           try {
-            $root = Invoke-WebRequest -Uri "http://127.0.0.1:8084/" -UseBasicParsing -TimeoutSec 5
+            $root = Invoke-WebRequest -Uri "http://127.0.0.1:8093/" -UseBasicParsing -TimeoutSec 5
             if ($root.StatusCode -eq 200 -and $root.Content -match 'id="root"') { $okRoot = $true }
           } catch { }
           # ورود با حساب نمونهٔ دمو — دقیقاً سناریوی کاربر واقعی (رفع باگ ۳.۲.۱)
           try {
             $body = '{"username":"student.sara","password":"Pass1234!"}'
-            $login = Invoke-WebRequest -Uri "http://127.0.0.1:8084/api/v1/auth/login" -Method POST -Body $body -ContentType "application/json" -UseBasicParsing -TimeoutSec 5
+            $login = Invoke-WebRequest -Uri "http://127.0.0.1:8093/api/v1/auth/login" -Method POST -Body $body -ContentType "application/json" -UseBasicParsing -TimeoutSec 5
             if ($login.StatusCode -eq 200 -and $login.Content -match '"role":"STUDENT"') { $okLogin = $true }
           } catch { }
           # سرویس‌دهی به سایر سامانه‌ها باید فعال باشد
           try {
-            $svc = Invoke-WebRequest -Uri "http://127.0.0.1:8084/api/v1/services/health" -UseBasicParsing -TimeoutSec 5
+            $svc = Invoke-WebRequest -Uri "http://127.0.0.1:8093/api/v1/services/health" -UseBasicParsing -TimeoutSec 5
             if ($svc.StatusCode -eq 200) { $okSvc = $true }
           } catch { }
           Write-Host "health=$okHealth root=$okRoot login=$okLogin services=$okSvc"
@@ -140,13 +140,13 @@ jobs:
             1) فایل SmartEducation.exe را اجرا کنید.
             2) چند لحظه صبر کنید تا مرورگر به‌صورت خودکار باز شود؛
                رابط کاربری اصلی سامانه (داشبورد) نمایش داده می‌شود.
-               (اگر باز نشد، آدرس http://127.0.0.1:8084 را باز کنید)
+               (اگر باز نشد، آدرس http://127.0.0.1:8093 را باز کنید)
             3) برای خروج، پنجرهٔ سیاه (کنسول) را ببندید.
 
           آدرس رسمی سامانه روی سرور:
-            - این سامانه روی همهٔ کارت‌های شبکه گوش می‌دهد (پورت 8084)؛
-              آدرس رسمی: http://188.212.96.235:8084
-            - دقت کنید فایروال ویندوز برای پورت 8084 مجوز ورودی داشته باشد.
+            - این سامانه روی همهٔ کارت‌های شبکه گوش می‌دهد (پورت 8093)؛
+              آدرس رسمی: http://192.168.100.4:8093
+            - دقت کنید فایروال ویندوز برای پورت 8093 مجوز ورودی داشته باشد.
 
           گزارش‌سازی و خروجی‌ها:
             - سرویس گزارش‌های استاندارد (HTML · PPTX · PDF · DOCX) از مسیرهای
@@ -170,9 +170,9 @@ jobs:
             - نیازی به نصب Python، Node.js یا هر پیش‌نیاز دیگری نیست.
             - دیتابیس در پوشهٔ data کنار فایل exe ذخیره می‌شود؛
               برای انتقال برنامه به رایانهٔ دیگر، کل این پوشه را کپی کنید.
-            - اگر پورت 8084 اشغال باشد، برنامه به‌صورت خودکار پورت بعدی را
+            - اگر پورت 8093 اشغال باشد، برنامه به‌صورت خودکار پورت بعدی را
               استفاده می‌کند (آدرس را در پنجرهٔ کنسول ببینید).
-            - API مستندات تعاملی: http://127.0.0.1:8084/api/docs
+            - API مستندات تعاملی: http://127.0.0.1:8093/api/docs
             - سرویس‌دهی سرفصل‌ها به سایر سامانه‌ها: مسیرهای /api/v1/services/...
 
           رفع اشکال:
@@ -279,7 +279,7 @@ jobs:
           - حساب پیش‌فرض مدیر: `admin / admin123` (پس از اولین ورود رمز را عوض کنید)
 
           ### 🌐 آدرس‌های رسمی سرویس‌ها
-          - **این سامانه (آموزش):** http://188.212.96.235:8084
+          - **این سامانه (آموزش):** http://192.168.100.4:8093
           - **سرویس برنامه‌ریزی درسی (لیست درس‌ها):** http://188.212.96.235:8083
 
           ### ✨ امکانات دیگر
@@ -295,7 +295,7 @@ jobs:
           ### ✅ بدون نیاز به Python | بدون نیاز به PyCharm | بدون نیاز به Node.js
 
           💾 دیتابیس و کاربران در پوشهٔ data کنار برنامه ذخیره می‌شود
-          ⚠️ برای دسترسی از IP، پورت 8084 در فایروال ویندوز باید باز باشد
+          ⚠️ برای دسترسی از IP، پورت 8093 در فایروال ویندوز باید باز باشد
           '@
           $body = $body.Replace('__ZIPHASH__', $zipHash).Replace('__EXEHASH__', $exeHash)
           $bodyPath = "backend\dist\release-body.md"
