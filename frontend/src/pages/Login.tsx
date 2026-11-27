@@ -5,10 +5,13 @@ import { ApiError } from '../api'
 import { useAuth } from '../auth'
 import HelpButton from '../components/HelpButton'
 
+/** پیکربندی SSO از /auth/sso/config — شامل ثبت رسمی سامانه در پرتال (v3.14.0) */
 interface SsoConfig {
   enabled: boolean
   provider: string
   message: string
+  entry_url?: string
+  app?: { key: string; name: string; description?: string; icon?: string; order?: number; client_id: string }
 }
 
 const DEMO_PASSWORD = 'Pass1234!'
@@ -303,10 +306,11 @@ export default function Login() {
             <>
               <div className="sso-divider"><span>یا</span></div>
               <button type="button" className="btn sso-btn btn-block" onClick={startSso}>
-                🔐 ورود یکگانه با پرتال مرکزی SSO
+                🔐 {sso.app?.name ? `ورود یکگانه — ${sso.app.name}` : 'ورود یکگانه با پرتال مرکزی SSO'}
               </button>
               <div className="hint" style={{ textAlign: 'center' }}>
-                احراز هویت یکپارچه سازمانی ({sso.provider})
+                احراز هویت یکپارچه سازمانی
+                {sso.app ? ` (${sso.app.icon ?? ''} ${sso.app.name} — کلید ${sso.app.key})` : ` (${sso.provider})`}
               </div>
             </>
           )}
@@ -316,7 +320,7 @@ export default function Login() {
             </div>
           )}
 
-          <div className="login-footer">نسخه ۳.۱۳.۰ ✨ درس‌های واقعی داده‌کاوی، IoT، توسعه و آزمون نرم‌افزار + ویجت بالای راهنما — در نسخه پرتیبل</div>
+          <div className="login-footer">نسخه ۳.۱۴.۰ ✨ ورود یکگانه تحصیل‌یار۳۶۰ از پرتال مرکزی + آدرس رسمی سامانه — در نسخه پرتیبل</div>
         </div>
       </div>
       <HelpButton />

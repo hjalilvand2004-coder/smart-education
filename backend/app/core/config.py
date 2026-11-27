@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="S360_", extra="ignore")
 
     app_name: str = "دانشجو۳۶۰ — سرویس‌های یادگیری هوشمند"
-    app_version: str = "3.13.0"
+    app_version: str = "3.14.0"
 
     # پایگاه داده؛ در محیط توسعه SQLite و در استقرار PostgreSQL:
     # postgresql+psycopg://user:pass@db:5432/student360
@@ -46,13 +46,21 @@ class Settings(BaseSettings):
     programyar_username: str = ""
     programyar_password: str = ""
 
-    # ورود یکگانه (SSO/OIDC) با پرتال مرکزی — مثال: پرتال ورود یکپارچه روی :8086
+    # ورود یکگانه (SSO/OIDC) با پرتال مرکزی — پرتال ورود یکپارچه روی :8086
     sso_base_url: str = "http://188.212.96.235:8086"
-    sso_client_id: str = ""        # Client ID ثبت‌شده در پرتال SSO (مثل tahsilyar360)
-    sso_client_secret: str = ""    # Client Secret همان ثبت
-    sso_redirect_uri: str = "http://localhost:8000/api/v1/auth/sso/callback"
-    sso_frontend_base: str = "http://localhost:8000"  # مقصد ریدایرکت پس از callback
+    # ثبت رسمی این سامانه در پرتال (v3.14.0 — مطابق فرم «افزودن / ویرایش سامانه»):
+    # کلید tahsilyar / نام «تحصیل‌یار۳۶۰» / Client ID tahsilyar360 / آدرس ورود :8093
+    sso_client_id: str = "tahsilyar360"  # Client ID ثبت‌شده در پرتال SSO
+    sso_client_secret: str = ""    # Client Secret همان ثبت (خالی = کلاینت عمومی فقط-PKCE)
+    sso_redirect_uri: str = "http://192.168.100.4:8093/api/v1/auth/sso/callback"
+    sso_frontend_base: str = "http://192.168.100.4:8093"  # آدرس رسمی سامانه و مقصد ریدایرکت
     sso_scope: str = "openid profile email"
+    # هویت ثبت‌شدهٔ سامانه در پرتال (برای نمایش و مقایسه با فرم پرتال)
+    sso_app_key: str = "tahsilyar"
+    sso_app_name_fa: str = "تحصیل‌یار۳۶۰"
+    sso_app_description: str = "مشاوه تحصیلی، انتخاب رشت"
+    sso_app_icon: str = "⏰"
+    sso_app_order: int = 5
     # حاکمیت ورود (بازخورد ۳.۱): در استقرار تولیدی S360_SSO_REQUIRED=true
     # ورود محلی با کاربران نمونه را می‌بندد؛ فقط TECH_ADMIN برای مدیریت می‌ماند.
     sso_required: bool = False

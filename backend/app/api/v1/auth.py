@@ -119,7 +119,19 @@ def sso_config():
         "enabled": enabled,
         "provider": s.sso_base_url,
         "redirect_uri": s.sso_redirect_uri,
-        "message": ("ورود یکگانه فعال است." if enabled else
+        "entry_url": s.sso_frontend_base,
+        # ثبت رسمی سامانه در پرتال ورود یکپارچه — مطابق فرم «افزودن / ویرایش سامانه»
+        "app": {
+            "key": s.sso_app_key,
+            "name": s.sso_app_name_fa,
+            "description": s.sso_app_description,
+            "icon": s.sso_app_icon,
+            "order": s.sso_app_order,
+            "client_id": s.sso_client_id,
+        },
+        "message": ("ورود یکگانه فعال است؛ این سامانه در پرتال با نام "
+                    f"«{s.sso_app_name_fa}» و آدرس ورود {s.sso_frontend_base}/ ثبت شده است."
+                    if enabled else
                     "SSO تنظیم نشده؛ در پرتال مرکزی SSO برای این سامانه Client ID/Secret ثبت و "
                     "متغیرهای S360_SSO_CLIENT_ID و S360_SSO_CLIENT_SECRET را تنظیم کنید."),
     }

@@ -75,17 +75,20 @@ def build_authorize_url(discovery: dict, client_id: str, redirect_uri: str,
 
 def exchange_code(discovery: dict, client_id: str, client_secret: str,
                   redirect_uri: str, code: str, verifier: str) -> dict:
-    """تبادل code با token_endpoint (client_secret_post)."""
+    """تبادل code با token_endpoint (client_secret_post)؛ اگر Secret ثبت نشده
+    باشد کلید ارسال نمی‌شود — کلاینت عمومی فقط-PKCE (v3.14.0)."""
     token_ep = discovery["token_endpoint"]
+    data = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": redirect_uri,
+        "client_id": client_id,
+        "code_verifier": verifier,
+    }
+    if client_secret:
+        data["client_secret"] = client_secret
     with httpx.Client(timeout=12.0) as client:
-        resp = client.post(token_ep, data={
-            "grant_type": "authorization_code",
-            "code": code,
-            "redirect_uri": redirect_uri,
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "code_verifier": verifier,
-        })
+        resp = client.post(token_ep, data=data)
         if resp.status_code != 200:
             raise RuntimeError(f"SSO token endpoint پاسخ {resp.status_code} داد")
         return resp.json()

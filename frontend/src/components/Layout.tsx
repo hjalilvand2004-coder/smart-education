@@ -438,7 +438,7 @@ export default function Layout() {
             <Icon name="logout" />
             خروج
           </button>
-          <div className="sidebar-version">🌌 نسخه ۳.۱۳.۰ — درس‌های واقعی طرح‌های درس مصوب + ویجت بدون تداخل ✨</div>
+          <div className="sidebar-version">🌌 نسخه ۳.۱۴.۰ — ورود یکگانه تحصیل‌یار۳۶۰ + آدرس رسمی ۱۹۲.۱۶۸.۱۰۰.۴:۸۰۹۳ ✨</div>
         </div>
       </aside>
 
